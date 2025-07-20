@@ -1,11 +1,11 @@
 {
-  "name": "moontv",
+  "name": "mooncaketv",
   "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "pnpm gen:runtime && pnpm gen:manifest && next dev -H 0.0.0.0",
-    "build": "pnpm gen:runtime && pnpm gen:manifest && next build",
+    "dev": "npm run gen:runtime && npm run gen:manifest && next dev -H 0.0.0.0",
+    "build": "npm run gen:runtime && npm run gen:manifest && next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint src --fix && pnpm format",
@@ -19,7 +19,7 @@
     "gen:manifest": "node scripts/generate-manifest.js",
     "postbuild": "echo 'Build completed - sitemap generation disabled'",
     "prepare": "husky install",
-    "pages:build": "pnpm gen:runtime && pnpm gen:manifest && next build && npx @cloudflare/next-on-pages --experimental-minify"
+    "pages:build": "npm run gen:runtime && npm run gen:manifest && next build && npx @cloudflare/next-on-pages --experimental-minify"
   },
   "dependencies": {
     "@cloudflare/next-on-pages": "^1.13.12",
@@ -60,7 +60,7 @@
     "@testing-library/react": "^15.0.7",
     "@types/node": "24.0.3",
     "@types/react": "^18.3.18",
-    "@types/react-dom": "^19.1.6",
+    "@types/react-dom": "^18.2.0",
     "@types/testing-library__jest-dom": "^5.14.9",
     "@typescript-eslint/eslint-plugin": "^5.62.0",
     "@typescript-eslint/parser": "^5.62.0",
@@ -74,7 +74,7 @@
     "lint-staged": "^12.5.0",
     "next-router-mock": "^0.9.0",
     "postcss": "^8.5.1",
-    "prettier": "^2.8.8",
+    "prettier": "^3.0.0",
     "prettier-plugin-tailwindcss": "^0.6.14",
     "tailwindcss": "^4.1.11",
     "typescript": "^4.9.5"
@@ -87,6 +87,5 @@
     "**/*.{json,css,scss,md,webmanifest}": [
       "prettier -w"
     ]
-  },
-  "packageManager": "pnpm@10.12.4+sha512.5ea8b0deed94ed68691c9bad4c955492705c5eeb8a87ef86bc62c74a26b037b08ff9570f108b2e4dbd1dd1a9186fea925e527f141c648e85af45631074680184"
+  }
 }
