@@ -1,4 +1,4 @@
-.PHONY:
+.PHONY: tea
 
 tea:
-  git push tea main
+	git push tea main
