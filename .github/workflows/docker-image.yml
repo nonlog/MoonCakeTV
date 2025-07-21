@@ -24,6 +24,7 @@ permissions:
 
 jobs:
   build:
+    if: false
     strategy:
       matrix:
         include:
