@@ -29,13 +29,13 @@
 - 🚀 **极简部署**：一条 Docker 命令即可将完整服务跑起来，或免费部署到 Vercel 和 Cloudflare。
 - 👿 **智能去广告**：自动跳过视频中的切片广告（实验性）
 
-## 界面截图
-
-<img src="public/screenshot.png" alt="项目截图" style="max-width:600px">
-
 ## 社区
 
 - Telegram: https://t.me/mooncaketv
+
+## 界面截图
+
+<img src="public/screenshot.png" alt="项目截图" style="max-width:600px">
 
 ## 🗺 目录
 
