@@ -1,5 +1,7 @@
 import { AdminConfig } from './admin.types';
 
+import { SearchFilters, SearchResult } from '@/types/search';
+
 // 播放记录数据结构
 export interface PlayRecord {
   title: string;
@@ -32,7 +34,7 @@ export interface IStorage {
   setPlayRecord(
     userName: string,
     key: string,
-    record: PlayRecord
+    record: PlayRecord,
   ): Promise<void>;
   getAllPlayRecords(userName: string): Promise<{ [key: string]: PlayRecord }>;
   deletePlayRecord(userName: string, key: string): Promise<void>;
@@ -66,21 +68,6 @@ export interface IStorage {
   setAdminConfig(config: AdminConfig): Promise<void>;
 }
 
-// 搜索结果数据结构
-export interface SearchResult {
-  id: string;
-  title: string;
-  poster: string;
-  episodes: string[];
-  source: string;
-  source_name: string;
-  class?: string;
-  year: string;
-  desc?: string;
-  type_name?: string;
-  douban_id?: number;
-}
-
 // 豆瓣数据结构
 export interface DoubanItem {
   id: string;
@@ -94,4 +81,24 @@ export interface DoubanResult {
   code: number;
   message: string;
   list: DoubanItem[];
+}
+
+export interface MovieFilters extends Omit<SearchFilters, 'category'> {
+  duration?: { min?: number; max?: number }; // in minutes
+  director?: string;
+  actor?: string;
+}
+
+export interface TVFilters extends Omit<SearchFilters, 'category'> {
+  seasons?: number;
+  episodes?: { min?: number; max?: number };
+  status?: 'ongoing' | 'completed' | 'upcoming';
+}
+
+export interface CategorySearchParams {
+  category: string;
+  page?: number;
+  limit?: number;
+  sortBy?: 'latest' | 'popular' | 'rating' | 'year';
+  filters?: Partial<SearchFilters>;
 }

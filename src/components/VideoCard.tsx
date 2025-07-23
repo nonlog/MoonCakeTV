@@ -13,10 +13,11 @@ import {
   saveFavorite,
   subscribeToDataUpdates,
 } from '@/lib/db.client';
-import { SearchResult } from '@/lib/types';
 import { processImageUrl } from '@/lib/utils';
 
 import { ImagePlaceholder } from '@/components/ImagePlaceholder';
+
+import { SearchResult } from '@/types/search';
 
 interface VideoCardProps {
   id?: string;
@@ -74,7 +75,7 @@ export default function VideoCard({
     });
 
     const getMostFrequent = <T extends string | number>(
-      map: Map<T, number>
+      map: Map<T, number>,
     ) => {
       let maxCount = 0;
       let result: T | undefined;
@@ -99,7 +100,7 @@ export default function VideoCard({
   const actualSource = aggregateData?.first.source ?? source;
   const actualId = aggregateData?.first.id ?? id;
   const actualDoubanId = String(
-    aggregateData?.mostFrequentDoubanId ?? douban_id
+    aggregateData?.mostFrequentDoubanId ?? douban_id,
   );
   const actualEpisodes = aggregateData?.mostFrequentEpisodes ?? episodes;
   const actualYear = aggregateData?.first.year ?? year;
@@ -133,7 +134,7 @@ export default function VideoCard({
         // 检查当前项目是否在新的收藏列表中
         const isNowFavorited = !!newFavorites[storageKey];
         setFavorited(isNowFavorited);
-      }
+      },
     );
 
     return unsubscribe;
@@ -175,7 +176,7 @@ export default function VideoCard({
       actualPoster,
       actualEpisodes,
       favorited,
-    ]
+    ],
   );
 
   const handleDeleteRecord = useCallback(
@@ -190,7 +191,7 @@ export default function VideoCard({
         throw new Error('删除播放记录失败');
       }
     },
-    [from, actualSource, actualId, onDelete]
+    [from, actualSource, actualId, onDelete],
   );
 
   const handleClick = useCallback(() => {
@@ -198,17 +199,17 @@ export default function VideoCard({
       router.push(
         `/play?title=${encodeURIComponent(actualTitle.trim())}${
           actualYear ? `&year=${actualYear}` : ''
-        }`
+        }`,
       );
     } else if (actualSource && actualId) {
       router.push(
         `/play?source=${actualSource}&id=${actualId}&title=${encodeURIComponent(
-          actualTitle
+          actualTitle,
         )}${actualYear ? `&year=${actualYear}` : ''}${
           isAggregate ? '&prefer=true' : ''
         }${
           actualQuery ? `&stitle=${encodeURIComponent(actualQuery.trim())}` : ''
-        }${actualSearchType ? `&stype=${actualSearchType}` : ''}`
+        }${actualSearchType ? `&stype=${actualSearchType}` : ''}`,
       );
     }
   }, [
