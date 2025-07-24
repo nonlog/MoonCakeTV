@@ -4,13 +4,8 @@ export const dazahui_schema = z.object({
   id: z.number(),
   title: z.string().min(1),
   m3u8_urls: z.record(
-    z
-      .string()
-      .regex(
-        /^(s\d+e\d+|ep\d+)_(720p|1080p|4K|HD|mobile)$/i,
-        'Format: s1e1_1080p or ep1_1080p',
-      ),
-    z.string().regex(/^https?:\/\/.+/, 'Must be a valid URL'),
+    z.string().min(1),
+    z.string().regex(/^https:\/\/[^\s]+$/, 'Must be a valid HTTPS URL'),
   ),
   language: z.string(),
   cover_image: z.string(),
