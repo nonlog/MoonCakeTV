@@ -25,13 +25,6 @@ import PageLayout from '@/components/PageLayout';
 
 import { SearchResult } from '@/types/search';
 
-// 扩展 HTMLVideoElement 类型以支持 hls 属性
-declare global {
-  interface HTMLVideoElement {
-    hls?: any;
-  }
-}
-
 function PlayPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();

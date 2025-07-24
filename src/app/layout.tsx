@@ -35,7 +35,7 @@ export default async function RootLayout({
 }: {
   children: React.ReactNode;
 }) {
-  let siteName = process.env.SITE_NAME || 'MoonCake TV';
+  let siteName = process.env.SITE_NAME || '月饼TV';
   let announcement =
     process.env.ANNOUNCEMENT ||
     '本网站仅提供影视信息搜索服务，所有内容均来自第三方网站。本站不存储任何视频资源，不对任何内容的准确性、合法性、完整性负责。';
@@ -43,6 +43,7 @@ export default async function RootLayout({
   let imageProxy = process.env.NEXT_PUBLIC_IMAGE_PROXY || '';
   if (process.env.NEXT_PUBLIC_STORAGE_TYPE !== 'd1') {
     const config = await getConfig();
+
     siteName = config.SiteConfig.SiteName;
     announcement = config.SiteConfig.Announcement;
     enableRegister = config.UserConfig.AllowRegister;

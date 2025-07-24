@@ -3,7 +3,7 @@ import { LogoutButton } from './LogoutButton';
 import MobileBottomNav from './MobileBottomNav';
 import MobileHeader from './MobileHeader';
 import { SettingsButton } from './SettingsButton';
-import Sidebar from './Sidebar';
+import { Sidebar } from './sidebar';
 import { ThemeToggle } from './ThemeToggle';
 
 interface PageLayoutProps {
