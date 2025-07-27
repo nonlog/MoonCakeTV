@@ -2,6 +2,7 @@ import { z } from 'zod';
 
 export const dazahui_schema = z.object({
   id: z.number(),
+  mc_id: z.string(),
   title: z.string().min(1),
   m3u8_urls: z.record(
     z.string().min(1),
