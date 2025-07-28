@@ -1,9 +1,13 @@
 'use client';
 
-import { Search } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
 import { useState } from 'react';
+import { toast } from 'sonner';
 
+import McSearchBar from '@/components/mc-search/search-bar';
 import PageLayout from '@/components/PageLayout';
+
+import { Dazahui } from '@/schemas/dazahui';
 
 // export default function SearchPage() {
 //   return (
@@ -15,33 +19,55 @@ import PageLayout from '@/components/PageLayout';
 
 export default function SearchPage() {
   const [keyword, setKeyword] = useState('');
+  const [results, setResults] = useState<Dazahui[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
 
-  const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    const res = await fetch(`https://s1.m3u8.io/v1/search?keyword=${keyword}`);
-    const data = await res.json();
-    console.log(data);
+  const handleSearch = async () => {
+    setIsLoading(true);
+    try {
+      const res = await fetch(
+        `https://s1.m3u8.io/v1/search?keyword=${keyword}`,
+      );
+      const json = await res.json();
+      setResults(json.data.items);
+    } catch (error) {
+      console.error(error);
+      toast.error('搜索失败');
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  if (isLoading) {
+    return (
+      <PageLayout activePath='/search'>
+        <div className='px-4 sm:px-10 py-4 sm:py-8 overflow-visible w-full min-h-full flex flex-col gap-4'>
+          <McSearchBar
+            handleSearch={handleSearch}
+            keyword={keyword}
+            setKeyword={setKeyword}
+          />
+          <div className='grow flex items-center justify-center w-full h-full'>
+            <Loader2 className='w-10 h-10 animate-spin' />
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
+
   return (
     <PageLayout activePath='/search'>
       <div className='px-4 sm:px-10 py-4 sm:py-8 overflow-visible w-full min-h-full flex flex-col gap-4'>
-        <form
-          onSubmit={handleSearch}
-          className='w-4xl mx-auto min-w-0 shrink-1 flex items-center'
-        >
-          <span className='flex items-center justify-center h-12 w-12 bg-transparent mr-[-50px] z-10'>
-            <Search className='h-5 w-5 text-gray-400 dark:text-gray-500' />
-          </span>
-          <input
-            id='searchInput'
-            type='text'
-            value={keyword}
-            autoFocus
-            onChange={(e) => setKeyword(e.target.value)}
-            placeholder='搜索电影、电视剧...'
-            className='rounded-lg bg-gray-50/80 w-full h-12 pl-12 pr-6 py-2 text-sm text-gray-700 placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-green-400 focus:bg-white border border-gray-200/50 shadow-xs dark:bg-gray-800 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:bg-gray-700 dark:border-gray-700'
-          />
-        </form>
+        <McSearchBar
+          handleSearch={handleSearch}
+          keyword={keyword}
+          setKeyword={setKeyword}
+        />
+        <div>
+          {results.map((result) => (
+            <div key={result.id}>{result.title}</div>
+          ))}
+        </div>
       </div>
     </PageLayout>
   );
