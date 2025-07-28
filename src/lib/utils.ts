@@ -1,6 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any,no-console */
 
+import { type ClassValue, clsx } from 'clsx';
 import Hls from 'hls.js';
+import { twMerge } from 'tailwind-merge';
+
+export function cn(...inputs: ClassValue[]) {
+  return twMerge(clsx(inputs));
+}
 
 /**
  * 获取图片代理 URL 设置
@@ -121,14 +127,14 @@ export async function getVideoResolutionFromM3u8(m3u8Url: string): Promise<{
               width >= 3840
                 ? '4K' // 4K: 3840x2160
                 : width >= 2560
-                ? '2K' // 2K: 2560x1440
-                : width >= 1920
-                ? '1080p' // 1080p: 1920x1080
-                : width >= 1280
-                ? '720p' // 720p: 1280x720
-                : width >= 854
-                ? '480p'
-                : 'SD'; // 480p: 854x480
+                  ? '2K' // 2K: 2560x1440
+                  : width >= 1920
+                    ? '1080p' // 1080p: 1920x1080
+                    : width >= 1280
+                      ? '720p' // 720p: 1280x720
+                      : width >= 854
+                        ? '480p'
+                        : 'SD'; // 480p: 854x480
 
             resolve({
               quality,
@@ -203,7 +209,7 @@ export async function getVideoResolutionFromM3u8(m3u8Url: string): Promise<{
     throw new Error(
       `Error getting video resolution: ${
         error instanceof Error ? error.message : String(error)
-      }`
+      }`,
     );
   }
 }

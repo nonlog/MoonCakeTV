@@ -21,7 +21,7 @@ const PageLayout = ({ children, activePath = '/' }: PageLayoutProps) => {
       <div className='flex md:grid md:grid-cols-[auto_1fr] w-full min-h-screen md:min-h-auto'>
         {/* 侧边栏 - 桌面端显示，移动端隐藏 */}
         <div className='hidden md:block'>
-          <Sidebar activePath={activePath} />
+          <Sidebar />
         </div>
 
         {/* 主内容区域 */}
@@ -41,14 +41,7 @@ const PageLayout = ({ children, activePath = '/' }: PageLayoutProps) => {
           </div>
 
           {/* 主内容 */}
-          <main
-            className='flex-1 md:min-h-0 mb-14 md:mb-0'
-            style={{
-              paddingBottom: 'calc(3.5rem + env(safe-area-inset-bottom))',
-            }}
-          >
-            {children}
-          </main>
+          <main className='flex-1 md:min-h-0 h-screen'>{children}</main>
         </div>
       </div>
 
