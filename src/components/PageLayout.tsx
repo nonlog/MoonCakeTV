@@ -7,7 +7,7 @@ interface PageLayoutProps {
   activePath?: string;
 }
 
-const PageLayout = ({ children, activePath = '/' }: PageLayoutProps) => {
+export const PageLayout = ({ children, activePath = '/' }: PageLayoutProps) => {
   return (
     <div className='w-full min-h-screen'>
       {/* 移动端头部 */}
