@@ -10,7 +10,7 @@ export const dazahui_schema = z.object({
   year: z.number().nullable().optional(),
   region: z.string().nullable().optional(),
   summary: z.string().nullable().optional(),
-  casting: z.array(z.string()).optional(),
+  casting: z.string().optional(),
   category: z.string().nullable().optional(),
   source_vod_id: z.string(),
   source: z.string(),
