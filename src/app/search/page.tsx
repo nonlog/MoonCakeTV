@@ -119,16 +119,8 @@ export default function SearchPage() {
             {results.map((result) => (
               <MediaCard
                 key={result.id}
-                id={result.id}
-                mc_id={result.mc_id}
-                cover_image={result.cover_image}
-                title={result.title}
-                summary={result.summary}
-                category={result.category}
-                language={result.language}
-                year={result.year}
-                region={result.region}
-                casting={result.casting}
+                dazahui={result}
+                showSpeedTest={true}
                 onClick={() => {
                   // Handle click - navigate to play page or show details
                   router.push(`/play?mc_id=${result.mc_id}`);
