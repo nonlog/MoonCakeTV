@@ -2,34 +2,28 @@
 
 'use client';
 
-import { Settings, X } from 'lucide-react';
+import { Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
-import { createPortal } from 'react-dom';
+
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 
 export const SettingsButton: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [defaultAggregateSearch, setDefaultAggregateSearch] = useState(true);
+
   const [doubanProxyUrl, setDoubanProxyUrl] = useState('');
   const [imageProxyUrl, setImageProxyUrl] = useState('');
   const [enableOptimization, setEnableOptimization] = useState(true);
   const [enableImageProxy, setEnableImageProxy] = useState(false);
-  const [mounted, setMounted] = useState(false);
-
-  // 确保组件已挂载
-  useEffect(() => {
-    setMounted(true);
-  }, []);
 
   // 从 localStorage 读取设置
   useEffect(() => {
     if (typeof window !== 'undefined') {
-      const savedAggregateSearch = localStorage.getItem(
-        'defaultAggregateSearch'
-      );
-      if (savedAggregateSearch !== null) {
-        setDefaultAggregateSearch(JSON.parse(savedAggregateSearch));
-      }
-
       const savedDoubanProxyUrl = localStorage.getItem('doubanProxyUrl');
       if (savedDoubanProxyUrl !== null) {
         setDoubanProxyUrl(savedDoubanProxyUrl);
@@ -60,14 +54,6 @@ export const SettingsButton: React.FC = () => {
     }
   }, []);
 
-  // 保存设置到 localStorage
-  const handleAggregateToggle = (value: boolean) => {
-    setDefaultAggregateSearch(value);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('defaultAggregateSearch', JSON.stringify(value));
-    }
-  };
-
   const handleDoubanProxyUrlChange = (value: string) => {
     setDoubanProxyUrl(value);
     if (typeof window !== 'undefined') {
@@ -96,20 +82,12 @@ export const SettingsButton: React.FC = () => {
     }
   };
 
-  const handleSettingsClick = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleClosePanel = () => {
-    setIsOpen(false);
-  };
-
   // 重置所有设置为默认值
   const handleResetSettings = () => {
     const defaultImageProxy = (window as any).RUNTIME_CONFIG?.IMAGE_PROXY || '';
 
     // 重置所有状态
-    setDefaultAggregateSearch(true);
+
     setEnableOptimization(true);
     setDoubanProxyUrl('');
     setEnableImageProxy(!!defaultImageProxy);
@@ -122,29 +100,29 @@ export const SettingsButton: React.FC = () => {
       localStorage.setItem('doubanProxyUrl', '');
       localStorage.setItem(
         'enableImageProxy',
-        JSON.stringify(!!defaultImageProxy)
+        JSON.stringify(!!defaultImageProxy),
       );
       localStorage.setItem('imageProxyUrl', defaultImageProxy);
     }
   };
 
-  // 设置面板内容
-  const settingsPanel = (
-    <>
-      {/* 背景遮罩 */}
-      <div
-        className='fixed inset-0 bg-black/50 backdrop-blur-xs z-1000'
-        onClick={handleClosePanel}
-      />
+  return (
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
+      <DialogTrigger asChild>
+        <button
+          className='w-10 h-10 p-2 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200/50 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors'
+          aria-label='Settings'
+        >
+          <Settings className='w-full h-full' />
+        </button>
+      </DialogTrigger>
 
-      {/* 设置面板 */}
-      <div className='fixed top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-full max-w-md bg-white dark:bg-gray-900 rounded-xl shadow-xl z-1001 p-6'>
-        {/* 标题栏 */}
-        <div className='flex items-center justify-between mb-6'>
-          <div className='flex items-center gap-3'>
-            <h3 className='text-xl font-bold text-gray-800 dark:text-gray-200'>
+      <DialogContent className='w-full max-w-md'>
+        <DialogHeader>
+          <div className='flex items-center gap-2'>
+            <DialogTitle className='text-xl font-bold text-gray-800 dark:text-gray-200'>
               本地设置
-            </h3>
+            </DialogTitle>
             <button
               onClick={handleResetSettings}
               className='px-2 py-1 text-xs text-red-500 hover:text-red-700 dark:text-red-400 dark:hover:text-red-300 border border-red-200 hover:border-red-300 dark:border-red-800 dark:hover:border-red-700 hover:bg-red-50 dark:hover:bg-red-900/20 rounded-sm transition-colors'
@@ -153,41 +131,10 @@ export const SettingsButton: React.FC = () => {
               重置
             </button>
           </div>
-          <button
-            onClick={handleClosePanel}
-            className='w-8 h-8 p-1 rounded-full flex items-center justify-center text-gray-500 hover:bg-gray-100 dark:hover:bg-gray-800 transition-colors'
-            aria-label='Close'
-          >
-            <X className='w-full h-full' />
-          </button>
-        </div>
+        </DialogHeader>
 
         {/* 设置项 */}
         <div className='space-y-6'>
-          {/* 默认聚合搜索结果 */}
-          <div className='flex items-center justify-between'>
-            <div>
-              <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                默认聚合搜索结果
-              </h4>
-              <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                搜索时默认按标题和年份聚合显示结果
-              </p>
-            </div>
-            <label className='flex items-center cursor-pointer'>
-              <div className='relative'>
-                <input
-                  type='checkbox'
-                  className='sr-only peer'
-                  checked={defaultAggregateSearch}
-                  onChange={(e) => handleAggregateToggle(e.target.checked)}
-                />
-                <div className='w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors dark:bg-gray-600'></div>
-                <div className='absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5'></div>
-              </div>
-            </label>
-          </div>
-
           {/* 优选和测速 */}
           <div className='flex items-center justify-between'>
             <div>
@@ -286,22 +233,7 @@ export const SettingsButton: React.FC = () => {
             这些设置保存在本地浏览器中
           </p>
         </div>
-      </div>
-    </>
-  );
-
-  return (
-    <>
-      <button
-        onClick={handleSettingsClick}
-        className='w-10 h-10 p-2 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200/50 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors'
-        aria-label='Settings'
-      >
-        <Settings className='w-full h-full' />
-      </button>
-
-      {/* 使用 Portal 将设置面板渲染到 document.body */}
-      {isOpen && mounted && createPortal(settingsPanel, document.body)}
-    </>
+      </DialogContent>
+    </Dialog>
   );
 };

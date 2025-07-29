@@ -4,8 +4,14 @@ import { useRouter } from 'next/navigation';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
 
+import { cn } from '@/lib/utils';
+
 import { Logo } from '@/components/logo';
-import { useSidebarContext } from '@/components/sidebar/sidebar-context';
+
+import { LogoutButton } from './logout-button';
+import { SettingsButton } from './settings-button';
+import { useSidebarContext } from './sidebar-context';
+import { ThemeToggle } from './theme-toggle';
 
 interface SidebarProps {
   onToggle?: (collapsed: boolean) => void;
@@ -67,7 +73,7 @@ export const SidebarContent = ({
       window.__sidebarCollapsed = newState;
     }
     onToggle?.(newState);
-  }, [isCollapsed, onToggle]);
+  }, [isCollapsed, onToggle, setIsCollapsed]);
 
   const handleSearchClick = useCallback(() => {
     router.push('/search');
@@ -207,6 +213,20 @@ export const SidebarContent = ({
                   </Link>
                 );
               })}
+            </div>
+          </div>
+
+          {/* 底部按钮区域 */}
+          <div className='px-2 pb-4 pt-4 border-t border-gray-200/50 dark:border-gray-700/50'>
+            <div
+              className={cn(
+                'flex items-center justify-center',
+                isCollapsed ? 'flex-col gap-2' : 'gap-2',
+              )}
+            >
+              <SettingsButton />
+              <LogoutButton />
+              <ThemeToggle />
             </div>
           </div>
         </div>

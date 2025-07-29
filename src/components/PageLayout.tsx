@@ -1,10 +1,7 @@
 import { BackButton } from './BackButton';
-import { LogoutButton } from './LogoutButton';
 import MobileBottomNav from './MobileBottomNav';
 import MobileHeader from './MobileHeader';
-import { SettingsButton } from './SettingsButton';
 import { Sidebar } from './sidebar';
-import { ThemeToggle } from './ThemeToggle';
 
 interface PageLayoutProps {
   children: React.ReactNode;
@@ -32,13 +29,6 @@ const PageLayout = ({ children, activePath = '/' }: PageLayoutProps) => {
               <BackButton />
             </div>
           )}
-
-          {/* 桌面端顶部按钮 */}
-          <div className='absolute top-2 right-4 z-20 hidden md:flex items-center gap-2'>
-            <SettingsButton />
-            <LogoutButton />
-            <ThemeToggle />
-          </div>
 
           {/* 主内容 */}
           <main className='flex-1 md:min-h-0 h-screen'>{children}</main>
