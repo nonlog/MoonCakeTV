@@ -5,8 +5,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
-import McSearchBar from '@/components/mc-search/search-bar';
 import { MediaCard } from '@/components/common/media-card';
+import McSearchBar from '@/components/mc-search/search-bar';
 import PageLayout from '@/components/PageLayout';
 
 import { Dazahui } from '@/schemas/dazahui';
