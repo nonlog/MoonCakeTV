@@ -6,7 +6,7 @@ import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import McSearchBar from '@/components/mc-search/search-bar';
-import { MediaCard } from '@/components/MediaCard';
+import { MediaCard } from '@/components/common/media-card';
 import PageLayout from '@/components/PageLayout';
 
 import { Dazahui } from '@/schemas/dazahui';
