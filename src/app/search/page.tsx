@@ -1,7 +1,8 @@
 'use client';
 
 import { Calendar, Globe, Loader2, Play } from 'lucide-react';
-import { useState } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
+import { useEffect, useState } from 'react';
 import { toast } from 'sonner';
 
 import McSearchBar from '@/components/mc-search/search-bar';
@@ -18,15 +19,20 @@ import {
 import { Dazahui } from '@/schemas/dazahui';
 
 export default function SearchPage() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [keyword, setKeyword] = useState('');
   const [results, setResults] = useState<Dazahui[]>([]);
   const [isLoading, setIsLoading] = useState(false);
 
-  const handleSearch = async () => {
+  const handleSearch = async (searchKeyword?: string) => {
+    const searchTerm = searchKeyword || keyword;
+    if (!searchTerm.trim()) return;
+
     setIsLoading(true);
     try {
       const res = await fetch(
-        `https://s1.m3u8.io/v1/search?keyword=${keyword}`,
+        `https://s1.m3u8.io/v1/search?keyword=${encodeURIComponent(searchTerm)}`,
       );
       const json = await res.json();
       setResults(json.data.items);
@@ -39,6 +45,31 @@ export default function SearchPage() {
     }
   };
 
+  // Initialize keyword from URL params and trigger search if present
+  useEffect(() => {
+    const urlKeyword = searchParams.get('keyword') || '';
+    if (urlKeyword) {
+      setKeyword(urlKeyword);
+      handleSearch(urlKeyword);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [searchParams]);
+
+  const updateUrlParams = (newKeyword: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (newKeyword.trim()) {
+      params.set('keyword', newKeyword.trim());
+    } else {
+      params.delete('keyword');
+    }
+    router.replace(`/search?${params.toString()}`, { scroll: false });
+  };
+
+  const handleKeywordChange = (v: string) => {
+    setKeyword(v);
+    updateUrlParams(v);
+  };
+
   if (isLoading) {
     return (
       <PageLayout activePath='/search'>
@@ -46,7 +77,7 @@ export default function SearchPage() {
           <McSearchBar
             handleSearch={handleSearch}
             keyword={keyword}
-            setKeyword={setKeyword}
+            handleKeywordChange={handleKeywordChange}
           />
           <div className='grow flex items-center justify-center w-full h-full'>
             <Loader2 className='w-10 h-10 animate-spin' />
@@ -62,7 +93,7 @@ export default function SearchPage() {
         <McSearchBar
           handleSearch={handleSearch}
           keyword={keyword}
-          setKeyword={setKeyword}
+          handleKeywordChange={handleKeywordChange}
         />
         {results.length === 0 ? (
           <div className='flex flex-col items-center justify-center py-12 text-center'>
@@ -99,7 +130,7 @@ export default function SearchPage() {
                           );
                         }}
                       />
-                      <div className='hidden aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center'>
+                      <div className='hidden aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200 justify-center items-center'>
                         <Play className='w-12 h-12 text-slate-400' />
                       </div>
                     </div>

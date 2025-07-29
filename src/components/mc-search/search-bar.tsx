@@ -3,11 +3,11 @@ import { Search } from 'lucide-react';
 export default function McSearchBar({
   handleSearch,
   keyword,
-  setKeyword,
+  handleKeywordChange,
 }: {
   handleSearch: () => void;
   keyword: string;
-  setKeyword: (value: string) => void;
+  handleKeywordChange: (value: string) => void;
 }) {
   return (
     <form
@@ -33,7 +33,11 @@ export default function McSearchBar({
             handleSearch();
           }
         }}
-        onChange={(e) => setKeyword(e.target.value)}
+        onChange={(e) => {
+          e.stopPropagation();
+          e.preventDefault();
+          handleKeywordChange(e.target.value.trim());
+        }}
         placeholder='搜索电影、电视剧...'
         className='rounded-lg bg-gray-50/80 w-full h-12 pl-12 pr-6 py-2 text-sm text-gray-700 placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-green-400 focus:bg-white border border-gray-200/50 shadow-xs dark:bg-gray-800 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:bg-gray-700 dark:border-gray-700'
       />
