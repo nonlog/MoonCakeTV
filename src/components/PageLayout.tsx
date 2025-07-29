@@ -1,4 +1,3 @@
-import { BackButton } from './BackButton';
 import MobileBottomNav from './MobileBottomNav';
 import MobileHeader from './MobileHeader';
 import { Sidebar } from './sidebar';
@@ -23,13 +22,6 @@ const PageLayout = ({ children, activePath = '/' }: PageLayoutProps) => {
 
         {/* 主内容区域 */}
         <div className='relative min-w-0 flex-1 transition-all duration-300'>
-          {/* 桌面端左上角返回按钮 */}
-          {['/play'].includes(activePath) && (
-            <div className='absolute top-3 left-1 z-20 hidden md:flex'>
-              <BackButton />
-            </div>
-          )}
-
           {/* 主内容 */}
           <main className='flex-1 md:min-h-0 h-screen'>{children}</main>
         </div>
