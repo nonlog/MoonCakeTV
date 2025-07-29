@@ -24,12 +24,14 @@ export default function SearchPage() {
   const [keyword, setKeyword] = useState('');
   const [results, setResults] = useState<Dazahui[]>([]);
   const [isLoading, setIsLoading] = useState(false);
+  const [hasSearched, setHasSearched] = useState(false);
 
   const handleSearch = async (searchKeyword?: string) => {
     const searchTerm = searchKeyword || keyword;
     if (!searchTerm.trim()) return;
 
     setIsLoading(true);
+    setHasSearched(true);
     try {
       const res = await fetch(
         `https://s1.m3u8.io/v1/search?keyword=${encodeURIComponent(searchTerm)}`,
@@ -95,7 +97,19 @@ export default function SearchPage() {
           keyword={keyword}
           handleKeywordChange={handleKeywordChange}
         />
-        {results.length === 0 ? (
+        {!hasSearched ? (
+          <div className='flex flex-col items-center justify-center py-12 text-center'>
+            <div className='w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4'>
+              <Play className='w-8 h-8 text-slate-400' />
+            </div>
+            <h3 className='text-lg font-medium text-slate-900 mb-2'>
+              开始搜索内容
+            </h3>
+            <p className='text-slate-500 max-w-sm'>
+              在上方输入关键词并按回车键开始搜索
+            </p>
+          </div>
+        ) : results.length === 0 ? (
           <div className='flex flex-col items-center justify-center py-12 text-center'>
             <div className='w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4'>
               <Play className='w-8 h-8 text-slate-400' />
