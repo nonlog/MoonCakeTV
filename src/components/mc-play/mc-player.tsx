@@ -108,19 +108,31 @@ export const McPlayer = ({ videoUrl, title, poster }: McPlayerProps) => {
             }
 
             hls.on(Hls.Events.ERROR, function (event: any, data: any) {
-              console.error('HLS Error:', event, data);
+              // Only log in development and for fatal errors
+              if (process.env.NODE_ENV === 'development' && data.fatal) {
+                console.warn('HLS Fatal Error:', data.type, data.details);
+              }
+
               if (data.fatal) {
                 switch (data.type) {
                   case Hls.ErrorTypes.NETWORK_ERROR:
-                    console.log('Network error, trying to recover...');
-                    hls.startLoad();
+                    // Silently attempt recovery for network errors
+                    try {
+                      hls.startLoad();
+                    } catch (e) {
+                      // Recovery failed, but don't spam console
+                    }
                     break;
                   case Hls.ErrorTypes.MEDIA_ERROR:
-                    console.log('Media error, trying to recover...');
-                    hls.recoverMediaError();
+                    // Silently attempt recovery for media errors
+                    try {
+                      hls.recoverMediaError();
+                    } catch (e) {
+                      // Recovery failed, but don't spam console
+                    }
                     break;
                   default:
-                    console.log('Unrecoverable error');
+                    // Only destroy HLS instance, don't log unrecoverable errors
                     hls.destroy();
                     break;
                 }
@@ -139,7 +151,7 @@ export const McPlayer = ({ videoUrl, title, poster }: McPlayerProps) => {
         console.log('Player ready');
       });
 
-      artPlayerRef.current.on('error', (err: any) => {
+      artPlayerRef.current.on('error', (err: unknown) => {
         console.error('Player error:', err);
       });
     } catch (err) {
@@ -156,7 +168,7 @@ export const McPlayer = ({ videoUrl, title, poster }: McPlayerProps) => {
         artPlayerRef.current = null;
       }
     };
-  }, [Artplayer, Hls, videoUrl, title, poster]);
+  }, [videoUrl, title, poster]);
 
   if (!videoUrl) {
     return (

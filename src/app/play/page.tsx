@@ -20,8 +20,6 @@ export default async function McPlayPage({ searchParams }: McPlayPageProps) {
   const res = await fetch(`https://s1.m3u8.io/v1/mc_item/${mc_id}`);
   const json = await res.json();
 
-  console.log(json);
-
   return (
     <Suspense
       fallback={
