@@ -1,9 +1,9 @@
-import React, { Suspense } from 'react';
-import { redirect } from 'next/navigation';
-
-import PageLayout from '@/components/PageLayout';
 import { Loader2 } from 'lucide-react';
+import { redirect } from 'next/navigation';
+import React, { Suspense } from 'react';
+
 import { McPlay } from '@/components/mc-play';
+import PageLayout from '@/components/PageLayout';
 
 interface McPlayPageProps {
   searchParams: Promise<{ mc_id: string | string[] | undefined }>;

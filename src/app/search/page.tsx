@@ -21,7 +21,7 @@ export default function SearchPage() {
 
   const handleSearch = async (searchKeyword?: string) => {
     const searchTerm = searchKeyword || keyword;
-    if (!searchTerm.trim()) return;
+    if (!searchTerm.trim() || searchTerm.trim().length <= 1) return;
 
     setIsLoading(true);
     setHasSearched(true);
@@ -30,7 +30,7 @@ export default function SearchPage() {
         `https://s1.m3u8.io/v1/search?keyword=${encodeURIComponent(searchTerm)}`,
       );
       const json = await res.json();
-      setResults(json.data.items);
+      setResults(json.data?.items || []);
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error);
