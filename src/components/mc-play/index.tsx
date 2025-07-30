@@ -69,7 +69,7 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
         {/* Title and Info */}
         <div className='mb-6 flex flex-col gap-4'>
           <h1 className='text-2xl font-bold text-gray-900 mb-2'>
-            {mc_item.title}
+            {`${mc_item.title} - ${currentEpisode}`}
           </h1>
           <div className='flex flex-wrap gap-4 text-sm text-gray-600'>
             {mc_item.year && <span>{mc_item.year}</span>}
@@ -89,11 +89,7 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
           {/* Video Player - Left Side */}
           <div className='lg:col-span-2'>
-            <McPlayer
-              videoUrl={currentVideoUrl}
-              title={`${mc_item.title}${episodes.length > 1 ? ` - 第${currentEpisode}集` : ''}`}
-              poster={mc_item.cover_image}
-            />
+            <McPlayer videoUrl={currentVideoUrl} poster={mc_item.cover_image} />
 
             {/* Video Info */}
             {mc_item.summary && (

@@ -6,11 +6,10 @@ import { useEffect, useRef } from 'react';
 
 interface McPlayerProps {
   videoUrl: string;
-  title?: string;
   poster?: string | null;
 }
 
-export const McPlayer = ({ videoUrl, title, poster }: McPlayerProps) => {
+export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
   const artPlayerRef = useRef<any>(null);
   const artRef = useRef<HTMLDivElement | null>(null);
 
@@ -168,7 +167,7 @@ export const McPlayer = ({ videoUrl, title, poster }: McPlayerProps) => {
         artPlayerRef.current = null;
       }
     };
-  }, [videoUrl, title, poster]);
+  }, [videoUrl, poster]);
 
   if (!videoUrl) {
     return (
