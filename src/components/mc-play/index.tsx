@@ -132,26 +132,21 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
                 <p className='text-sm text-gray-600'>共 {episodes.length} 集</p>
               </div>
               <div className='max-h-96 overflow-y-auto'>
-                {episodes.map(({ episode, url }) => (
-                  <button
-                    key={episode}
-                    onClick={() => setCurrentEpisode(episode)}
-                    className={`w-full text-left px-4 py-3 border-b border-gray-100 hover:bg-gray-50 transition-colors ${
-                      currentEpisode === episode
-                        ? 'bg-blue-50 border-l-4 border-l-blue-500'
-                        : ''
-                    }`}
-                  >
-                    <div className='flex items-center justify-between'>
-                      <span className='font-medium text-gray-900'>
-                        {episode}
-                      </span>
-                      {currentEpisode === episode && (
-                        <span className='text-blue-500 text-sm'>正在播放</span>
-                      )}
-                    </div>
-                  </button>
-                ))}
+                <div className='grid grid-cols-6 gap-2 p-2'>
+                  {episodes.map(({ episode, url }) => (
+                    <button
+                      key={episode}
+                      onClick={() => setCurrentEpisode(episode)}
+                      className={`aspect-square flex items-center justify-center text-sm font-medium rounded-lg border-2 transition-all hover:scale-105 ${
+                        currentEpisode === episode
+                          ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-md'
+                          : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
+                      }`}
+                    >
+                      {episode}
+                    </button>
+                  ))}
+                </div>
               </div>
             </div>
           </div>

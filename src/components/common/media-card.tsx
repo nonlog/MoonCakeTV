@@ -190,14 +190,6 @@ export function MediaCard({
       hls.attachMedia(video);
 
       hls.on(Hls.Events.ERROR, (_event: any, data: any) => {
-        console.warn('HLS Error Details:', {
-          type: data.type,
-          details: data.details,
-          fatal: data.fatal,
-          url: m3u8Url,
-          reason: data.reason || 'Unknown',
-        });
-
         if (data.fatal) {
           clearTimeout(timeout);
           hls.destroy();
@@ -358,6 +350,45 @@ export function MediaCard({
       variant: 'secondary' as const,
     };
   };
+
+  // Get badge color and style based on ping time
+  const getPingBadgeProps = (pingTime: number) => {
+    if (pingTime <= 0) {
+      return {
+        className: 'text-xs px-2 py-1 bg-gray-500 text-white border-gray-600',
+        variant: 'secondary' as const,
+      };
+    }
+
+    if (pingTime <= 100) {
+      // Green for excellent latency (≤100ms)
+      return {
+        className: 'text-xs px-2 py-1 bg-green-500 text-white border-green-600',
+        variant: 'default' as const,
+      };
+    }
+    if (pingTime <= 200) {
+      // Yellow for good latency (≤200ms)
+      return {
+        className:
+          'text-xs px-2 py-1 bg-yellow-500 text-white border-yellow-600',
+        variant: 'default' as const,
+      };
+    }
+    if (pingTime <= 500) {
+      // Orange for fair latency (≤500ms)
+      return {
+        className:
+          'text-xs px-2 py-1 bg-orange-500 text-white border-orange-600',
+        variant: 'default' as const,
+      };
+    }
+    // Red for poor latency (>500ms)
+    return {
+      className: 'text-xs px-2 py-1 bg-red-500 text-white border-red-600',
+      variant: 'destructive' as const,
+    };
+  };
   return (
     <Card
       key={id}
@@ -388,9 +419,9 @@ export function MediaCard({
           </div>
         )}
 
-        {/* Speed Test Badge - Top Right Corner */}
+        {/* Speed Test Badges - Top Right Corner */}
         {showSpeedTest && (
-          <div className='absolute top-2 right-2 z-10'>
+          <div className='absolute top-2 right-2 z-10 flex flex-col gap-1 items-end'>
             {isTestingSpeed ? (
               <Badge
                 variant='outline'
@@ -400,15 +431,34 @@ export function MediaCard({
                 测速中...
               </Badge>
             ) : speedTestResult ? (
-              <Badge
-                variant={getSpeedBadgeProps(speedTestResult.loadSpeed).variant}
-                className={
-                  getSpeedBadgeProps(speedTestResult.loadSpeed).className
-                }
-              >
-                <Wifi className='w-3 h-3 mr-1' />
-                {speedTestResult.quality} | {speedTestResult.loadSpeed}
-              </Badge>
+              <>
+                {/* Speed and Quality Badge */}
+                <Badge
+                  variant={
+                    getSpeedBadgeProps(speedTestResult.loadSpeed).variant
+                  }
+                  className={
+                    getSpeedBadgeProps(speedTestResult.loadSpeed).className
+                  }
+                >
+                  <Wifi className='w-3 h-3 mr-1' />
+                  {speedTestResult.quality} | {speedTestResult.loadSpeed}
+                </Badge>
+
+                {/* Ping Badge - Only show if ping time is valid */}
+                {speedTestResult.pingTime > 0 && (
+                  <Badge
+                    variant={
+                      getPingBadgeProps(speedTestResult.pingTime).variant
+                    }
+                    className={
+                      getPingBadgeProps(speedTestResult.pingTime).className
+                    }
+                  >
+                    延迟 {speedTestResult.pingTime}ms
+                  </Badge>
+                )}
+              </>
             ) : (
               // Debug badge to show why speed test isn't running
               <Badge
