@@ -258,20 +258,8 @@ export function MediaCard({
 
   // Run speed test when component mounts and showSpeedTest is true
   useEffect(() => {
-    console.log('🚀 MediaCard useEffect triggered:', {
-      showSpeedTest,
-      hasM3u8Urls: !!m3u8_urls,
-      hasSpeedTestResult: !!speedTestResult,
-      isTestingSpeed,
-      title,
-    });
-
     const firstUrl = getFirstM3u8Url();
-    console.log('🔗 First URL extracted:', firstUrl);
-
     if (showSpeedTest && firstUrl && !speedTestResult && !isTestingSpeed) {
-      console.log('✅ Starting speed test for:', title);
-
       // Check if HLS.js is available
       if (!Hls.isSupported()) {
         console.error('❌ HLS.js is not supported in this browser');
@@ -300,13 +288,6 @@ export function MediaCard({
         .finally(() => {
           setIsTestingSpeed(false);
         });
-    } else {
-      console.log('⏭️ Skipping speed test:', {
-        showSpeedTest,
-        hasFirstUrl: !!firstUrl,
-        hasSpeedTestResult: !!speedTestResult,
-        isTestingSpeed,
-      });
     }
   }, [showSpeedTest, m3u8_urls, speedTestResult, isTestingSpeed]);
 
