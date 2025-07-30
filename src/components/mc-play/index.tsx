@@ -1,6 +1,10 @@
 'use client';
 
+import DOMPurify from 'dompurify';
 import { useMemo, useState } from 'react';
+import { useEffect } from 'react';
+
+import { McPlayer } from '@/components/mc-play/mc-player';
 
 import { Dazahui } from '@/schemas/dazahui';
 
@@ -8,6 +12,7 @@ import { PageLayout } from '../PageLayout';
 
 export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
   const [currentEpisode, setCurrentEpisode] = useState<string>('');
+  const [sanitizedSummary, setSanitizedSummary] = useState<string>('');
 
   const episodes = useMemo(() => {
     if (!mc_item) {
@@ -38,6 +43,13 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
       setCurrentEpisode(episodes[0].episode);
     }
   }, [episodes, currentEpisode]);
+
+  // Sanitize summary on client side only
+  useEffect(() => {
+    if (mc_item?.summary && typeof window !== 'undefined') {
+      setSanitizedSummary(DOMPurify.sanitize(mc_item.summary));
+    }
+  }, [mc_item?.summary]);
 
   if (!mc_item) {
     return (
@@ -77,32 +89,22 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
           {/* Video Player - Left Side */}
           <div className='lg:col-span-2'>
-            <div className='bg-black rounded-lg overflow-hidden aspect-video'>
-              {currentVideoUrl ? (
-                <video
-                  key={currentVideoUrl}
-                  className='w-full h-full'
-                  controls
-                  autoPlay
-                  src={currentVideoUrl}
-                >
-                  <source src={currentVideoUrl} type='application/x-mpegURL' />
-                  Your browser does not support the video tag.
-                </video>
-              ) : (
-                <div className='flex items-center justify-center h-full text-white'>
-                  <p>No video available</p>
-                </div>
-              )}
-            </div>
+            <McPlayer
+              videoUrl={currentVideoUrl}
+              title={`${mc_item.title}${episodes.length > 1 ? ` - 第${currentEpisode}集` : ''}`}
+              poster={mc_item.cover_image}
+            />
 
             {/* Video Info */}
             {mc_item.summary && (
               <div className='mt-4 bg-white rounded-lg shadow p-4'>
                 <h3 className='text-lg font-semibold mb-2'>剧情简介</h3>
-                <p className='text-gray-700 text-sm leading-relaxed'>
-                  {mc_item.summary}
-                </p>
+                <div
+                  className='text-gray-700 text-sm leading-relaxed'
+                  dangerouslySetInnerHTML={{
+                    __html: sanitizedSummary,
+                  }}
+                />
               </div>
             )}
 
