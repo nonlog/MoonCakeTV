@@ -307,3 +307,24 @@ export const testStreamSpeed = async (
     };
   });
 };
+
+export const getSourceBrand = (source: string) => {
+  const _source = source.toLowerCase();
+
+  if (/dytt/g.test(_source)) {
+    return '电影天堂资源';
+  }
+
+  if (/mtyun/g.test(_source)) {
+    return '茅台资源';
+  }
+
+  switch (_source) {
+    case 'heimuer':
+      return '黑木耳资源';
+    case 'wolong':
+      return '卧龙资源';
+    default:
+      return '未知';
+  }
+};

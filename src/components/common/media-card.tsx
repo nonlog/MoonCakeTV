@@ -3,13 +3,7 @@ import { Calendar, Globe, Play, Wifi } from 'lucide-react';
 import { useEffect, useState } from 'react';
 
 import { Badge } from '@/components/ui/badge';
-import {
-  Card,
-  CardContent,
-  CardDescription,
-  CardHeader,
-  CardTitle,
-} from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 
 import { Dazahui } from '@/schemas/dazahui';
 
@@ -17,6 +11,7 @@ import { SpeedTestResult } from './types';
 import {
   getFirstM3u8Url,
   getPingBadgeProps,
+  getSourceBrand,
   getSpeedBadgeProps,
   testStreamSpeed,
 } from './utils';
@@ -44,6 +39,7 @@ export function MediaCard({
     region,
     casting,
     m3u8_urls,
+    source,
   } = dazahui;
 
   const [speedTestResult, setSpeedTestResult] =
@@ -88,7 +84,7 @@ export function MediaCard({
   return (
     <Card
       key={id}
-      className='group hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden'
+      className='group hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden py-3'
       onClick={onClick}
     >
       <div className='relative'>
@@ -177,18 +173,21 @@ export function MediaCard({
         </div>
       </div>
 
-      <CardHeader className='pb-2'>
-        <CardTitle className='text-sm font-medium line-clamp-2 leading-tight'>
-          {title}
+      <CardHeader className=''>
+        <CardTitle className='text-sm font-medium line-clamp-2 leading-tight flex items-center justify-between'>
+          {title}{' '}
+          {source && (
+            <Badge
+              variant='secondary'
+              className='text-xs px-2 py-1 bg-blue/70 border-green-600 backdrop-blur-sm'
+            >
+              {getSourceBrand(source)}
+            </Badge>
+          )}
         </CardTitle>
-        {summary && (
-          <CardDescription className='text-xs line-clamp-2'>
-            {summary}
-          </CardDescription>
-        )}
       </CardHeader>
 
-      <CardContent className='pt-0 space-y-2'>
+      <CardContent className='space-y-2'>
         <div className='flex flex-wrap gap-1'>
           {category && (
             <Badge variant='secondary' className='text-xs px-2 py-0.5'>

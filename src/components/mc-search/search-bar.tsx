@@ -16,7 +16,7 @@ export default function McSearchBar({
         e.stopPropagation();
         handleSearch();
       }}
-      className='w-4xl mx-auto min-w-0 shrink-1 flex items-center'
+      className='w-full max-w-4xl mx-auto flex items-center'
     >
       <span className='flex items-center justify-center h-12 w-12 bg-transparent mr-[-50px] z-10'>
         <Search className='h-5 w-5 text-gray-400 dark:text-gray-500' />
