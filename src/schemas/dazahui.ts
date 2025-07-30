@@ -5,7 +5,7 @@ export const dazahui_schema = z.object({
   mc_id: z.string(),
   title: z.string().min(1),
   m3u8_urls: z.string().min(1),
-  language: z.string().nullable().optional(),
+  language: z.string(), // Can be empty string
   cover_image: z.string().nullable().optional(),
   year: z.number().nullable().optional(),
   region: z.string().nullable().optional(),
@@ -14,9 +14,9 @@ export const dazahui_schema = z.object({
   category: z.string().nullable().optional(),
   source_vod_id: z.string(),
   source: z.string(),
-  douban_id: z.string().nullable().optional(),
-  imdb_id: z.string().nullable().optional(),
-  tmdb_id: z.string().nullable().optional(),
+  douban_id: z.string(), // Can be empty string
+  imdb_id: z.string(), // Can be empty string
+  tmdb_id: z.string(), // Can be empty string
 });
 
 export type Dazahui = z.infer<typeof dazahui_schema>;

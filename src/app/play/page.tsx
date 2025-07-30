@@ -32,7 +32,7 @@ export default async function McPlayPage({ searchParams }: McPlayPageProps) {
         </PageLayout>
       }
     >
-      <McPlay />
+      <McPlay mc_item={json.data?.mc_item} />
     </Suspense>
   );
 }
