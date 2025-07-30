@@ -4,7 +4,9 @@ import DOMPurify from 'dompurify';
 import { useMemo, useState } from 'react';
 import { useEffect } from 'react';
 
+import { getSourceBrand } from '@/components/common/utils';
 import { McPlayer } from '@/components/mc-play/mc-player';
+import { Badge } from '@/components/ui/badge';
 
 import { Dazahui } from '@/schemas/dazahui';
 
@@ -75,6 +77,14 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
             {mc_item.year && <span>{mc_item.year}</span>}
             {mc_item.region && <span>{mc_item.region}</span>}
             {mc_item.category && <span>{mc_item.category}</span>}
+            {mc_item.source && (
+              <Badge
+                variant='secondary'
+                className='text-xs px-2 py-1 bg-blue/70 border-green-600 backdrop-blur-sm'
+              >
+                {getSourceBrand(mc_item.source)}
+              </Badge>
+            )}
           </div>
 
           {mc_item.casting && (
