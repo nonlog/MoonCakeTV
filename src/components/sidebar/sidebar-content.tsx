@@ -1,13 +1,12 @@
 import { Clover, Film, Home, Menu, Search, Tv } from 'lucide-react';
 import Link from 'next/link';
-import { useRouter } from 'next/navigation';
 import { usePathname, useSearchParams } from 'next/navigation';
-import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
+import { useEffect, useState } from 'react';
 import { FaGear } from 'react-icons/fa6';
 
 import { Logo } from '@/components/logo';
 
-import { useSidebarContext } from './sidebar-context';
+import { useSidebarStore } from '@/stores/sidebar';
 
 interface SidebarProps {
   onToggle?: (collapsed: boolean) => void;
@@ -18,31 +17,9 @@ export const SidebarContent = ({
   onToggle,
   activePath = '/',
 }: SidebarProps) => {
-  const router = useRouter();
   const pathname = usePathname();
   const searchParams = useSearchParams();
-  const { isCollapsed, setIsCollapsed } = useSidebarContext();
-
-  // 首次挂载时读取 localStorage，以便刷新后仍保持上次的折叠状态
-  useLayoutEffect(() => {
-    const saved = localStorage.getItem('sidebarCollapsed');
-    if (saved !== null) {
-      const val = JSON.parse(saved);
-      setIsCollapsed(val);
-      window.__sidebarCollapsed = val;
-    }
-  }, [setIsCollapsed]);
-
-  // 当折叠状态变化时，同步到 <html> data 属性，供首屏 CSS 使用
-  useLayoutEffect(() => {
-    if (typeof document !== 'undefined') {
-      if (isCollapsed) {
-        document.documentElement.dataset.sidebarCollapsed = 'true';
-      } else {
-        delete document.documentElement.dataset.sidebarCollapsed;
-      }
-    }
-  }, [isCollapsed]);
+  const { expanded, toggleSidebar } = useSidebarStore();
 
   const [active, setActive] = useState('/');
 
@@ -55,16 +32,6 @@ export const SidebarContent = ({
     const fullPath = getCurrentFullPath();
     setActive(fullPath);
   }, [pathname, searchParams]);
-
-  const handleToggle = useCallback(() => {
-    const newState = !isCollapsed;
-    setIsCollapsed(newState);
-    localStorage.setItem('sidebarCollapsed', JSON.stringify(newState));
-    if (typeof window !== 'undefined') {
-      window.__sidebarCollapsed = newState;
-    }
-    onToggle?.(newState);
-  }, [isCollapsed, onToggle, setIsCollapsed]);
 
   const menuItems = [
     {
@@ -89,7 +56,7 @@ export const SidebarContent = ({
       <aside
         data-sidebar
         className={`fixed top-0 left-0 h-screen bg-white/40 backdrop-blur-xl transition-all duration-300 border-r border-gray-200/50 z-10 shadow-lg dark:bg-gray-900/70 dark:border-gray-700/50 ${
-          isCollapsed ? 'w-16' : 'w-64'
+          expanded ? 'w-64' : 'w-16'
         }`}
         style={{
           backdropFilter: 'blur(20px)',
@@ -101,17 +68,17 @@ export const SidebarContent = ({
           <div className='relative h-16'>
             <div
               className={`absolute inset-0 flex items-center justify-center transition-opacity duration-200 ${
-                isCollapsed ? 'opacity-0' : 'opacity-100'
+                expanded ? 'opacity-100' : 'opacity-0'
               }`}
             >
               <div className='w-[calc(100%-4rem)] flex justify-center'>
-                {!isCollapsed && <Logo />}
+                {expanded && <Logo />}
               </div>
             </div>
             <button
-              onClick={handleToggle}
+              onClick={toggleSidebar}
               className={`absolute top-1/2 -translate-y-1/2 flex items-center justify-center w-8 h-8 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100/50 transition-colors duration-200 z-10 dark:text-gray-400 dark:hover:text-gray-200 dark:hover:bg-gray-700/50 ${
-                isCollapsed ? 'left-1/2 -translate-x-1/2' : 'right-2'
+                expanded ? 'right-2' : 'left-1/2 -translate-x-1/2'
               }`}
             >
               <Menu className='h-4 w-4' />
@@ -125,13 +92,13 @@ export const SidebarContent = ({
               onClick={() => setActive('/')}
               data-active={active === '/'}
               className={`group flex items-center rounded-lg px-2 py-2 pl-4 text-gray-700 hover:bg-gray-100/30 hover:text-green-600 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-700 font-medium transition-colors duration-200 min-h-[40px] dark:text-gray-300 dark:hover:text-green-400 dark:data-[active=true]:bg-green-500/10 dark:data-[active=true]:text-green-400 ${
-                isCollapsed ? 'w-full max-w-none mx-0' : 'mx-0'
+                expanded ? 'mx-0' : 'w-full max-w-none mx-0'
               } gap-3 justify-start`}
             >
               <div className='w-4 h-4 flex items-center justify-center'>
                 <Home className='h-4 w-4 text-gray-500 group-hover:text-green-600 data-[active=true]:text-green-700 dark:text-gray-400 dark:group-hover:text-green-400 dark:data-[active=true]:text-green-400' />
               </div>
-              {!isCollapsed && (
+              {expanded && (
                 <span className='whitespace-nowrap transition-opacity duration-200 opacity-100'>
                   首页
                 </span>
@@ -142,13 +109,13 @@ export const SidebarContent = ({
               onClick={() => setActive('/search')}
               data-active={active === '/search'}
               className={`group flex items-center rounded-lg px-2 py-2 pl-4 text-gray-700 hover:bg-gray-100/30 hover:text-green-600 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-700 font-medium transition-colors duration-200 min-h-[40px] dark:text-gray-300 dark:hover:text-green-400 dark:data-[active=true]:bg-green-500/10 dark:data-[active=true]:text-green-400 ${
-                isCollapsed ? 'w-full max-w-none mx-0' : 'mx-0'
+                expanded ? 'mx-0' : 'w-full max-w-none mx-0'
               } gap-3 justify-start`}
             >
               <div className='w-4 h-4 flex items-center justify-center'>
                 <Search className='h-4 w-4 text-gray-500 group-hover:text-green-600 data-[active=true]:text-green-700 dark:text-gray-400 dark:group-hover:text-green-400 dark:data-[active=true]:text-green-400' />
               </div>
-              {!isCollapsed && (
+              {expanded && (
                 <span className='whitespace-nowrap transition-opacity duration-200 opacity-100'>
                   搜索
                 </span>
@@ -159,13 +126,13 @@ export const SidebarContent = ({
               onClick={() => setActive('/settings')}
               data-active={active === '/settings'}
               className={`group flex items-center rounded-lg px-2 py-2 pl-4 text-gray-700 hover:bg-gray-100/30 hover:text-green-600 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-700 font-medium transition-colors duration-200 min-h-[40px] dark:text-gray-300 dark:hover:text-green-400 dark:data-[active=true]:bg-green-500/10 dark:data-[active=true]:text-green-400 ${
-                isCollapsed ? 'w-full max-w-none mx-0' : 'mx-0'
+                expanded ? 'mx-0' : 'w-full max-w-none mx-0'
               } gap-3 justify-start`}
             >
               <div className='w-4 h-4 flex items-center justify-center'>
                 <FaGear className='h-4 w-4 text-gray-500 group-hover:text-green-600 data-[active=true]:text-green-700 dark:text-gray-400 dark:group-hover:text-green-400 dark:data-[active=true]:text-green-400' />
               </div>
-              {!isCollapsed && (
+              {expanded && (
                 <span className='whitespace-nowrap transition-opacity duration-200 opacity-100'>
                   设置
                 </span>
@@ -199,13 +166,13 @@ export const SidebarContent = ({
                     onClick={() => setActive(item.href)}
                     data-active={isActive}
                     className={`group flex items-center rounded-lg px-2 py-2 pl-4 text-sm text-gray-700 hover:bg-gray-100/30 hover:text-green-600 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-700 transition-colors duration-200 min-h-[40px] dark:text-gray-300 dark:hover:text-green-400 dark:data-[active=true]:bg-green-500/10 dark:data-[active=true]:text-green-400 ${
-                      isCollapsed ? 'w-full max-w-none mx-0' : 'mx-0'
+                      expanded ? 'mx-0' : 'w-full max-w-none mx-0'
                     } gap-3 justify-start`}
                   >
                     <div className='w-4 h-4 flex items-center justify-center'>
                       <Icon className='h-4 w-4 text-gray-500 group-hover:text-green-600 data-[active=true]:text-green-700 dark:text-gray-400 dark:group-hover:text-green-400 dark:data-[active=true]:text-green-400' />
                     </div>
-                    {!isCollapsed && (
+                    {expanded && (
                       <span className='whitespace-nowrap transition-opacity duration-200 opacity-100'>
                         {item.label}
                       </span>
@@ -219,7 +186,7 @@ export const SidebarContent = ({
       </aside>
       <div
         className={`transition-all duration-300 sidebar-offset ${
-          isCollapsed ? 'w-16' : 'w-64'
+          expanded ? 'w-64' : 'w-16'
         }`}
       ></div>
     </div>
