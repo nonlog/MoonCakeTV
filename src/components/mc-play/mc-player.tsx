@@ -10,7 +10,7 @@ interface McPlayerProps {
 }
 
 export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
-  const artPlayerRef = useRef<any>(null);
+  const artPlayerRef = useRef<Artplayer | null>(null);
   const artRef = useRef<HTMLDivElement | null>(null);
 
   useEffect(() => {
@@ -106,7 +106,7 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
               video.removeAttribute('disableRemotePlayback');
             }
 
-            hls.on(Hls.Events.ERROR, function (event: any, data: any) {
+            hls.on(Hls.Events.ERROR, function (_event: any, data: any) {
               // Only log in development and for fatal errors
               if (process.env.NODE_ENV === 'development' && data.fatal) {
                 console.warn('HLS Fatal Error:', data.type, data.details);
