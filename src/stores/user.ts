@@ -28,7 +28,7 @@ export const useUserStore = create<UserState>()(
             if (!existingDazahui) {
               // Add new item to front
               return {
-                watchHistory: [dazahui, ...state.watchHistory],
+                watchHistory: [dazahui, ...state.watchHistory].slice(0, 20), // 20 items at most
               };
             }
 
