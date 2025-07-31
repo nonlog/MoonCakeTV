@@ -1,10 +1,10 @@
 import Link from 'next/link';
 
-import { useSite } from '@/components/SiteProvider';
+import { useGlobalStore } from '@/stores/global';
 
 // 可替换为你自己的 logo 图片
 export const Logo = () => {
-  const { siteName } = useSite();
+  const { siteName } = useGlobalStore();
 
   return (
     <Link

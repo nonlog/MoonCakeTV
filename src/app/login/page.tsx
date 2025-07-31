@@ -6,7 +6,8 @@ import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 
 import { ThemeToggle } from '@/components/common/theme-toggle';
-import { useSite } from '@/components/SiteProvider';
+
+import { useGlobalStore } from '@/stores/global';
 
 function LoginPageClient() {
   const router = useRouter();
@@ -15,7 +16,7 @@ function LoginPageClient() {
   const [username, setUsername] = useState('');
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
-  const { siteName } = useSite();
+  const { siteName } = useGlobalStore();
 
   // 当 STORAGE_TYPE 不为空且不为 localstorage 时，要求输入用户名
   const shouldAskUsername =

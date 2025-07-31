@@ -2,18 +2,19 @@
 
 import Link from 'next/link';
 
+import { useGlobalStore } from '@/stores/global';
+
 import { BackButton } from './BackButton';
+import { ThemeToggle } from './common/theme-toggle';
 import { LogoutButton } from './sidebar/logout-button';
 import { SettingsButton } from './sidebar/settings-button';
-import { ThemeToggle } from './common/theme-toggle';
-import { useSite } from './SiteProvider';
 
 interface MobileHeaderProps {
   showBackButton?: boolean;
 }
 
 const MobileHeader = ({ showBackButton = false }: MobileHeaderProps) => {
-  const { siteName } = useSite();
+  const { siteName } = useGlobalStore();
   return (
     <header className='md:hidden relative w-full bg-white/70 backdrop-blur-xl border-b border-gray-200/50 shadow-xs dark:bg-gray-900/70 dark:border-gray-700/50'>
       <div className='h-12 flex items-center justify-between px-4'>
