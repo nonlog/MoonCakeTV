@@ -3,15 +3,11 @@ import Link from 'next/link';
 import { useRouter } from 'next/navigation';
 import { usePathname, useSearchParams } from 'next/navigation';
 import { useCallback, useEffect, useLayoutEffect, useState } from 'react';
-
-import { cn } from '@/lib/utils';
+import { FaGear } from 'react-icons/fa6';
 
 import { Logo } from '@/components/logo';
 
-import { LogoutButton } from './logout-button';
-import { SettingsButton } from './settings-button';
 import { useSidebarContext } from './sidebar-context';
-import { ThemeToggle } from './theme-toggle';
 
 interface SidebarProps {
   onToggle?: (collapsed: boolean) => void;
@@ -35,7 +31,7 @@ export const SidebarContent = ({
       setIsCollapsed(val);
       window.__sidebarCollapsed = val;
     }
-  }, []);
+  }, [setIsCollapsed]);
 
   // 当折叠状态变化时，同步到 <html> data 属性，供首屏 CSS 使用
   useLayoutEffect(() => {
@@ -48,22 +44,17 @@ export const SidebarContent = ({
     }
   }, [isCollapsed]);
 
-  const [active, setActive] = useState(activePath);
+  const [active, setActive] = useState('/');
 
   useEffect(() => {
-    // 优先使用传入的 activePath
-    if (activePath) {
-      setActive(activePath);
-    } else {
-      // 否则使用当前路径
-      const getCurrentFullPath = () => {
-        const queryString = searchParams.toString();
-        return queryString ? `${pathname}?${queryString}` : pathname;
-      };
-      const fullPath = getCurrentFullPath();
-      setActive(fullPath);
-    }
-  }, [activePath, pathname, searchParams]);
+    // 使用当前路径来设置活跃状态
+    const getCurrentFullPath = () => {
+      const queryString = searchParams.toString();
+      return queryString ? `${pathname}?${queryString}` : pathname;
+    };
+    const fullPath = getCurrentFullPath();
+    setActive(fullPath);
+  }, [pathname, searchParams]);
 
   const handleToggle = useCallback(() => {
     const newState = !isCollapsed;
@@ -74,10 +65,6 @@ export const SidebarContent = ({
     }
     onToggle?.(newState);
   }, [isCollapsed, onToggle, setIsCollapsed]);
-
-  const handleSearchClick = useCallback(() => {
-    router.push('/search');
-  }, [router]);
 
   const menuItems = [
     {
@@ -152,11 +139,7 @@ export const SidebarContent = ({
             </Link>
             <Link
               href='/search'
-              onClick={(e) => {
-                e.preventDefault();
-                handleSearchClick();
-                setActive('/search');
-              }}
+              onClick={() => setActive('/search')}
               data-active={active === '/search'}
               className={`group flex items-center rounded-lg px-2 py-2 pl-4 text-gray-700 hover:bg-gray-100/30 hover:text-green-600 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-700 font-medium transition-colors duration-200 min-h-[40px] dark:text-gray-300 dark:hover:text-green-400 dark:data-[active=true]:bg-green-500/10 dark:data-[active=true]:text-green-400 ${
                 isCollapsed ? 'w-full max-w-none mx-0' : 'mx-0'
@@ -168,6 +151,23 @@ export const SidebarContent = ({
               {!isCollapsed && (
                 <span className='whitespace-nowrap transition-opacity duration-200 opacity-100'>
                   搜索
+                </span>
+              )}
+            </Link>
+            <Link
+              href='/settings'
+              onClick={() => setActive('/settings')}
+              data-active={active === '/settings'}
+              className={`group flex items-center rounded-lg px-2 py-2 pl-4 text-gray-700 hover:bg-gray-100/30 hover:text-green-600 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-700 font-medium transition-colors duration-200 min-h-[40px] dark:text-gray-300 dark:hover:text-green-400 dark:data-[active=true]:bg-green-500/10 dark:data-[active=true]:text-green-400 ${
+                isCollapsed ? 'w-full max-w-none mx-0' : 'mx-0'
+              } gap-3 justify-start`}
+            >
+              <div className='w-4 h-4 flex items-center justify-center'>
+                <FaGear className='h-4 w-4 text-gray-500 group-hover:text-green-600 data-[active=true]:text-green-700 dark:text-gray-400 dark:group-hover:text-green-400 dark:data-[active=true]:text-green-400' />
+              </div>
+              {!isCollapsed && (
+                <span className='whitespace-nowrap transition-opacity duration-200 opacity-100'>
+                  设置
                 </span>
               )}
             </Link>
@@ -213,20 +213,6 @@ export const SidebarContent = ({
                   </Link>
                 );
               })}
-            </div>
-          </div>
-
-          {/* 底部按钮区域 */}
-          <div className='px-2 pb-4 pt-4 border-t border-gray-200/50 dark:border-gray-700/50'>
-            <div
-              className={cn(
-                'flex items-center justify-center',
-                isCollapsed ? 'flex-col gap-2' : 'gap-2',
-              )}
-            >
-              <SettingsButton />
-              <LogoutButton />
-              <ThemeToggle />
             </div>
           </div>
         </div>
