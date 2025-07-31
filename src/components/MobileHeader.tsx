@@ -5,7 +5,7 @@ import Link from 'next/link';
 import { BackButton } from './BackButton';
 import { LogoutButton } from './sidebar/logout-button';
 import { SettingsButton } from './sidebar/settings-button';
-import { ThemeToggle } from './sidebar/theme-toggle';
+import { ThemeToggle } from './common/theme-toggle';
 import { useSite } from './SiteProvider';
 
 interface MobileHeaderProps {

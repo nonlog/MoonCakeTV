@@ -1,7 +1,7 @@
 import PageLayout from '@/components/PageLayout';
 import { LogoutButton } from '@/components/sidebar/logout-button';
 import { SettingsButton } from '@/components/sidebar/settings-button';
-import { ThemeToggle } from '@/components/sidebar/theme-toggle';
+import { ThemeToggle } from '@/components/common/theme-toggle';
 
 export default function SettingsPage() {
   return (

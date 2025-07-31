@@ -5,8 +5,8 @@
 import { useRouter, useSearchParams } from 'next/navigation';
 import { Suspense, useState } from 'react';
 
+import { ThemeToggle } from '@/components/common/theme-toggle';
 import { useSite } from '@/components/SiteProvider';
-import { ThemeToggle } from '@/components/sidebar/ThemeToggle';
 
 function LoginPageClient() {
   const router = useRouter();
