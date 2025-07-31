@@ -1,9 +1,13 @@
+'use client';
+
+import { useAdultModeToggle } from '@/components/common/adult-mode';
+import { ThemeToggle } from '@/components/common/theme-toggle';
 import PageLayout from '@/components/PageLayout';
 import { LogoutButton } from '@/components/sidebar/logout-button';
 import { SettingsButton } from '@/components/sidebar/settings-button';
-import { ThemeToggle } from '@/components/common/theme-toggle';
 
 export default function SettingsPage() {
+  const { handleAdultModeToggle, AdultModeDialog } = useAdultModeToggle();
   return (
     <PageLayout activePath='/settings'>
       <div className='container mx-auto px-4 py-8'>
@@ -33,6 +37,15 @@ export default function SettingsPage() {
                 <LogoutButton />
                 <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
                   退出登录
+                </span>
+              </div>
+              <div
+                onClick={handleAdultModeToggle}
+                className='flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors'
+              >
+                <AdultModeDialog />
+                <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                  🔞模式
                 </span>
               </div>
             </div>

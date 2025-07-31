@@ -79,7 +79,7 @@ export default async function RootLayout({
           disableTransitionOnChange
         >
           {children}
-          <Toaster />
+          <Toaster richColors position='top-center' />
         </ThemeProvider>
       </body>
     </html>
