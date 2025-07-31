@@ -1,6 +1,6 @@
 import { AdminConfig } from './admin.types';
 
-import { SearchFilters, SearchResult } from '@/types/search';
+import { SearchFilters } from '@/types/search';
 
 // 播放记录数据结构
 export interface PlayRecord {
@@ -15,6 +15,17 @@ export interface PlayRecord {
   save_time: number; // 记录保存时间（时间戳）
   search_title: string; // 搜索时使用的标题
 }
+
+export type FavoriteItem = {
+  id: string;
+  source: string;
+  title: string;
+  poster: string;
+  episodes: number;
+  source_name: string;
+  currentEpisode?: number;
+  search_title?: string;
+};
 
 // 收藏数据结构
 export interface Favorite {

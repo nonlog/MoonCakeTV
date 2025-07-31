@@ -1,13 +1,7 @@
 // Global type declarations for the application
 
 declare global {
-  interface Window {
-    /**
-     * Caches sidebar collapsed state in browser environment
-     * to prevent initial value flicker when component remounts
-     */
-    __sidebarCollapsed?: boolean;
-  }
+  // interface Window {}
 
   interface HTMLVideoElement {
     /**
