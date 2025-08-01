@@ -7,7 +7,6 @@ import { useGlobalStore } from '@/stores/global';
 import { BackButton } from './BackButton';
 import { ThemeToggle } from './common/theme-toggle';
 import { LogoutButton } from './sidebar/logout-button';
-import { SettingsButton } from './sidebar/settings-button';
 
 interface MobileHeaderProps {
   showBackButton?: boolean;
@@ -21,7 +20,6 @@ const MobileHeader = ({ showBackButton = false }: MobileHeaderProps) => {
         {/* 左侧：返回按钮和设置按钮 */}
         <div className='flex items-center gap-2'>
           {showBackButton && <BackButton />}
-          <SettingsButton />
         </div>
 
         {/* 右侧按钮 */}

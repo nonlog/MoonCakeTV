@@ -33,7 +33,15 @@ export default function SettingsPage() {
                 </div>
               </SettingsButton>
 
-              <div className='cursor-pointer flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors'>
+              <div
+                onClick={() => {
+                  const button = document.querySelector(
+                    '#theme-toggle-button',
+                  ) as HTMLButtonElement;
+                  button?.click();
+                }}
+                className='cursor-pointer flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors'
+              >
                 <ThemeToggle />
                 <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
                   主题切换
@@ -51,9 +59,12 @@ export default function SettingsPage() {
                 className='cursor-pointer flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors'
               >
                 <AdultModeDialog />
-                <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                  🔞模式
-                </span>
+                <div className='flex items-center gap-2'>
+                  <span className='text-2xl'>🔞</span>
+                  <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                    18禁模式
+                  </span>
+                </div>
               </div>
             </div>
           </div>
