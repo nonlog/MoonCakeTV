@@ -20,10 +20,9 @@
 
 ## ✨ 功能特性
 
-- 🔍 **多源聚合搜索**：内置数十个免费资源站点，一次搜索立刻返回全源结果。
+- 🔍 **多源聚合搜索**：汇聚数十个免费资源站点，一次搜索立刻返回全源结果。
 - 📄 **丰富详情页**：支持剧集列表、演员、年份、简介等完整信息展示。
 - ▶️ **流畅在线播放**：集成 HLS.js & ArtPlayer。
-- ❤️ **收藏 + 继续观看**：支持 Redis/D1 存储，多端同步进度。
 - 📱 **PWA**：离线缓存、安装到桌面/主屏，移动端原生体验。
 - 🌗 **响应式布局**：桌面侧边栏 + 移动底部导航，自适应各种屏幕尺寸。
 - 🚀 **极简部署**：一条 Docker 命令即可将完整服务跑起来，或免费部署到 Vercel 和 Cloudflare。
@@ -132,7 +131,7 @@ services:
     container_name: mooncaketv
     restart: unless-stopped
     ports:
-      - "3000:3000"
+      - '3000:3000'
     environment:
       - PASSWORD=your_password
     # 如需自定义配置，可挂载文件
@@ -140,80 +139,11 @@ services:
     #   - ./config.json:/app/config.json:ro
 ```
 
-### Redis 版本（推荐，多账户数据隔离，跨设备同步）
-
-```yaml
-services:
-  mooncaketv-core:
-    image: ghcr.io/mooncaketv/mooncaketv:latest
-    container_name: mooncaketv
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      - USERNAME=admin
-      - PASSWORD=admin_password
-      - NEXT_PUBLIC_STORAGE_TYPE=redis
-      - REDIS_URL=redis://mooncaketv-redis:6379
-      - NEXT_PUBLIC_ENABLE_REGISTER=true
-    networks:
-      - mooncaketv-network
-    depends_on:
-      - mooncaketv-redis
-    # 如需自定义配置，可挂载文件
-    # volumes:
-    #   - ./config.json:/app/config.json:ro
-  mooncaketv-redis:
-    image: redis
-    container_name: mooncaketv-redis
-    restart: unless-stopped
-    networks:
-      - mooncaketv-network
-    # 如需持久化
-    # volumes:
-    #   - ./data:/data
-networks:
-  mooncaketv-network:
-    driver: bridge
-```
-
 ## 自动同步最近更改
 
 建议在 fork 的仓库中启用本仓库自带的 GitHub Actions 自动同步功能（见 `.github/workflows/sync.yml`）。
 
 如需手动同步主仓库更新，也可以使用 GitHub 官方的 [Sync fork](https://docs.github.com/cn/github/collaborating-with-issues-and-pull-requests/syncing-a-fork) 功能。
-
-## 环境变量
-
-| 变量                        | 说明                                                        | 可选值                                                  | 默认值                                                                                                                     |
-| --------------------------- | ----------------------------------------------------------- | ------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| USERNAME                    | redis 部署时的管理员账号                                    | 任意字符串                                              | （空）                                                                                                                     |
-| PASSWORD                    | 默认部署时为唯一访问密码，redis 部署时为管理员密码          | 任意字符串                                              | （空）                                                                                                                     |
-| SITE_NAME                   | 站点名称                                                    | 任意字符串                                              | MoonCakeTV                                                                                                                 |
-| ANNOUNCEMENT                | 站点公告                                                    | 任意字符串                                              | 本网站仅提供影视信息搜索服务，所有内容均来自第三方网站。本站不存储任何视频资源，不对任何内容的准确性、合法性、完整性负责。 |
-| NEXT_PUBLIC_STORAGE_TYPE    | 播放记录/收藏的存储方式                                     | localstorage（本地浏览器存储）、redis（仅 docker 支持） | localstorage                                                                                                               |
-| REDIS_URL                   | redis 连接 url，若 NEXT_PUBLIC_STORAGE_TYPE 为 redis 则必填 | 连接 url                                                | 空                                                                                                                         |
-| NEXT_PUBLIC_ENABLE_REGISTER | 是否开放注册，仅在 redis 部署时生效                         | true / false                                            | false                                                                                                                      |
-| NEXT_PUBLIC_SEARCH_MAX_PAGE | 搜索接口可拉取的最大页数                                    | 1-50                                                    | 5                                                                                                                          |
-| NEXT_PUBLIC_IMAGE_PROXY     | 默认的浏览器端图片代理                                      | url prefix                                              | (空)                                                                                                                       |
-
-## 配置说明
-
-所有可自定义项集中在根目录的 `config.json` 中：
-
-```json
-{
-  "cache_time": 7200,
-  "api_site": {
-    "dyttzy": {
-      "api": "http://caiji.dyttzyapi.com/api.php/provide/vod",
-      "name": "电影天堂资源",
-      "detail": "http://caiji.dyttzyapi.com"
-    }
-    // ...更多站点
-  }
-}
-```
 
 - `cache_time`：接口缓存时间（秒）。
 - `api_site`：你可以增删或替换任何资源站，字段说明：
@@ -228,7 +158,7 @@ MoonCakeTV 支持标准的苹果 CMS V10 API 格式。
 
 ## 管理员配置
 
-**该特性目前仅支持通过 Docker+Redis 或 Cloudflare+D1 的部署方式使用**
+**该特性目前仅支持通过 Cloudflare+D1 的部署方式使用**
 
 支持在运行时动态变更服务配置
 
