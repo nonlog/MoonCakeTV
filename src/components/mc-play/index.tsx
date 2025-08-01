@@ -4,6 +4,8 @@ import DOMPurify from 'dompurify';
 import { useMemo, useState } from 'react';
 import { useEffect } from 'react';
 
+import { cn } from '@/lib/utils';
+
 import { getSourceBrand } from '@/components/common/utils';
 import { McPlayer } from '@/components/mc-play/mc-player';
 import { Badge } from '@/components/ui/badge';
@@ -61,7 +63,7 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
     if (mc_item && mc_item.mc_id) {
       setWatchHistory(mc_item);
     }
-  }, [mc_item]);
+  }, [mc_item]); // eslint-disable-line
 
   if (!mc_item) {
     return (
@@ -155,11 +157,13 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
                     <button
                       key={episode}
                       onClick={() => setCurrentEpisode(episode)}
-                      className={`aspect-square flex items-center justify-center text-sm font-medium rounded-lg border-2 transition-all hover:scale-105 ${
+                      className={cn(
+                        'cursor-pointer',
+                        'aspect-square flex items-center justify-center text-sm font-medium rounded-lg border-2 transition-all hover:scale-105',
                         currentEpisode === episode
                           ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-md'
-                          : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300'
-                      }`}
+                          : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300',
+                      )}
                     >
                       {episode}
                     </button>

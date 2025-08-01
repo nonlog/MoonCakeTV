@@ -48,7 +48,7 @@ export default function SearchPage() {
       handleSearch(urlKeyword);
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [searchParams]);
+  }, []);
 
   const updateUrlParams = (newKeyword: string) => {
     const params = new URLSearchParams(searchParams.toString());

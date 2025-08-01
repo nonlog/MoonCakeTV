@@ -23,8 +23,6 @@ export const Sidebar = () => {
   const { expanded, toggleSidebar, activePath, setActivePath } =
     useSidebarStore();
 
-  console.log(activePath);
-
   const menuItems = [
     {
       icon: Film,
