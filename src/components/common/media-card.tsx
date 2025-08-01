@@ -38,7 +38,7 @@ export function MediaCard({
     mc_id,
     cover_image,
     title,
-    summary,
+    // summary,
     category,
     language,
     year,

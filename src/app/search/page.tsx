@@ -40,6 +40,22 @@ export default function SearchPage() {
     }
   };
 
+  const handleRandom = async () => {
+    setIsLoading(true);
+    setHasSearched(true);
+    try {
+      const res = await fetch(`https://s1.m3u8.io/v1/random`);
+      const json = await res.json();
+      setResults(json.data?.items || []);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+      toast.error('搜索失败');
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
   // Initialize keyword from URL params and trigger search if present
   useEffect(() => {
     const urlKeyword = searchParams.get('keyword') || '';
@@ -73,6 +89,7 @@ export default function SearchPage() {
             handleSearch={handleSearch}
             keyword={keyword}
             handleKeywordChange={handleKeywordChange}
+            handleRandom={handleRandom}
           />
           <div className='grow flex items-center justify-center w-full h-full'>
             <Loader2 className='w-10 h-10 animate-spin' />
@@ -89,6 +106,7 @@ export default function SearchPage() {
           handleSearch={handleSearch}
           keyword={keyword}
           handleKeywordChange={handleKeywordChange}
+          handleRandom={handleRandom}
         />
         {!hasSearched ? (
           <div className='flex flex-col items-center justify-center py-12 text-center'>

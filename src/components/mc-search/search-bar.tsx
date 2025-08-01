@@ -6,10 +6,12 @@ export default function McSearchBar({
   handleSearch,
   keyword,
   handleKeywordChange,
+  handleRandom,
 }: {
   handleSearch: () => void;
   keyword: string;
   handleKeywordChange: (value: string) => void;
+  handleRandom: () => void;
 }) {
   return (
     <div className='w-full max-w-4xl mx-auto flex items-center gap-4'>
@@ -46,6 +48,17 @@ export default function McSearchBar({
         className='cursor-pointer bg-purple-900 px-4 py-2 w-20 h-12 text-xl text-white'
       >
         搜索
+      </Button>
+      <Button
+        onClick={(e) => {
+          e.preventDefault();
+          e.stopPropagation();
+          handleRandom();
+        }}
+        size='lg'
+        className='cursor-pointer bg-purple-900 px-4 py-4 w-24 h-12 text-xl text-white'
+      >
+        随便看看
       </Button>
     </div>
   );
