@@ -4,6 +4,7 @@ import { persist } from "zustand/middleware";
 import { Dazahui } from "@/schemas/dazahui";
 
 type UserState = {
+  currentUserId: string;
   watchHistory: Dazahui[];
   setWatchHistory: (dazahui?: Dazahui) => void;
   lastUpdatedAt: string; // iso
@@ -23,6 +24,7 @@ type UserState = {
 export const useUserStore = create<UserState>()(
   persist(
     (set) => ({
+      currentUserId: "me",
       watchHistory: [],
       setWatchHistory: (dazahui?: Dazahui) =>
         set((state) => {

@@ -14,12 +14,9 @@ import { Dazahui } from "@/schemas/dazahui";
 
 export default function BookmarksPage() {
   const router = useRouter();
-  const { bookmarks } = useUserStore();
+  const { bookmarks, currentUserId } = useUserStore();
   const { setActivePath } = useSidebarStore();
   const [allBookmarks, setAllBookmarks] = useState<Dazahui[]>([]);
-
-  // For now, using a default user ID - this should be replaced with actual user authentication
-  const currentUserId = "me";
 
   useEffect(() => {
     // Combine all bookmarks from all users into a single array

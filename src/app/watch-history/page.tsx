@@ -13,11 +13,8 @@ import { Dazahui } from "@/schemas/dazahui";
 
 export default function WatchHistoryPage() {
   const router = useRouter();
-  const { watchHistory, setWatchHistory } = useUserStore();
+  const { watchHistory, setWatchHistory, currentUserId } = useUserStore();
   const { setActivePath } = useSidebarStore();
-
-  // For now, using a default user ID - this should be replaced with actual user authentication
-  const currentUserId = "me";
 
   const handleCardClick = (dazahui: Dazahui) => {
     router.push(`/play?mc_id=${dazahui.mc_id}`);
