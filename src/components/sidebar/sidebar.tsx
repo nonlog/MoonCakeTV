@@ -1,6 +1,6 @@
 'use client';
 
-import { Clover, Film, Home, Menu, Search, Tv } from 'lucide-react';
+import { Bookmark, Clover, Film, Home, Menu, Search, Tv } from 'lucide-react';
 import Link from 'next/link';
 import { FaGear } from 'react-icons/fa6';
 
@@ -13,6 +13,8 @@ import { useSidebarStore } from '@/stores/sidebar';
 export const Sidebar = () => {
   const { expanded, toggleSidebar, activePath, setActivePath } =
     useSidebarStore();
+
+  console.log(activePath);
 
   const menuItems = [
     {
@@ -105,6 +107,24 @@ export const Sidebar = () => {
               {expanded && (
                 <span className='whitespace-nowrap transition-opacity duration-200 opacity-100'>
                   搜索
+                </span>
+              )}
+            </Link>
+            <Link
+              href='/bookmarks'
+              onClick={() => setActivePath('/bookmarks')}
+              data-active={activePath === '/bookmarks'}
+              className={cn(
+                'group flex items-center rounded-lg px-2 py-2 pl-4 text-gray-700 hover:bg-gray-100/30 hover:text-green-600 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-700 font-medium transition-colors duration-200 min-h-[40px] dark:text-gray-300 dark:hover:text-green-400 dark:data-[active=true]:bg-green-500/10 dark:data-[active=true]:text-green-400 gap-3 justify-start',
+                expanded ? 'mx-0' : 'w-full max-w-none mx-0',
+              )}
+            >
+              <div className='w-4 h-4 flex items-center justify-center'>
+                <Bookmark className='h-4 w-4 text-gray-500 group-hover:text-green-600 data-[active=true]:text-green-700 dark:text-gray-400 dark:group-hover:text-green-400 dark:data-[active=true]:text-green-400' />
+              </div>
+              {expanded && (
+                <span className='whitespace-nowrap transition-opacity duration-200 opacity-100'>
+                  收藏夹
                 </span>
               )}
             </Link>

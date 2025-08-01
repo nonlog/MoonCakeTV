@@ -12,6 +12,12 @@ type UserState = {
   setLocalPassword: (p?: string) => void;
   adultMode: string; // iso timestamp string of when adult mode is turned on
   setAdultMode: (ts: string) => void;
+  bookmarks: Record<string, Dazahui[] | null>;
+  updateBookmarks: (
+    user_id: string,
+    item: Dazahui,
+    action: 'add' | 'delete',
+  ) => void;
 };
 
 export const useUserStore = create<UserState>()(
@@ -46,6 +52,42 @@ export const useUserStore = create<UserState>()(
       setLocalPassword: (p?: string) => set({ localPassword: p }),
       adultMode: '',
       setAdultMode: (ts: string) => set({ adultMode: ts }),
+      bookmarks: {},
+      updateBookmarks: (user_id: string, item: Dazahui, action = 'add') => {
+        set((state) => {
+          if (action === 'add') {
+            return {
+              bookmarks:
+                state.bookmarks &&
+                state.bookmarks[user_id] &&
+                Array.isArray(state.bookmarks[user_id])
+                  ? {
+                      ...state.bookmarks,
+                      [user_id]: [item, ...state.bookmarks[user_id]],
+                    }
+                  : {
+                      ...state.bookmarks,
+                      [user_id]: [item],
+                    },
+            };
+          }
+
+          if (action === 'delete') {
+            return {
+              bookmarks: {
+                ...state.bookmarks,
+                [user_id]:
+                  state.bookmarks[user_id]?.filter(
+                    (bookmark) => bookmark.mc_id !== item.mc_id,
+                  ) || null,
+              },
+            };
+          }
+
+          // Fallback to return current state if no action matches
+          return {};
+        });
+      },
     }),
     {
       name: 'mc_user',

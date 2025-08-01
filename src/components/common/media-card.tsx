@@ -1,9 +1,13 @@
 import Hls from 'hls.js';
 import { Calendar, Globe, Play, Wifi } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { FaRegBookmark } from 'react-icons/fa6';
+import { toast } from 'sonner';
 
 import { Badge } from '@/components/ui/badge';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+
+import { useUserStore } from '@/stores/user';
 
 import { Dazahui } from '@/schemas/dazahui';
 
@@ -20,12 +24,14 @@ interface MediaCardProps {
   dazahui: Dazahui;
   onClick?: () => void;
   showSpeedTest?: boolean;
+  userId?: string; // Required for bookmark functionality
 }
 
 export function MediaCard({
   dazahui,
   onClick,
   showSpeedTest = false,
+  userId = 'me',
 }: MediaCardProps) {
   const {
     id,
@@ -45,6 +51,29 @@ export function MediaCard({
   const [speedTestResult, setSpeedTestResult] =
     useState<SpeedTestResult | null>(null);
   const [isTestingSpeed, setIsTestingSpeed] = useState(false);
+
+  // Bookmark functionality
+  const { bookmarks, updateBookmarks } = useUserStore();
+
+  // Check if current item is bookmarked
+  const isBookmarked =
+    userId && bookmarks[userId]
+      ? bookmarks[userId]?.some((bookmark) => bookmark.mc_id === mc_id)
+      : false;
+
+  const handleBookmarkClick = (e: React.MouseEvent) => {
+    e.stopPropagation(); // Prevent card click
+    if (!userId) return;
+
+    const action = isBookmarked ? 'delete' : 'add';
+    updateBookmarks(userId, dazahui, action);
+    if (action === 'add') {
+      toast.success('添加收藏夹成功');
+    }
+    if (action === 'delete') {
+      toast.error('从收藏夹中移除成功');
+    }
+  };
 
   // Run speed test when component mounts and showSpeedTest is true
   useEffect(() => {
@@ -110,6 +139,24 @@ export function MediaCard({
             <Play className='w-12 h-12 text-slate-400' />
           </div>
         )}
+
+        {/* Bookmark Icon - Top Left Corner */}
+
+        <div className='absolute top-2 left-2 z-10'>
+          <button
+            onClick={handleBookmarkClick}
+            className={`cursor-pointer p-1.5 rounded-full backdrop-blur-sm transition-all duration-200 hover:scale-110 ${
+              isBookmarked
+                ? 'bg-red-500/90 text-white shadow-lg'
+                : 'bg-black/50 text-white hover:bg-black/70'
+            }`}
+            title={isBookmarked ? '取消收藏' : '添加收藏'}
+          >
+            <FaRegBookmark
+              className={`w-8 h-8 ${isBookmarked ? 'fill-current' : ''}`}
+            />
+          </button>
+        </div>
 
         {/* Speed Test Badges - Top Right Corner */}
         {showSpeedTest && (
