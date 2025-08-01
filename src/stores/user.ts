@@ -9,7 +9,7 @@ type UserState = {
   lastUpdatedAt: string; // iso
   setLastUpdatedAt: (ts: string) => void;
   localPassword: string;
-  setLocalPassword: (p: string) => void;
+  setLocalPassword: (p?: string) => void;
   adultMode: string; // iso timestamp string of when adult mode is turned on
   setAdultMode: (ts: string) => void;
 };
@@ -43,7 +43,7 @@ export const useUserStore = create<UserState>()(
       lastUpdatedAt: '',
       setLastUpdatedAt: (ts: string) => set({ lastUpdatedAt: ts }),
       localPassword: '',
-      setLocalPassword: (p: string) => set({ localPassword: p }),
+      setLocalPassword: (p?: string) => set({ localPassword: p }),
       adultMode: '',
       setAdultMode: (ts: string) => set({ adultMode: ts }),
     }),

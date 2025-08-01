@@ -2,9 +2,10 @@
 
 'use client';
 
-import { Settings } from 'lucide-react';
 import { useEffect, useState } from 'react';
+import { toast } from 'sonner';
 
+import { Button } from '@/components/ui/button';
 import {
   Dialog,
   DialogContent,
@@ -13,12 +14,15 @@ import {
   DialogTrigger,
 } from '@/components/ui/dialog';
 
-export const SettingsButton: React.FC = () => {
+import { useUserStore } from '@/stores/user';
+
+export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
+  const { localPassword, setLocalPassword } = useUserStore();
 
   const [doubanProxyUrl, setDoubanProxyUrl] = useState('');
   const [imageProxyUrl, setImageProxyUrl] = useState('');
-  const [enableOptimization, setEnableOptimization] = useState(true);
+
   const [enableImageProxy, setEnableImageProxy] = useState(false);
 
   // 从 localStorage 读取设置
@@ -45,12 +49,6 @@ export const SettingsButton: React.FC = () => {
       } else if (defaultImageProxy) {
         setImageProxyUrl(defaultImageProxy);
       }
-
-      const savedEnableOptimization =
-        localStorage.getItem('enableOptimization');
-      if (savedEnableOptimization !== null) {
-        setEnableOptimization(JSON.parse(savedEnableOptimization));
-      }
     }
   }, []);
 
@@ -68,13 +66,6 @@ export const SettingsButton: React.FC = () => {
     }
   };
 
-  const handleOptimizationToggle = (value: boolean) => {
-    setEnableOptimization(value);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('enableOptimization', JSON.stringify(value));
-    }
-  };
-
   const handleImageProxyToggle = (value: boolean) => {
     setEnableImageProxy(value);
     if (typeof window !== 'undefined') {
@@ -88,7 +79,7 @@ export const SettingsButton: React.FC = () => {
 
     // 重置所有状态
 
-    setEnableOptimization(true);
+    setLocalPassword();
     setDoubanProxyUrl('');
     setEnableImageProxy(!!defaultImageProxy);
     setImageProxyUrl(defaultImageProxy);
@@ -108,16 +99,9 @@ export const SettingsButton: React.FC = () => {
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
-      <DialogTrigger asChild>
-        <button
-          className='w-10 h-10 p-2 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200/50 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors'
-          aria-label='Settings'
-        >
-          <Settings className='w-full h-full' />
-        </button>
-      </DialogTrigger>
+      <DialogTrigger asChild>{children}</DialogTrigger>
 
-      <DialogContent className='w-full max-w-md'>
+      <DialogContent className='w-full max-w-xl'>
         <DialogHeader>
           <div className='flex items-center gap-2'>
             <DialogTitle className='text-xl font-bold text-gray-800 dark:text-gray-200'>
@@ -135,28 +119,35 @@ export const SettingsButton: React.FC = () => {
 
         {/* 设置项 */}
         <div className='space-y-6'>
-          {/* 优选和测速 */}
+          {/* 密码 */}
           <div className='flex items-center justify-between'>
             <div>
               <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                启用优选和测速
+                设置密码
               </h4>
               <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                如出现播放器劫持问题可关闭
+                本地保存，没有加密的明文密码
               </p>
             </div>
             <label className='flex items-center cursor-pointer'>
-              <div className='relative'>
-                <input
-                  type='checkbox'
-                  className='sr-only peer'
-                  checked={enableOptimization}
-                  onChange={(e) => handleOptimizationToggle(e.target.checked)}
-                />
-                <div className='w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors dark:bg-gray-600'></div>
-                <div className='absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5'></div>
-              </div>
+              <input
+                type='text'
+                autoFocus
+                placeholder={localPassword}
+                id='local_password'
+              />
             </label>
+            <Button
+              onClick={() => {
+                const password = (
+                  document.querySelector('#local_password') as HTMLInputElement
+                )?.value;
+                setLocalPassword(password);
+                toast.success('密码保存成功');
+              }}
+            >
+              保存
+            </Button>
           </div>
 
           {/* 豆瓣代理设置 */}
