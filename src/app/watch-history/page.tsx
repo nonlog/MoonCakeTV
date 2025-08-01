@@ -14,7 +14,6 @@ import { Dazahui } from "@/schemas/dazahui";
 export default function WatchHistoryPage() {
   const router = useRouter();
   const { watchHistory, setWatchHistory, currentUserId } = useUserStore();
-  const { setActivePath } = useSidebarStore();
 
   const handleCardClick = (dazahui: Dazahui) => {
     router.push(`/play?mc_id=${dazahui.mc_id}`);
@@ -72,7 +71,6 @@ export default function WatchHistoryPage() {
             </p>
             <button
               onClick={() => {
-                setActivePath("/search");
                 router.push("/search");
               }}
               className='inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors'

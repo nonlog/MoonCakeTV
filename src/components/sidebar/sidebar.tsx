@@ -11,6 +11,7 @@ import {
   Tv,
 } from "lucide-react";
 import Link from "next/link";
+import { usePathname } from "next/navigation";
 import { FaGear } from "react-icons/fa6";
 
 import { cn } from "@/lib/utils";
@@ -20,8 +21,8 @@ import { Logo } from "@/components/logo";
 import { useSidebarStore } from "@/stores/sidebar";
 
 export const Sidebar = () => {
-  const { expanded, toggleSidebar, activePath, setActivePath } =
-    useSidebarStore();
+  const { expanded, toggleSidebar } = useSidebarStore();
+  const pathname = usePathname();
 
   const menuItems = [
     {
@@ -83,8 +84,7 @@ export const Sidebar = () => {
           <nav className='px-2 mt-4 space-y-1'>
             <Link
               href='/'
-              onClick={() => setActivePath("/")}
-              data-active={activePath === "/"}
+              data-active={pathname === "/"}
               className={cn(
                 "group flex items-center rounded-lg px-2 py-2 pl-4 text-gray-700 hover:bg-gray-100/30 hover:text-green-600 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-700 font-medium transition-colors duration-200 min-h-[40px] dark:text-gray-300 dark:hover:text-green-400 dark:data-[active=true]:bg-green-500/10 dark:data-[active=true]:text-green-400 gap-3 justify-start",
                 expanded ? "mx-0" : "w-full max-w-none mx-0",
@@ -101,8 +101,7 @@ export const Sidebar = () => {
             </Link>
             <Link
               href='/search'
-              onClick={() => setActivePath("/search")}
-              data-active={activePath === "/search"}
+              data-active={pathname === "/search"}
               className={cn(
                 "group flex items-center rounded-lg px-2 py-2 pl-4 text-gray-700 hover:bg-gray-100/30 hover:text-green-600 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-700 font-medium transition-colors duration-200 min-h-[40px] dark:text-gray-300 dark:hover:text-green-400 dark:data-[active=true]:bg-green-500/10 dark:data-[active=true]:text-green-400 gap-3 justify-start",
                 expanded ? "mx-0" : "w-full max-w-none mx-0",
@@ -119,8 +118,7 @@ export const Sidebar = () => {
             </Link>
             <Link
               href='/bookmarks'
-              onClick={() => setActivePath("/bookmarks")}
-              data-active={activePath === "/bookmarks"}
+              data-active={pathname === "/bookmarks"}
               className={cn(
                 "group flex items-center rounded-lg px-2 py-2 pl-4 text-gray-700 hover:bg-gray-100/30 hover:text-green-600 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-700 font-medium transition-colors duration-200 min-h-[40px] dark:text-gray-300 dark:hover:text-green-400 dark:data-[active=true]:bg-green-500/10 dark:data-[active=true]:text-green-400 gap-3 justify-start",
                 expanded ? "mx-0" : "w-full max-w-none mx-0",
@@ -137,8 +135,7 @@ export const Sidebar = () => {
             </Link>
             <Link
               href='/watch-history'
-              onClick={() => setActivePath("/watch-history")}
-              data-active={activePath === "/watch-history"}
+              data-active={pathname === "/watch-history"}
               className={cn(
                 "group flex items-center rounded-lg px-2 py-2 pl-4 text-gray-700 hover:bg-gray-100/30 hover:text-green-600 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-700 font-medium transition-colors duration-200 min-h-[40px] dark:text-gray-300 dark:hover:text-green-400 dark:data-[active=true]:bg-green-500/10 dark:data-[active=true]:text-green-400 gap-3 justify-start",
                 expanded ? "mx-0" : "w-full max-w-none mx-0",
@@ -155,8 +152,7 @@ export const Sidebar = () => {
             </Link>
             <Link
               href='/settings'
-              onClick={() => setActivePath("/settings")}
-              data-active={activePath === "/settings"}
+              data-active={pathname === "/settings"}
               className={cn(
                 "group flex items-center rounded-lg px-2 py-2 pl-4 text-gray-700 hover:bg-gray-100/30 hover:text-green-600 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-700 font-medium transition-colors duration-200 min-h-[40px] dark:text-gray-300 dark:hover:text-green-400 dark:data-[active=true]:bg-green-500/10 dark:data-[active=true]:text-green-400 gap-3 justify-start",
                 expanded ? "mx-0" : "w-full max-w-none mx-0",
@@ -182,7 +178,7 @@ export const Sidebar = () => {
                 const tagMatch = item.href.match(/tag=([^&]+)/)?.[1];
 
                 // 解码URL以进行正确的比较
-                const decodedActive = decodeURIComponent(activePath);
+                const decodedActive = decodeURIComponent(pathname);
                 const decodedItemHref = decodeURIComponent(item.href);
 
                 const isActive =
@@ -196,7 +192,6 @@ export const Sidebar = () => {
                   <Link
                     key={item.label}
                     href={item.href}
-                    onClick={() => setActivePath(item.href)}
                     data-active={isActive}
                     className={cn(
                       "group flex items-center rounded-lg px-2 py-2 pl-4 text-sm text-gray-700 hover:bg-gray-100/30 hover:text-green-600 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-700 transition-colors duration-200 min-h-[40px] dark:text-gray-300 dark:hover:text-green-400 dark:data-[active=true]:bg-green-500/10 dark:data-[active=true]:text-green-400 gap-3 justify-start",

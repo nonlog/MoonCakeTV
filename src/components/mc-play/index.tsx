@@ -1,6 +1,8 @@
 "use client";
 
 import DOMPurify from "dompurify";
+import { Bookmark } from "lucide-react";
+import { BookmarkCheck } from "lucide-react";
 import { useMemo, useState } from "react";
 import { useEffect } from "react";
 
@@ -19,7 +21,8 @@ import { PageLayout } from "../PageLayout";
 export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
   const [currentEpisode, setCurrentEpisode] = useState<string>("");
   const [sanitizedSummary, setSanitizedSummary] = useState<string>("");
-  const { setWatchHistory } = useUserStore();
+  const { setWatchHistory, bookmarks, updateBookmarks, currentUserId } =
+    useUserStore();
 
   const episodes = useMemo(() => {
     if (!mc_item) {
@@ -43,6 +46,23 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
     }
     return episodes.find((ep) => ep.episode === currentEpisode)?.url || "";
   }, [currentEpisode, episodes]);
+
+  // Check if current item is bookmarked
+  const isBookmarked = useMemo(() => {
+    if (!mc_item || !currentUserId) return false;
+    const userBookmarks = bookmarks[currentUserId];
+    return (
+      userBookmarks?.some((bookmark) => bookmark.mc_id === mc_item.mc_id) ||
+      false
+    );
+  }, [bookmarks, currentUserId, mc_item]);
+
+  // Handle bookmark toggle
+  const handleBookmarkToggle = () => {
+    if (!mc_item || !currentUserId) return;
+    const action = isBookmarked ? "delete" : "add";
+    updateBookmarks(currentUserId, mc_item, action);
+  };
 
   // Set initial episode
   useMemo(() => {
@@ -82,9 +102,29 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
       <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-4'>
         {/* Title and Info */}
         <div className='mb-6 flex flex-col gap-4'>
-          <h1 className='text-2xl font-bold text-gray-900 mb-2'>
-            {`${mc_item.title} - ${currentEpisode}`}
-          </h1>
+          <div className='flex items-center gap-4'>
+            <h1 className='text-2xl font-bold text-gray-900'>
+              {`${mc_item.title} - ${currentEpisode}`}
+            </h1>
+            <button
+              onClick={handleBookmarkToggle}
+              className={cn(
+                "flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:scale-105",
+                isBookmarked
+                  ? "bg-yellow-100 text-yellow-700 border border-yellow-300"
+                  : "bg-gray-100 text-gray-600 border border-gray-300 hover:bg-gray-200",
+              )}
+            >
+              {isBookmarked ? (
+                <BookmarkCheck className='w-5 h-5' />
+              ) : (
+                <Bookmark className='w-5 h-5' />
+              )}
+              <span className='text-sm font-medium'>
+                {isBookmarked ? "已收藏" : "添加收藏"}
+              </span>
+            </button>
+          </div>
           <div className='flex flex-wrap items-center gap-4 text-sm text-gray-600'>
             {mc_item.year && <span>{mc_item.year}</span>}
             {mc_item.region && <span>{mc_item.region}</span>}

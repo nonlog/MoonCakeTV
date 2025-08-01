@@ -93,11 +93,9 @@ export function MediaCard({
       setIsTestingSpeed(true);
       testStreamSpeed(firstUrl)
         .then((result) => {
-          console.log("✅ Speed test completed:", result);
           setSpeedTestResult(result);
         })
         .catch((error) => {
-          console.error("❌ Speed test failed:", error);
           setSpeedTestResult({
             quality: "未知",
             loadSpeed: "测试失败",

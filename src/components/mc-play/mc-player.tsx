@@ -2,6 +2,7 @@
 
 import Artplayer from "artplayer";
 import Hls from "hls.js";
+import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
 
 interface McPlayerProps {
@@ -12,6 +13,10 @@ interface McPlayerProps {
 export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
   const artPlayerRef = useRef<Artplayer | null>(null);
   const artRef = useRef<HTMLDivElement | null>(null);
+
+  const searchParams = useSearchParams();
+
+  const url_mc_id = searchParams.get("mc_id");
 
   useEffect(() => {
     if (!Artplayer || !Hls || !videoUrl || !artRef.current) {
@@ -40,6 +45,7 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
         isLive: false,
         muted: false,
         autoplay: true,
+        autoPlayback: false,
         pip: true,
         autoSize: false,
         autoMini: false,
@@ -55,7 +61,6 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
         miniProgressBar: false,
         mutex: true,
         playsInline: true,
-        autoPlayback: false,
         airplay: true,
         theme: "#22c55e",
         lang: "zh-cn",
@@ -106,6 +111,7 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
               video.removeAttribute("disableRemotePlayback");
             }
 
+            // eslint-disable-next-line
             hls.on(Hls.Events.ERROR, function (_event: any, data: any) {
               // Only log in development and for fatal errors
               if (process.env.NODE_ENV === "development" && data.fatal) {
@@ -157,9 +163,13 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
       console.error("Failed to create player:", err);
     }
 
-    // Cleanup on unmount
+    // Cleanup on unmount or activePath change
     return () => {
       if (artPlayerRef.current) {
+        // Pause the video first to stop audio immediately
+        if (artPlayerRef.current.video) {
+          artPlayerRef.current.video.pause();
+        }
         if (artPlayerRef.current.video && artPlayerRef.current.video.hls) {
           artPlayerRef.current.video.hls.destroy();
         }
@@ -167,7 +177,7 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
         artPlayerRef.current = null;
       }
     };
-  }, [videoUrl, poster]);
+  }, [videoUrl, poster, url_mc_id]);
 
   if (!videoUrl) {
     return (

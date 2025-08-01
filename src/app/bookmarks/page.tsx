@@ -7,7 +7,6 @@ import { useEffect, useState } from "react";
 import { MediaCard } from "@/components/common/media-card";
 import PageLayout from "@/components/PageLayout";
 
-import { useSidebarStore } from "@/stores/sidebar";
 import { useUserStore } from "@/stores/user";
 
 import { Dazahui } from "@/schemas/dazahui";
@@ -15,7 +14,7 @@ import { Dazahui } from "@/schemas/dazahui";
 export default function BookmarksPage() {
   const router = useRouter();
   const { bookmarks, currentUserId } = useUserStore();
-  const { setActivePath } = useSidebarStore();
+
   const [allBookmarks, setAllBookmarks] = useState<Dazahui[]>([]);
 
   useEffect(() => {
@@ -63,7 +62,6 @@ export default function BookmarksPage() {
             </p>
             <button
               onClick={() => {
-                setActivePath("/search");
                 router.push("/search");
               }}
               className='inline-flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors'
