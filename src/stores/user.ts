@@ -27,18 +27,23 @@ export const useUserStore = create<UserState>()(
       setWatchHistory: (dazahui?: Dazahui) =>
         set((state) => {
           if (dazahui && dazahui.mc_id) {
-            const existingDazahui = state.watchHistory.find(
+            const newHistory = [...state.watchHistory];
+            const existingIndex = newHistory.findIndex(
               (wh) => wh.mc_id === dazahui.mc_id,
             );
 
-            if (!existingDazahui) {
+            if (existingIndex !== -1) {
+              // Remove existing item and add it to the front
+              newHistory.splice(existingIndex, 1);
+              newHistory.unshift(dazahui);
+            } else {
               // Add new item to front
-              return {
-                watchHistory: [dazahui, ...state.watchHistory].slice(0, 20), // 20 items at most
-              };
+              newHistory.unshift(dazahui);
             }
 
-            return {};
+            return {
+              watchHistory: newHistory.slice(0, 100), // 100 items at most
+            };
           }
 
           return {

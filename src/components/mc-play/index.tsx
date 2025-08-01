@@ -8,6 +8,8 @@ import { getSourceBrand } from '@/components/common/utils';
 import { McPlayer } from '@/components/mc-play/mc-player';
 import { Badge } from '@/components/ui/badge';
 
+import { useUserStore } from '@/stores/user';
+
 import { Dazahui } from '@/schemas/dazahui';
 
 import { PageLayout } from '../PageLayout';
@@ -15,6 +17,7 @@ import { PageLayout } from '../PageLayout';
 export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
   const [currentEpisode, setCurrentEpisode] = useState<string>('');
   const [sanitizedSummary, setSanitizedSummary] = useState<string>('');
+  const { setWatchHistory } = useUserStore();
 
   const episodes = useMemo(() => {
     if (!mc_item) {
@@ -52,6 +55,13 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
       setSanitizedSummary(DOMPurify.sanitize(mc_item.summary));
     }
   }, [mc_item?.summary]);
+
+  // Update watch history when playing content
+  useEffect(() => {
+    if (mc_item && mc_item.mc_id) {
+      setWatchHistory(mc_item);
+    }
+  }, [mc_item]);
 
   if (!mc_item) {
     return (
