@@ -2,7 +2,7 @@
 
 import { Loader2, Play } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import { Suspense, useEffect, useState } from "react";
 import { toast } from "sonner";
 
 import { MediaCard } from "@/components/common/media-card";
@@ -11,7 +11,7 @@ import PageLayout from "@/components/PageLayout";
 
 import { Dazahui } from "@/schemas/dazahui";
 
-export default function SearchPage() {
+function SearchPageContent() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [keyword, setKeyword] = useState("");
@@ -149,5 +149,23 @@ export default function SearchPage() {
         )}
       </div>
     </PageLayout>
+  );
+}
+
+export default function SearchPage() {
+  return (
+    <Suspense
+      fallback={
+        <PageLayout activePath='/search'>
+          <div className='px-4 sm:px-10 py-4 sm:py-8 overflow-visible w-full min-h-full flex flex-col gap-4'>
+            <div className='grow flex items-center justify-center w-full h-full'>
+              <Loader2 className='w-10 h-10 animate-spin' />
+            </div>
+          </div>
+        </PageLayout>
+      }
+    >
+      <SearchPageContent />
+    </Suspense>
   );
 }

@@ -2,8 +2,8 @@
 
 import Artplayer from "artplayer";
 import Hls from "hls.js";
-import { useSearchParams } from "next/navigation";
 import { useEffect, useRef } from "react";
+import { useSearchParam } from "react-use";
 
 interface McPlayerProps {
   videoUrl: string;
@@ -14,9 +14,7 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
   const artPlayerRef = useRef<Artplayer | null>(null);
   const artRef = useRef<HTMLDivElement | null>(null);
 
-  const searchParams = useSearchParams();
-
-  const url_mc_id = searchParams.get("mc_id");
+  const url_mc_id = useSearchParam("mc_id");
 
   useEffect(() => {
     if (!Artplayer || !Hls || !videoUrl || !artRef.current) {

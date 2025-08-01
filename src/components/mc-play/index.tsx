@@ -193,7 +193,7 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
               </div>
               <div className='max-h-96 overflow-y-auto'>
                 <div className='grid grid-cols-6 gap-2 p-2'>
-                  {episodes.map(({ episode, url }) => (
+                  {episodes.map(({ episode }) => (
                     <button
                       key={episode}
                       onClick={() => setCurrentEpisode(episode)}

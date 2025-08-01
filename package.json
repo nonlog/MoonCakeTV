@@ -4,8 +4,8 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "dev": "npm run gen:manifest && next dev -H 0.0.0.0",
-    "build": "npm run gen:manifest && next build",
+    "dev": "next dev -H 0.0.0.0",
+    "build": "next build",
     "start": "next start",
     "lint": "next lint",
     "lint:fix": "eslint src --fix && pnpm format",
@@ -15,7 +15,6 @@
     "test": "jest",
     "format": "prettier -w .",
     "format:check": "prettier -c .",
-    "gen:manifest": "node scripts/generate-manifest.js",
     "postbuild": "echo 'Build completed - sitemap generation disabled'",
     "pages:build": "npm run gen:runtime && npm run gen:manifest && next build && npx @cloudflare/next-on-pages --experimental-minify"
   },
