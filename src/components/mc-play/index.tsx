@@ -1,24 +1,24 @@
-"use client";
+'use client';
 
-import DOMPurify from "dompurify";
-import { useMemo, useState } from "react";
-import { useEffect } from "react";
+import DOMPurify from 'dompurify';
+import { useMemo, useState } from 'react';
+import { useEffect } from 'react';
 
-import { cn } from "@/lib/utils";
+import { cn } from '@/lib/utils';
 
-import { getSourceBrand } from "@/components/common/utils";
-import { McPlayer } from "@/components/mc-play/mc-player";
-import { Badge } from "@/components/ui/badge";
+import { getSourceBrand } from '@/components/common/utils';
+import { McPlayer } from '@/components/mc-play/mc-player';
+import { Badge } from '@/components/ui/badge';
 
-import { useUserStore } from "@/stores/user";
+import { useUserStore } from '@/stores/user';
 
-import { Dazahui } from "@/schemas/dazahui";
+import { Dazahui } from '@/schemas/dazahui';
 
-import { PageLayout } from "../PageLayout";
+import { PageLayout } from '../PageLayout';
 
 export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
-  const [currentEpisode, setCurrentEpisode] = useState<string>("");
-  const [sanitizedSummary, setSanitizedSummary] = useState<string>("");
+  const [currentEpisode, setCurrentEpisode] = useState<string>('');
+  const [sanitizedSummary, setSanitizedSummary] = useState<string>('');
   const { setWatchHistory } = useUserStore();
 
   const episodes = useMemo(() => {
@@ -39,9 +39,9 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
 
   const currentVideoUrl = useMemo(() => {
     if (!currentEpisode) {
-      return episodes[0]?.url || "";
+      return episodes[0]?.url || '';
     }
-    return episodes.find((ep) => ep.episode === currentEpisode)?.url || "";
+    return episodes.find((ep) => ep.episode === currentEpisode)?.url || '';
   }, [currentEpisode, episodes]);
 
   // Set initial episode
@@ -53,7 +53,7 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
 
   // Sanitize summary on client side only
   useEffect(() => {
-    if (mc_item?.summary && typeof window !== "undefined") {
+    if (mc_item?.summary && typeof window !== 'undefined') {
       setSanitizedSummary(DOMPurify.sanitize(mc_item.summary));
     }
   }, [mc_item?.summary]);
@@ -85,7 +85,7 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
           <h1 className='text-2xl font-bold text-gray-900 mb-2'>
             {`${mc_item.title} - ${currentEpisode}`}
           </h1>
-          <div className='flex flex-wrap gap-4 text-sm text-gray-600'>
+          <div className='flex flex-wrap items-center gap-4 text-sm text-gray-600'>
             {mc_item.year && <span>{mc_item.year}</span>}
             {mc_item.region && <span>{mc_item.region}</span>}
             {mc_item.category && <span>{mc_item.category}</span>}
@@ -158,11 +158,11 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
                       key={episode}
                       onClick={() => setCurrentEpisode(episode)}
                       className={cn(
-                        "cursor-pointer",
-                        "aspect-square flex items-center justify-center text-sm font-medium rounded-lg border-2 transition-all hover:scale-105",
+                        'cursor-pointer',
+                        'aspect-square flex items-center justify-center text-sm font-medium rounded-lg border-2 transition-all hover:scale-105',
                         currentEpisode === episode
-                          ? "bg-blue-50 border-blue-500 text-blue-700 shadow-md"
-                          : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300",
+                          ? 'bg-blue-50 border-blue-500 text-blue-700 shadow-md'
+                          : 'bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300',
                       )}
                     >
                       {episode}
