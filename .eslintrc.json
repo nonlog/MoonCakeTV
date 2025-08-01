@@ -4,6 +4,7 @@
     "es2021": true,
     "node": true
   },
+  "ignorePatterns": ["src/components/ui/**/*"],
   "plugins": ["@typescript-eslint", "simple-import-sort", "unused-imports"],
   "extends": [
     "eslint:recommended",

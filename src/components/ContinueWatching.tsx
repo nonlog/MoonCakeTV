@@ -1,17 +1,17 @@
 /* eslint-disable no-console */
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
+import { useEffect, useState } from "react";
 
-import type { PlayRecord } from '@/lib/db.client';
+import type { PlayRecord } from "@/lib/db.client";
 import {
   clearAllPlayRecords,
   getAllPlayRecords,
   subscribeToDataUpdates,
-} from '@/lib/db.client';
+} from "@/lib/db.client";
 
-import ScrollableRow from '@/components/ScrollableRow';
-import VideoCard from '@/components/VideoCard';
+import ScrollableRow from "@/components/ScrollableRow";
+import VideoCard from "@/components/VideoCard";
 
 interface ContinueWatchingProps {
   className?: string;
@@ -33,7 +33,7 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
 
     // 按 save_time 降序排序（最新的在前面）
     const sortedRecords = recordsArray.sort(
-      (a, b) => b.save_time - a.save_time
+      (a, b) => b.save_time - a.save_time,
     );
 
     setPlayRecords(sortedRecords);
@@ -48,7 +48,7 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
         const allRecords = await getAllPlayRecords();
         updatePlayRecords(allRecords);
       } catch (error) {
-        console.error('获取播放记录失败:', error);
+        console.error("获取播放记录失败:", error);
         setPlayRecords([]);
       } finally {
         setLoading(false);
@@ -59,10 +59,10 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
 
     // 监听播放记录更新事件
     const unsubscribe = subscribeToDataUpdates(
-      'playRecordsUpdated',
+      "playRecordsUpdated",
       (newRecords: Record<string, PlayRecord>) => {
         updatePlayRecords(newRecords);
-      }
+      },
     );
 
     return unsubscribe;
@@ -81,12 +81,12 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
 
   // 从 key 中解析 source 和 id
   const parseKey = (key: string) => {
-    const [source, id] = key.split('+');
+    const [source, id] = key.split("+");
     return { source, id };
   };
 
   return (
-    <section className={`mb-8 ${className || ''}`}>
+    <section className={`mb-8 ${className || ""}`}>
       <div className='mb-4 flex items-center justify-between'>
         <h2 className='text-xl font-bold text-gray-800 dark:text-gray-200'>
           继续观看
@@ -140,7 +140,7 @@ export default function ContinueWatching({ className }: ContinueWatchingProps) {
                     from='playrecord'
                     onDelete={() =>
                       setPlayRecords((prev) =>
-                        prev.filter((r) => r.key !== record.key)
+                        prev.filter((r) => r.key !== record.key),
                       )
                     }
                   />

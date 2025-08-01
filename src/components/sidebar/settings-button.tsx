@@ -1,41 +1,41 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-'use client';
+"use client";
 
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
+} from "@/components/ui/dialog";
 
-import { useUserStore } from '@/stores/user';
+import { useUserStore } from "@/stores/user";
 
 export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
   const { localPassword, setLocalPassword } = useUserStore();
 
-  const [doubanProxyUrl, setDoubanProxyUrl] = useState('');
-  const [imageProxyUrl, setImageProxyUrl] = useState('');
+  const [doubanProxyUrl, setDoubanProxyUrl] = useState("");
+  const [imageProxyUrl, setImageProxyUrl] = useState("");
 
   const [enableImageProxy, setEnableImageProxy] = useState(false);
 
   // 从 localStorage 读取设置
   useEffect(() => {
-    if (typeof window !== 'undefined') {
-      const savedDoubanProxyUrl = localStorage.getItem('doubanProxyUrl');
+    if (typeof window !== "undefined") {
+      const savedDoubanProxyUrl = localStorage.getItem("doubanProxyUrl");
       if (savedDoubanProxyUrl !== null) {
         setDoubanProxyUrl(savedDoubanProxyUrl);
       }
 
-      const savedEnableImageProxy = localStorage.getItem('enableImageProxy');
+      const savedEnableImageProxy = localStorage.getItem("enableImageProxy");
       const defaultImageProxy =
-        (window as any).RUNTIME_CONFIG?.IMAGE_PROXY || '';
+        (window as any).RUNTIME_CONFIG?.IMAGE_PROXY || "";
       if (savedEnableImageProxy !== null) {
         setEnableImageProxy(JSON.parse(savedEnableImageProxy));
       } else if (defaultImageProxy) {
@@ -43,7 +43,7 @@ export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
         setEnableImageProxy(true);
       }
 
-      const savedImageProxyUrl = localStorage.getItem('imageProxyUrl');
+      const savedImageProxyUrl = localStorage.getItem("imageProxyUrl");
       if (savedImageProxyUrl !== null) {
         setImageProxyUrl(savedImageProxyUrl);
       } else if (defaultImageProxy) {
@@ -54,46 +54,46 @@ export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
 
   const handleDoubanProxyUrlChange = (value: string) => {
     setDoubanProxyUrl(value);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('doubanProxyUrl', value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("doubanProxyUrl", value);
     }
   };
 
   const handleImageProxyUrlChange = (value: string) => {
     setImageProxyUrl(value);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('imageProxyUrl', value);
+    if (typeof window !== "undefined") {
+      localStorage.setItem("imageProxyUrl", value);
     }
   };
 
   const handleImageProxyToggle = (value: boolean) => {
     setEnableImageProxy(value);
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('enableImageProxy', JSON.stringify(value));
+    if (typeof window !== "undefined") {
+      localStorage.setItem("enableImageProxy", JSON.stringify(value));
     }
   };
 
   // 重置所有设置为默认值
   const handleResetSettings = () => {
-    const defaultImageProxy = (window as any).RUNTIME_CONFIG?.IMAGE_PROXY || '';
+    const defaultImageProxy = (window as any).RUNTIME_CONFIG?.IMAGE_PROXY || "";
 
     // 重置所有状态
 
     setLocalPassword();
-    setDoubanProxyUrl('');
+    setDoubanProxyUrl("");
     setEnableImageProxy(!!defaultImageProxy);
     setImageProxyUrl(defaultImageProxy);
 
     // 保存到 localStorage
-    if (typeof window !== 'undefined') {
-      localStorage.setItem('defaultAggregateSearch', JSON.stringify(true));
-      localStorage.setItem('enableOptimization', JSON.stringify(true));
-      localStorage.setItem('doubanProxyUrl', '');
+    if (typeof window !== "undefined") {
+      localStorage.setItem("defaultAggregateSearch", JSON.stringify(true));
+      localStorage.setItem("enableOptimization", JSON.stringify(true));
+      localStorage.setItem("doubanProxyUrl", "");
       localStorage.setItem(
-        'enableImageProxy',
+        "enableImageProxy",
         JSON.stringify(!!defaultImageProxy),
       );
-      localStorage.setItem('imageProxyUrl', defaultImageProxy);
+      localStorage.setItem("imageProxyUrl", defaultImageProxy);
     }
   };
 
@@ -140,10 +140,10 @@ export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
             <Button
               onClick={() => {
                 const password = (
-                  document.querySelector('#local_password') as HTMLInputElement
+                  document.querySelector("#local_password") as HTMLInputElement
                 )?.value;
                 setLocalPassword(password);
-                toast.success('密码保存成功');
+                toast.success("密码保存成功");
               }}
             >
               保存
@@ -207,8 +207,8 @@ export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
               type='text'
               className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
                 enableImageProxy
-                  ? 'border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400'
-                  : 'border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-400 dark:text-gray-500 placeholder-gray-400 dark:placeholder-gray-600 cursor-not-allowed'
+                  ? "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
+                  : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-400 dark:text-gray-500 placeholder-gray-400 dark:placeholder-gray-600 cursor-not-allowed"
               }`}
               placeholder='例如: https://imageproxy.example.com/?url='
               value={imageProxyUrl}

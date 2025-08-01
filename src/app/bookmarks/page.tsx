@@ -1,16 +1,16 @@
-'use client';
+"use client";
 
-import { Bookmark, Play } from 'lucide-react';
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { Bookmark, Play } from "lucide-react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-import { MediaCard } from '@/components/common/media-card';
-import PageLayout from '@/components/PageLayout';
+import { MediaCard } from "@/components/common/media-card";
+import PageLayout from "@/components/PageLayout";
 
-import { useSidebarStore } from '@/stores/sidebar';
-import { useUserStore } from '@/stores/user';
+import { useSidebarStore } from "@/stores/sidebar";
+import { useUserStore } from "@/stores/user";
 
-import { Dazahui } from '@/schemas/dazahui';
+import { Dazahui } from "@/schemas/dazahui";
 
 export default function BookmarksPage() {
   const router = useRouter();
@@ -19,7 +19,7 @@ export default function BookmarksPage() {
   const [allBookmarks, setAllBookmarks] = useState<Dazahui[]>([]);
 
   // For now, using a default user ID - this should be replaced with actual user authentication
-  const currentUserId = 'me';
+  const currentUserId = "me";
 
   useEffect(() => {
     // Combine all bookmarks from all users into a single array
@@ -48,7 +48,7 @@ export default function BookmarksPage() {
           <p className='text-gray-600 dark:text-gray-400'>
             {allBookmarks.length > 0
               ? `共收藏了 ${allBookmarks.length} 部作品`
-              : '还没有收藏任何作品'}
+              : "还没有收藏任何作品"}
           </p>
         </div>
 
@@ -66,8 +66,8 @@ export default function BookmarksPage() {
             </p>
             <button
               onClick={() => {
-                setActivePath('/search');
-                router.push('/search');
+                setActivePath("/search");
+                router.push("/search");
               }}
               className='inline-flex items-center gap-2 px-4 py-2 bg-yellow-500 text-white rounded-lg hover:bg-yellow-600 transition-colors'
             >

@@ -1,32 +1,32 @@
 /* eslint-disable no-console */
 
-'use client';
+"use client";
 
-import { LogOut } from 'lucide-react';
-import { useState } from 'react';
-import { toast } from 'sonner';
+import { LogOut } from "lucide-react";
+import { useState } from "react";
+import { toast } from "sonner";
 
 export const LogoutButton: React.FC = () => {
   const [loading, setLoading] = useState(false);
 
   const performLogout = async () => {
     setLoading(true);
-    toast.loading('正在注销...', { id: 'logout' });
+    toast.loading("正在注销...", { id: "logout" });
 
     try {
       // 调用注销API来清除cookie
-      await fetch('/api/logout', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      await fetch("/api/logout", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
       });
 
-      toast.success('注销成功', { id: 'logout' });
+      toast.success("注销成功", { id: "logout" });
       setTimeout(() => {
         window.location.reload();
       }, 500);
     } catch (error) {
-      console.error('注销请求失败:', error);
-      toast.error('注销失败，请重试', { id: 'logout' });
+      console.error("注销请求失败:", error);
+      toast.error("注销失败，请重试", { id: "logout" });
       setLoading(false);
     }
   };
@@ -34,23 +34,23 @@ export const LogoutButton: React.FC = () => {
   const handleLogout = () => {
     if (loading) return;
 
-    toast('确定要注销吗？', {
-      id: 'logout-confirm',
+    toast("确定要注销吗？", {
+      id: "logout-confirm",
       action: {
-        label: '确定',
+        label: "确定",
         onClick: () => {
-          toast.dismiss('logout-confirm');
+          toast.dismiss("logout-confirm");
           performLogout();
         },
       },
       cancel: {
-        label: '取消',
+        label: "取消",
         onClick: () => {
-          toast.dismiss('logout-confirm');
+          toast.dismiss("logout-confirm");
         },
       },
       duration: 5000,
-      position: 'top-center',
+      position: "top-center",
     });
   };
 

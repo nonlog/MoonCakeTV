@@ -2,84 +2,84 @@
 /* eslint-disable */
 // 根据 SITE_NAME 动态生成 manifest.json
 
-import fs from 'fs';
-import path from 'path';
-import { fileURLToPath } from 'url';
-import { dirname } from 'path';
+import fs from "fs";
+import path from "path";
+import { fileURLToPath } from "url";
+import { dirname } from "path";
 
 // Get __dirname equivalent for ES modules
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 // 获取项目根目录
-const projectRoot = path.resolve(__dirname, '..');
-const publicDir = path.join(projectRoot, 'public');
-const manifestPath = path.join(publicDir, 'manifest.json');
+const projectRoot = path.resolve(__dirname, "..");
+const publicDir = path.join(projectRoot, "public");
+const manifestPath = path.join(publicDir, "manifest.json");
 
 // 从环境变量获取站点名称
-const siteName = process.env.SITE_NAME || 'MoonCake TV';
+const siteName = process.env.SITE_NAME || "MoonCake TV";
 
 // manifest.json 模板
 const manifestTemplate = {
   name: siteName,
   short_name: siteName,
-  description: '影视聚合',
-  start_url: '/',
-  scope: '/',
-  display: 'standalone',
-  background_color: '#000000',
-  'apple-mobile-web-app-capable': 'yes',
-  'apple-mobile-web-app-status-bar-style': 'black',
+  description: "影视聚合",
+  start_url: "/",
+  scope: "/",
+  display: "standalone",
+  background_color: "#000000",
+  "apple-mobile-web-app-capable": "yes",
+  "apple-mobile-web-app-status-bar-style": "black",
   icons: [
     {
-      src: '/icons/icon-48x48.png',
-      sizes: '48x48',
-      type: 'image/png',
+      src: "/icons/icon-48x48.png",
+      sizes: "48x48",
+      type: "image/png",
     },
     {
-      src: '/icons/icon-72x72.png',
-      sizes: '72x72',
-      type: 'image/png',
+      src: "/icons/icon-72x72.png",
+      sizes: "72x72",
+      type: "image/png",
     },
     {
-      src: '/icons/icon-96x96.png',
-      sizes: '96x96',
-      type: 'image/png',
+      src: "/icons/icon-96x96.png",
+      sizes: "96x96",
+      type: "image/png",
     },
     {
-      src: '/icons/icon-128x128.png',
-      sizes: '128x128',
-      type: 'image/png',
+      src: "/icons/icon-128x128.png",
+      sizes: "128x128",
+      type: "image/png",
     },
     {
-      src: '/icons/icon-144x144.png',
-      sizes: '144x144',
-      type: 'image/png',
+      src: "/icons/icon-144x144.png",
+      sizes: "144x144",
+      type: "image/png",
     },
     {
-      src: '/icons/icon-152x152.png',
-      sizes: '152x152',
-      type: 'image/png',
+      src: "/icons/icon-152x152.png",
+      sizes: "152x152",
+      type: "image/png",
     },
     {
-      src: '/icons/icon-192x192.png',
-      sizes: '192x192',
-      type: 'image/png',
+      src: "/icons/icon-192x192.png",
+      sizes: "192x192",
+      type: "image/png",
     },
     {
-      src: '/icons/icon-256x256.png',
-      sizes: '256x256',
-      type: 'image/png',
+      src: "/icons/icon-256x256.png",
+      sizes: "256x256",
+      type: "image/png",
     },
     {
-      src: '/icons/icon-384x384.png',
-      sizes: '384x384',
-      type: 'image/png',
+      src: "/icons/icon-384x384.png",
+      sizes: "384x384",
+      type: "image/png",
     },
     {
-      src: '/icons/icon-512x512.png',
-      sizes: '512x512',
-      type: 'image/png',
+      src: "/icons/icon-512x512.png",
+      sizes: "512x512",
+      type: "image/png",
     },
   ],
 };
@@ -94,6 +94,6 @@ try {
   fs.writeFileSync(manifestPath, JSON.stringify(manifestTemplate, null, 2));
   console.log(`✅ Generated manifest.json with site name: ${siteName}`);
 } catch (error) {
-  console.error('❌ Error generating manifest.json:', error);
+  console.error("❌ Error generating manifest.json:", error);
   process.exit(1);
 }

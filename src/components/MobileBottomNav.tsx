@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import { Clover, Film, Home, Search, Tv } from 'lucide-react';
-import Link from 'next/link';
-import { usePathname } from 'next/navigation';
+import { Clover, Film, Home, Search, Tv } from "lucide-react";
+import Link from "next/link";
+import { usePathname } from "next/navigation";
 
 interface MobileBottomNavProps {
   /**
@@ -18,22 +18,22 @@ const MobileBottomNav = ({ activePath }: MobileBottomNavProps) => {
   const currentActive = activePath ?? pathname;
 
   const navItems = [
-    { icon: Home, label: '首页', href: '/' },
-    { icon: Search, label: '搜索', href: '/search' },
+    { icon: Home, label: "首页", href: "/" },
+    { icon: Search, label: "搜索", href: "/search" },
     {
       icon: Film,
-      label: '电影',
-      href: '/douban?type=movie',
+      label: "电影",
+      href: "/douban?type=movie",
     },
     {
       icon: Tv,
-      label: '剧集',
-      href: '/douban?type=tv',
+      label: "剧集",
+      href: "/douban?type=tv",
     },
     {
       icon: Clover,
-      label: '综艺',
-      href: '/douban?type=show',
+      label: "综艺",
+      href: "/douban?type=show",
     },
   ];
 
@@ -46,7 +46,7 @@ const MobileBottomNav = ({ activePath }: MobileBottomNavProps) => {
 
     return (
       decodedActive === decodedItemHref ||
-      (decodedActive.startsWith('/douban') &&
+      (decodedActive.startsWith("/douban") &&
         decodedActive.includes(`type=${typeMatch}`))
     );
   };
@@ -57,7 +57,7 @@ const MobileBottomNav = ({ activePath }: MobileBottomNavProps) => {
       style={{
         /* 紧贴视口底部，同时在内部留出安全区高度 */
         bottom: 0,
-        paddingBottom: 'env(safe-area-inset-bottom)',
+        paddingBottom: "env(safe-area-inset-bottom)",
       }}
     >
       <ul className='flex items-center'>
@@ -72,15 +72,15 @@ const MobileBottomNav = ({ activePath }: MobileBottomNavProps) => {
                 <item.icon
                   className={`h-6 w-6 ${
                     active
-                      ? 'text-green-600 dark:text-green-400'
-                      : 'text-gray-500 dark:text-gray-400'
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-gray-500 dark:text-gray-400"
                   }`}
                 />
                 <span
                   className={
                     active
-                      ? 'text-green-600 dark:text-green-400'
-                      : 'text-gray-600 dark:text-gray-300'
+                      ? "text-green-600 dark:text-green-400"
+                      : "text-gray-600 dark:text-gray-300"
                   }
                 >
                   {item.label}

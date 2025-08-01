@@ -132,7 +132,7 @@ services:
     container_name: mooncaketv
     restart: unless-stopped
     ports:
-      - '3000:3000'
+      - "3000:3000"
     environment:
       - PASSWORD=your_password
     # 如需自定义配置，可挂载文件
@@ -149,7 +149,7 @@ services:
     container_name: mooncaketv
     restart: unless-stopped
     ports:
-      - '3000:3000'
+      - "3000:3000"
     environment:
       - USERNAME=admin
       - PASSWORD=admin_password

@@ -1,9 +1,9 @@
 /* eslint-disable no-console, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-import { createClient, RedisClientType } from 'redis';
+import { createClient, RedisClientType } from "redis";
 
-import { AdminConfig } from './admin.types';
-import { Favorite, IStorage, PlayRecord } from './types';
+import { AdminConfig } from "./admin.types";
+import { Favorite, IStorage, PlayRecord } from "./types";
 
 // 搜索历史最大条数
 const SEARCH_HISTORY_LIMIT = 20;
@@ -19,17 +19,17 @@ async function withRetry<T>(
     } catch (err: any) {
       const isLastAttempt = i === maxRetries - 1;
       const isConnectionError =
-        err.message?.includes('Connection') ||
-        err.message?.includes('ECONNREFUSED') ||
-        err.message?.includes('ENOTFOUND') ||
-        err.code === 'ECONNRESET' ||
-        err.code === 'EPIPE';
+        err.message?.includes("Connection") ||
+        err.message?.includes("ECONNREFUSED") ||
+        err.message?.includes("ENOTFOUND") ||
+        err.code === "ECONNRESET" ||
+        err.code === "EPIPE";
 
       if (isConnectionError && !isLastAttempt) {
         console.log(
           `Redis operation failed, retrying... (${i + 1}/${maxRetries})`,
         );
-        console.error('Error:', err.message);
+        console.error("Error:", err.message);
 
         // 等待一段时间后重试
         await new Promise((resolve) => setTimeout(resolve, 1000 * (i + 1)));
@@ -41,7 +41,7 @@ async function withRetry<T>(
             await client.connect();
           }
         } catch (reconnectErr) {
-          console.error('Failed to reconnect:', reconnectErr);
+          console.error("Failed to reconnect:", reconnectErr);
         }
 
         continue;
@@ -51,7 +51,7 @@ async function withRetry<T>(
     }
   }
 
-  throw new Error('Max retries exceeded');
+  throw new Error("Max retries exceeded");
 }
 
 export class RedisStorage implements IStorage {
@@ -99,7 +99,7 @@ export class RedisStorage implements IStorage {
       if (raw) {
         const rec = JSON.parse(raw) as PlayRecord;
         // 截取 source+id 部分
-        const keyPart = fullKey.replace(`u:${userName}:pr:`, '');
+        const keyPart = fullKey.replace(`u:${userName}:pr:`, "");
         result[keyPart] = rec;
       }
     });
@@ -142,7 +142,7 @@ export class RedisStorage implements IStorage {
       const raw = values[idx];
       if (raw) {
         const fav = JSON.parse(raw) as Favorite;
-        const keyPart = fullKey.replace(`u:${userName}:fav:`, '');
+        const keyPart = fullKey.replace(`u:${userName}:fav:`, "");
         result[keyPart] = fav;
       }
     });
@@ -248,18 +248,18 @@ export class RedisStorage implements IStorage {
 
   // ---------- 获取全部用户 ----------
   async getAllUsers(): Promise<string[]> {
-    const keys = await withRetry(() => this.client.keys('u:*:pwd'));
+    const keys = await withRetry(() => this.client.keys("u:*:pwd"));
     return keys
       .map((k) => {
         const match = k.match(/^u:(.+?):pwd$/);
         return match ? match[1] : undefined;
       })
-      .filter((u): u is string => typeof u === 'string');
+      .filter((u): u is string => typeof u === "string");
   }
 
   // ---------- 管理员配置 ----------
   private adminConfigKey() {
-    return 'admin:config';
+    return "admin:config";
   }
 
   async getAdminConfig(): Promise<AdminConfig | null> {
@@ -276,13 +276,13 @@ export class RedisStorage implements IStorage {
 
 // 单例 Redis 客户端
 function getRedisClient(): RedisClientType {
-  const globalKey = Symbol.for('__MOONCAKETV_REDIS_CLIENT__');
+  const globalKey = Symbol.for("__MOONCAKETV_REDIS_CLIENT__");
   let client: RedisClientType | undefined = (global as any)[globalKey];
 
   if (!client) {
     const url = process.env.REDIS_URL;
     if (!url) {
-      throw new Error('REDIS_URL env variable not set');
+      throw new Error("REDIS_URL env variable not set");
     }
 
     // 创建客户端，配置重连策略
@@ -293,7 +293,7 @@ function getRedisClient(): RedisClientType {
         reconnectStrategy: (retries: number) => {
           console.log(`Redis reconnection attempt ${retries + 1}`);
           if (retries > 10) {
-            console.error('Redis max reconnection attempts exceeded');
+            console.error("Redis max reconnection attempts exceeded");
             return false; // 停止重连
           }
           return Math.min(1000 * Math.pow(2, retries), 30000); // 指数退避，最大30秒
@@ -307,30 +307,30 @@ function getRedisClient(): RedisClientType {
     });
 
     // 添加错误事件监听
-    client.on('error', (err) => {
-      console.error('Redis client error:', err);
+    client.on("error", (err) => {
+      console.error("Redis client error:", err);
     });
 
-    client.on('connect', () => {
-      console.log('Redis connected');
+    client.on("connect", () => {
+      console.log("Redis connected");
     });
 
-    client.on('reconnecting', () => {
-      console.log('Redis reconnecting...');
+    client.on("reconnecting", () => {
+      console.log("Redis reconnecting...");
     });
 
-    client.on('ready', () => {
-      console.log('Redis ready');
+    client.on("ready", () => {
+      console.log("Redis ready");
     });
 
     // 初始连接，带重试机制
     const connectWithRetry = async () => {
       try {
         await client!.connect();
-        console.log('Redis connected successfully');
+        console.log("Redis connected successfully");
       } catch (err) {
-        console.error('Redis initial connection failed:', err);
-        console.log('Will retry in 5 seconds...');
+        console.error("Redis initial connection failed:", err);
+        console.log("Will retry in 5 seconds...");
         setTimeout(connectWithRetry, 5000);
       }
     };

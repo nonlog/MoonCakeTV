@@ -1,6 +1,6 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, no-console */
 
-'use client';
+"use client";
 
 import {
   closestCenter,
@@ -9,36 +9,36 @@ import {
   TouchSensor,
   useSensor,
   useSensors,
-} from '@dnd-kit/core';
+} from "@dnd-kit/core";
 import {
   restrictToParentElement,
   restrictToVerticalAxis,
-} from '@dnd-kit/modifiers';
+} from "@dnd-kit/modifiers";
 import {
   arrayMove,
   SortableContext,
   useSortable,
   verticalListSortingStrategy,
-} from '@dnd-kit/sortable';
-import { CSS } from '@dnd-kit/utilities';
-import { ChevronDown, ChevronUp, Settings, Users, Video } from 'lucide-react';
-import { GripVertical } from 'lucide-react';
-import { Suspense, useCallback, useEffect, useState } from 'react';
-import Swal from 'sweetalert2';
+} from "@dnd-kit/sortable";
+import { CSS } from "@dnd-kit/utilities";
+import { ChevronDown, ChevronUp, Settings, Users, Video } from "lucide-react";
+import { GripVertical } from "lucide-react";
+import { Suspense, useCallback, useEffect, useState } from "react";
+import Swal from "sweetalert2";
 
-import { AdminConfig, AdminConfigResult } from '@/lib/admin.types';
-import { getAuthInfoFromBrowserCookie } from '@/lib/auth';
+import { AdminConfig, AdminConfigResult } from "@/lib/admin.types";
+import { getAuthInfoFromBrowserCookie } from "@/lib/auth";
 
-import PageLayout from '@/components/PageLayout';
+import PageLayout from "@/components/PageLayout";
 
 // 统一弹窗方法（必须在首次使用前定义）
 const showError = (message: string) =>
-  Swal.fire({ icon: 'error', title: '错误', text: message });
+  Swal.fire({ icon: "error", title: "错误", text: message });
 
 const showSuccess = (message: string) =>
   Swal.fire({
-    icon: 'success',
-    title: '成功',
+    icon: "success",
+    title: "成功",
     text: message,
     timer: 2000,
     showConfirmButton: false,
@@ -60,7 +60,7 @@ interface DataSource {
   api: string;
   detail?: string;
   disabled?: boolean;
-  from: 'config' | 'custom';
+  from: "config" | "custom";
 }
 
 // 可折叠标签组件
@@ -104,7 +104,7 @@ const CollapsibleTab = ({
 // 用户配置组件
 interface UserConfigProps {
   config: AdminConfig | null;
-  role: 'owner' | 'admin' | null;
+  role: "owner" | "admin" | null;
   refreshConfig: () => Promise<void>;
 }
 
@@ -115,12 +115,12 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
   const [showAddUserForm, setShowAddUserForm] = useState(false);
   const [showChangePasswordForm, setShowChangePasswordForm] = useState(false);
   const [newUser, setNewUser] = useState({
-    username: '',
-    password: '',
+    username: "",
+    password: "",
   });
   const [changePasswordUser, setChangePasswordUser] = useState({
-    username: '',
-    password: '',
+    username: "",
+    password: "",
   });
 
   // 当前登录用户名
@@ -128,8 +128,8 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
 
   // 检测存储类型是否为 d1
   const isD1Storage =
-    typeof window !== 'undefined' &&
-    (window as any).RUNTIME_CONFIG?.STORAGE_TYPE === 'd1';
+    typeof window !== "undefined" &&
+    (window as any).RUNTIME_CONFIG?.STORAGE_TYPE === "d1";
 
   useEffect(() => {
     if (config?.UserConfig) {
@@ -145,11 +145,11 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
       // 先更新本地 UI
       setUserSettings((prev) => ({ ...prev, enableRegistration: value }));
 
-      const res = await fetch('/api/admin/user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/admin/user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          action: 'setAllowRegister',
+          action: "setAllowRegister",
           allowRegister: value,
         }),
       });
@@ -161,85 +161,85 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
 
       await refreshConfig();
     } catch (err) {
-      showError(err instanceof Error ? err.message : '操作失败');
+      showError(err instanceof Error ? err.message : "操作失败");
       // revert toggle UI
       setUserSettings((prev) => ({ ...prev, enableRegistration: !value }));
     }
   };
 
   const handleBanUser = async (uname: string) => {
-    await handleUserAction('ban', uname);
+    await handleUserAction("ban", uname);
   };
 
   const handleUnbanUser = async (uname: string) => {
-    await handleUserAction('unban', uname);
+    await handleUserAction("unban", uname);
   };
 
   const handleSetAdmin = async (uname: string) => {
-    await handleUserAction('setAdmin', uname);
+    await handleUserAction("setAdmin", uname);
   };
 
   const handleRemoveAdmin = async (uname: string) => {
-    await handleUserAction('cancelAdmin', uname);
+    await handleUserAction("cancelAdmin", uname);
   };
 
   const handleAddUser = async () => {
     if (!newUser.username || !newUser.password) return;
-    await handleUserAction('add', newUser.username, newUser.password);
-    setNewUser({ username: '', password: '' });
+    await handleUserAction("add", newUser.username, newUser.password);
+    setNewUser({ username: "", password: "" });
     setShowAddUserForm(false);
   };
 
   const handleChangePassword = async () => {
     if (!changePasswordUser.username || !changePasswordUser.password) return;
     await handleUserAction(
-      'changePassword',
+      "changePassword",
       changePasswordUser.username,
-      changePasswordUser.password
+      changePasswordUser.password,
     );
-    setChangePasswordUser({ username: '', password: '' });
+    setChangePasswordUser({ username: "", password: "" });
     setShowChangePasswordForm(false);
   };
 
   const handleShowChangePasswordForm = (username: string) => {
-    setChangePasswordUser({ username, password: '' });
+    setChangePasswordUser({ username, password: "" });
     setShowChangePasswordForm(true);
     setShowAddUserForm(false); // 关闭添加用户表单
   };
 
   const handleDeleteUser = async (username: string) => {
     const { isConfirmed } = await Swal.fire({
-      title: '确认删除用户',
+      title: "确认删除用户",
       text: `删除用户 ${username} 将同时删除其搜索历史、播放记录和收藏夹，此操作不可恢复！`,
-      icon: 'warning',
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: '确认删除',
-      cancelButtonText: '取消',
-      confirmButtonColor: '#dc2626',
+      confirmButtonText: "确认删除",
+      cancelButtonText: "取消",
+      confirmButtonColor: "#dc2626",
     });
 
     if (!isConfirmed) return;
 
-    await handleUserAction('deleteUser', username);
+    await handleUserAction("deleteUser", username);
   };
 
   // 通用请求函数
   const handleUserAction = async (
     action:
-      | 'add'
-      | 'ban'
-      | 'unban'
-      | 'setAdmin'
-      | 'cancelAdmin'
-      | 'changePassword'
-      | 'deleteUser',
+      | "add"
+      | "ban"
+      | "unban"
+      | "setAdmin"
+      | "cancelAdmin"
+      | "changePassword"
+      | "deleteUser",
     targetUsername: string,
-    targetPassword?: string
+    targetPassword?: string,
   ) => {
     try {
-      const res = await fetch('/api/admin/user', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/admin/user", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           targetUsername,
           ...(targetPassword ? { targetPassword } : {}),
@@ -255,7 +255,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
       // 成功后刷新配置（无需整页刷新）
       await refreshConfig();
     } catch (err) {
-      showError(err instanceof Error ? err.message : '操作失败');
+      showError(err instanceof Error ? err.message : "操作失败");
     }
   };
 
@@ -292,7 +292,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
         <div className='flex items-center justify-between'>
           <label
             className={`text-gray-700 dark:text-gray-300 ${
-              isD1Storage ? 'opacity-50' : ''
+              isD1Storage ? "opacity-50" : ""
             }`}
           >
             允许新用户注册
@@ -310,15 +310,15 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
             disabled={isD1Storage}
             className={`relative inline-flex h-6 w-11 items-center rounded-full transition-colors focus:outline-hidden focus:ring-2 focus:ring-green-500 focus:ring-offset-2 ${
               userSettings.enableRegistration
-                ? 'bg-green-600'
-                : 'bg-gray-200 dark:bg-gray-700'
-            } ${isD1Storage ? 'opacity-50 cursor-not-allowed' : ''}`}
+                ? "bg-green-600"
+                : "bg-gray-200 dark:bg-gray-700"
+            } ${isD1Storage ? "opacity-50 cursor-not-allowed" : ""}`}
           >
             <span
               className={`inline-block h-4 w-4 transform rounded-full bg-white transition-transform ${
                 userSettings.enableRegistration
-                  ? 'translate-x-6'
-                  : 'translate-x-1'
+                  ? "translate-x-6"
+                  : "translate-x-1"
               }`}
             />
           </button>
@@ -336,12 +336,12 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
               setShowAddUserForm(!showAddUserForm);
               if (showChangePasswordForm) {
                 setShowChangePasswordForm(false);
-                setChangePasswordUser({ username: '', password: '' });
+                setChangePasswordUser({ username: "", password: "" });
               }
             }}
             className='px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-colors'
           >
-            {showAddUserForm ? '取消' : '添加用户'}
+            {showAddUserForm ? "取消" : "添加用户"}
           </button>
         </div>
 
@@ -414,7 +414,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
               <button
                 onClick={() => {
                   setShowChangePasswordForm(false);
-                  setChangePasswordUser({ username: '', password: '' });
+                  setChangePasswordUser({ username: "", password: "" });
                 }}
                 className='w-full sm:w-auto px-4 py-2 bg-gray-600 hover:bg-gray-700 text-white rounded-lg transition-colors'
               >
@@ -461,8 +461,8 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                 type UserInfo = (typeof config.UserConfig.Users)[number];
                 const priority = (u: UserInfo) => {
                   if (u.username === currentUsername) return 0;
-                  if (u.role === 'owner') return 1;
-                  if (u.role === 'admin') return 2;
+                  if (u.role === "owner") return 1;
+                  if (u.role === "admin") return 2;
                   return 3;
                 };
                 return priority(a) - priority(b);
@@ -472,23 +472,23 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                   {sortedUsers.map((user) => {
                     // 修改密码权限：站长可修改管理员和普通用户密码，管理员可修改普通用户和自己的密码，但任何人都不能修改站长密码
                     const canChangePassword =
-                      user.role !== 'owner' && // 不能修改站长密码
-                      (role === 'owner' || // 站长可以修改管理员和普通用户密码
-                        (role === 'admin' &&
-                          (user.role === 'user' ||
+                      user.role !== "owner" && // 不能修改站长密码
+                      (role === "owner" || // 站长可以修改管理员和普通用户密码
+                        (role === "admin" &&
+                          (user.role === "user" ||
                             user.username === currentUsername))); // 管理员可以修改普通用户和自己的密码
 
                     // 删除用户权限：站长可删除除自己外的所有用户，管理员仅可删除普通用户
                     const canDeleteUser =
                       user.username !== currentUsername &&
-                      (role === 'owner' || // 站长可以删除除自己外的所有用户
-                        (role === 'admin' && user.role === 'user')); // 管理员仅可删除普通用户
+                      (role === "owner" || // 站长可以删除除自己外的所有用户
+                        (role === "admin" && user.role === "user")); // 管理员仅可删除普通用户
 
                     // 其他操作权限：不能操作自己，站长可操作所有用户，管理员可操作普通用户
                     const canOperate =
                       user.username !== currentUsername &&
-                      (role === 'owner' ||
-                        (role === 'admin' && user.role === 'user'));
+                      (role === "owner" ||
+                        (role === "admin" && user.role === "user"));
                     return (
                       <tr
                         key={user.username}
@@ -500,29 +500,29 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                         <td className='px-6 py-4 whitespace-nowrap'>
                           <span
                             className={`px-2 py-1 text-xs rounded-full ${
-                              user.role === 'owner'
-                                ? 'bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300'
-                                : user.role === 'admin'
-                                ? 'bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300'
-                                : 'bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300'
+                              user.role === "owner"
+                                ? "bg-yellow-100 dark:bg-yellow-900/20 text-yellow-800 dark:text-yellow-300"
+                                : user.role === "admin"
+                                  ? "bg-purple-100 dark:bg-purple-900/20 text-purple-800 dark:text-purple-300"
+                                  : "bg-gray-100 dark:bg-gray-700 text-gray-700 dark:text-gray-300"
                             }`}
                           >
-                            {user.role === 'owner'
-                              ? '站长'
-                              : user.role === 'admin'
-                              ? '管理员'
-                              : '普通用户'}
+                            {user.role === "owner"
+                              ? "站长"
+                              : user.role === "admin"
+                                ? "管理员"
+                                : "普通用户"}
                           </span>
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap'>
                           <span
                             className={`px-2 py-1 text-xs rounded-full ${
                               !user.banned
-                                ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-                                : 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300'
+                                ? "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300"
+                                : "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300"
                             }`}
                           >
-                            {!user.banned ? '正常' : '已封禁'}
+                            {!user.banned ? "正常" : "已封禁"}
                           </span>
                         </td>
                         <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2'>
@@ -540,7 +540,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                           {canOperate && (
                             <>
                               {/* 其他操作按钮 */}
-                              {user.role === 'user' && (
+                              {user.role === "user" && (
                                 <button
                                   onClick={() => handleSetAdmin(user.username)}
                                   className='inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800 hover:bg-purple-200 dark:bg-purple-900/40 dark:hover:bg-purple-900/60 dark:text-purple-200 transition-colors'
@@ -548,7 +548,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                                   设为管理
                                 </button>
                               )}
-                              {user.role === 'admin' && (
+                              {user.role === "admin" && (
                                 <button
                                   onClick={() =>
                                     handleRemoveAdmin(user.username)
@@ -558,7 +558,7 @@ const UserConfig = ({ config, role, refreshConfig }: UserConfigProps) => {
                                   取消管理
                                 </button>
                               )}
-                              {user.role !== 'owner' &&
+                              {user.role !== "owner" &&
                                 (!user.banned ? (
                                   <button
                                     onClick={() => handleBanUser(user.username)}
@@ -613,12 +613,12 @@ const VideoSourceConfig = ({
   const [showAddForm, setShowAddForm] = useState(false);
   const [orderChanged, setOrderChanged] = useState(false);
   const [newSource, setNewSource] = useState<DataSource>({
-    name: '',
-    key: '',
-    api: '',
-    detail: '',
+    name: "",
+    key: "",
+    api: "",
+    detail: "",
     disabled: false,
-    from: 'config',
+    from: "config",
   });
 
   // dnd-kit 传感器
@@ -633,7 +633,7 @@ const VideoSourceConfig = ({
         delay: 150, // 长按 150ms 后触发，避免与滚动冲突
         tolerance: 5,
       },
-    })
+    }),
   );
 
   // 初始化
@@ -648,9 +648,9 @@ const VideoSourceConfig = ({
   // 通用 API 请求
   const callSourceApi = async (body: Record<string, any>) => {
     try {
-      const resp = await fetch('/api/admin/source', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const resp = await fetch("/api/admin/source", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...body }),
       });
 
@@ -662,7 +662,7 @@ const VideoSourceConfig = ({
       // 成功后刷新配置
       await refreshConfig();
     } catch (err) {
-      showError(err instanceof Error ? err.message : '操作失败');
+      showError(err instanceof Error ? err.message : "操作失败");
       throw err; // 向上抛出方便调用处判断
     }
   };
@@ -670,22 +670,22 @@ const VideoSourceConfig = ({
   const handleToggleEnable = (key: string) => {
     const target = sources.find((s) => s.key === key);
     if (!target) return;
-    const action = target.disabled ? 'enable' : 'disable';
+    const action = target.disabled ? "enable" : "disable";
     callSourceApi({ action, key }).catch(() => {
-      console.error('操作失败', action, key);
+      console.error("操作失败", action, key);
     });
   };
 
   const handleDelete = (key: string) => {
-    callSourceApi({ action: 'delete', key }).catch(() => {
-      console.error('操作失败', 'delete', key);
+    callSourceApi({ action: "delete", key }).catch(() => {
+      console.error("操作失败", "delete", key);
     });
   };
 
   const handleAddSource = () => {
     if (!newSource.name || !newSource.key || !newSource.api) return;
     callSourceApi({
-      action: 'add',
+      action: "add",
       key: newSource.key,
       name: newSource.name,
       api: newSource.api,
@@ -693,17 +693,17 @@ const VideoSourceConfig = ({
     })
       .then(() => {
         setNewSource({
-          name: '',
-          key: '',
-          api: '',
-          detail: '',
+          name: "",
+          key: "",
+          api: "",
+          detail: "",
           disabled: false,
-          from: 'custom',
+          from: "custom",
         });
         setShowAddForm(false);
       })
       .catch(() => {
-        console.error('操作失败', 'add', newSource);
+        console.error("操作失败", "add", newSource);
       });
   };
 
@@ -718,12 +718,12 @@ const VideoSourceConfig = ({
 
   const handleSaveOrder = () => {
     const order = sources.map((s) => s.key);
-    callSourceApi({ action: 'sort', order })
+    callSourceApi({ action: "sort", order })
       .then(() => {
         setOrderChanged(false);
       })
       .catch(() => {
-        console.error('操作失败', 'sort', order);
+        console.error("操作失败", "sort", order);
       });
   };
 
@@ -745,7 +745,7 @@ const VideoSourceConfig = ({
       >
         <td
           className='px-2 py-4 cursor-grab text-gray-400'
-          style={{ touchAction: 'none' }}
+          style={{ touchAction: "none" }}
           {...attributes}
           {...listeners}
         >
@@ -765,19 +765,19 @@ const VideoSourceConfig = ({
         </td>
         <td
           className='px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-gray-100 max-w-32 truncate'
-          title={source.detail || '-'}
+          title={source.detail || "-"}
         >
-          {source.detail || '-'}
+          {source.detail || "-"}
         </td>
         <td className='px-6 py-4 whitespace-nowrap max-w-4'>
           <span
             className={`px-2 py-1 text-xs rounded-full ${
               !source.disabled
-                ? 'bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300'
-                : 'bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300'
+                ? "bg-green-100 dark:bg-green-900/20 text-green-800 dark:text-green-300"
+                : "bg-red-100 dark:bg-red-900/20 text-red-800 dark:text-red-300"
             }`}
           >
-            {!source.disabled ? '启用中' : '已禁用'}
+            {!source.disabled ? "启用中" : "已禁用"}
           </span>
         </td>
         <td className='px-6 py-4 whitespace-nowrap text-right text-sm font-medium space-x-2'>
@@ -785,13 +785,13 @@ const VideoSourceConfig = ({
             onClick={() => handleToggleEnable(source.key)}
             className={`inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium ${
               !source.disabled
-                ? 'bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/60'
-                : 'bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/60'
+                ? "bg-red-100 dark:bg-red-900/40 text-red-800 dark:text-red-300 hover:bg-red-200 dark:hover:bg-red-900/60"
+                : "bg-green-100 dark:bg-green-900/40 text-green-800 dark:text-green-300 hover:bg-green-200 dark:hover:bg-green-900/60"
             } transition-colors`}
           >
-            {!source.disabled ? '禁用' : '启用'}
+            {!source.disabled ? "禁用" : "启用"}
           </button>
-          {source.from !== 'config' && (
+          {source.from !== "config" && (
             <button
               onClick={() => handleDelete(source.key)}
               className='inline-flex items-center px-3 py-1.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800 hover:bg-gray-200 dark:bg-gray-700/40 dark:hover:bg-gray-700/60 dark:text-gray-200 transition-colors'
@@ -823,7 +823,7 @@ const VideoSourceConfig = ({
           onClick={() => setShowAddForm(!showAddForm)}
           className='px-3 py-1 bg-green-600 hover:bg-green-700 text-white text-sm rounded-lg transition-colors'
         >
-          {showAddForm ? '取消' : '添加视频源'}
+          {showAddForm ? "取消" : "添加视频源"}
         </button>
       </div>
 
@@ -944,25 +944,25 @@ const VideoSourceConfig = ({
 // 新增站点配置组件
 const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
   const [siteSettings, setSiteSettings] = useState<SiteConfig>({
-    SiteName: '',
-    Announcement: '',
+    SiteName: "",
+    Announcement: "",
     SearchDownstreamMaxPage: 1,
     SiteInterfaceCacheTime: 7200,
-    ImageProxy: '',
+    ImageProxy: "",
   });
   // 保存状态
   const [saving, setSaving] = useState(false);
 
   // 检测存储类型是否为 d1
   const isD1Storage =
-    typeof window !== 'undefined' &&
-    (window as any).RUNTIME_CONFIG?.STORAGE_TYPE === 'd1';
+    typeof window !== "undefined" &&
+    (window as any).RUNTIME_CONFIG?.STORAGE_TYPE === "d1";
 
   useEffect(() => {
     if (config?.SiteConfig) {
       setSiteSettings({
         ...config.SiteConfig,
-        ImageProxy: config.SiteConfig.ImageProxy || '',
+        ImageProxy: config.SiteConfig.ImageProxy || "",
       });
     }
   }, [config]);
@@ -971,9 +971,9 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
   const handleSave = async () => {
     try {
       setSaving(true);
-      const resp = await fetch('/api/admin/site', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const resp = await fetch("/api/admin/site", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ ...siteSettings }),
       });
 
@@ -982,9 +982,9 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
         throw new Error(data.error || `保存失败: ${resp.status}`);
       }
 
-      showSuccess('保存成功, 请刷新页面');
+      showSuccess("保存成功, 请刷新页面");
     } catch (err) {
-      showError(err instanceof Error ? err.message : '保存失败');
+      showError(err instanceof Error ? err.message : "保存失败");
     } finally {
       setSaving(false);
     }
@@ -1004,7 +1004,7 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
       <div>
         <label
           className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 ${
-            isD1Storage ? 'opacity-50' : ''
+            isD1Storage ? "opacity-50" : ""
           }`}
         >
           站点名称
@@ -1023,7 +1023,7 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
           }
           disabled={isD1Storage}
           className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-            isD1Storage ? 'opacity-50 cursor-not-allowed' : ''
+            isD1Storage ? "opacity-50 cursor-not-allowed" : ""
           }`}
         />
       </div>
@@ -1032,7 +1032,7 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
       <div>
         <label
           className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 ${
-            isD1Storage ? 'opacity-50' : ''
+            isD1Storage ? "opacity-50" : ""
           }`}
         >
           站点公告
@@ -1054,7 +1054,7 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
           disabled={isD1Storage}
           rows={3}
           className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-            isD1Storage ? 'opacity-50 cursor-not-allowed' : ''
+            isD1Storage ? "opacity-50 cursor-not-allowed" : ""
           }`}
         />
       </div>
@@ -1101,7 +1101,7 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
       <div>
         <label
           className={`block text-sm font-medium text-gray-700 dark:text-gray-300 mb-2 ${
-            isD1Storage ? 'opacity-50' : ''
+            isD1Storage ? "opacity-50" : ""
           }`}
         >
           图片代理前缀
@@ -1124,7 +1124,7 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
           }
           disabled={isD1Storage}
           className={`w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-lg bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 focus:ring-2 focus:ring-green-500 focus:border-transparent ${
-            isD1Storage ? 'opacity-50 cursor-not-allowed' : ''
+            isD1Storage ? "opacity-50 cursor-not-allowed" : ""
           }`}
         />
         <p className='mt-1 text-xs text-gray-500 dark:text-gray-400'>
@@ -1139,11 +1139,11 @@ const SiteConfigComponent = ({ config }: { config: AdminConfig | null }) => {
           disabled={saving || isD1Storage}
           className={`px-4 py-2 ${
             saving || isD1Storage
-              ? 'bg-gray-400 cursor-not-allowed'
-              : 'bg-green-600 hover:bg-green-700'
+              ? "bg-gray-400 cursor-not-allowed"
+              : "bg-green-600 hover:bg-green-700"
           } text-white rounded-lg transition-colors`}
         >
-          {saving ? '保存中…' : '保存'}
+          {saving ? "保存中…" : "保存"}
         </button>
       </div>
     </div>
@@ -1154,7 +1154,7 @@ function AdminPageClient() {
   const [config, setConfig] = useState<AdminConfig | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [role, setRole] = useState<'owner' | 'admin' | null>(null);
+  const [role, setRole] = useState<"owner" | "admin" | null>(null);
   const [expandedTabs, setExpandedTabs] = useState<{ [key: string]: boolean }>({
     userConfig: false,
     videoSource: false,
@@ -1180,7 +1180,7 @@ function AdminPageClient() {
       setConfig(data.Config);
       setRole(data.Role);
     } catch (err) {
-      const msg = err instanceof Error ? err.message : '获取配置失败';
+      const msg = err instanceof Error ? err.message : "获取配置失败";
       showError(msg);
       setError(msg);
     } finally {
@@ -1206,12 +1206,12 @@ function AdminPageClient() {
   // 新增: 重置配置处理函数
   const handleResetConfig = async () => {
     const { isConfirmed } = await Swal.fire({
-      title: '确认重置配置',
-      text: '此操作将重置用户封禁和管理员设置、自定义视频源，站点配置将重置为默认值，是否继续？',
-      icon: 'warning',
+      title: "确认重置配置",
+      text: "此操作将重置用户封禁和管理员设置、自定义视频源，站点配置将重置为默认值，是否继续？",
+      icon: "warning",
       showCancelButton: true,
-      confirmButtonText: '确认',
-      cancelButtonText: '取消',
+      confirmButtonText: "确认",
+      cancelButtonText: "取消",
     });
     if (!isConfirmed) return;
 
@@ -1220,9 +1220,9 @@ function AdminPageClient() {
       if (!response.ok) {
         throw new Error(`重置失败: ${response.status}`);
       }
-      showSuccess('重置成功，请刷新页面！');
+      showSuccess("重置成功，请刷新页面！");
     } catch (err) {
-      showError(err instanceof Error ? err.message : '重置失败');
+      showError(err instanceof Error ? err.message : "重置失败");
     }
   };
 
@@ -1262,7 +1262,7 @@ function AdminPageClient() {
             <h1 className='text-2xl font-bold text-gray-900 dark:text-gray-100'>
               管理员设置
             </h1>
-            {config && role === 'owner' && (
+            {config && role === "owner" && (
               <button
                 onClick={handleResetConfig}
                 className='px-3 py-1 bg-red-600 hover:bg-red-700 text-white text-xs rounded-md transition-colors'
@@ -1282,7 +1282,7 @@ function AdminPageClient() {
               />
             }
             isExpanded={expandedTabs.siteConfig}
-            onToggle={() => toggleTab('siteConfig')}
+            onToggle={() => toggleTab("siteConfig")}
           >
             <SiteConfigComponent config={config} />
           </CollapsibleTab>
@@ -1295,7 +1295,7 @@ function AdminPageClient() {
                 <Users size={20} className='text-gray-600 dark:text-gray-400' />
               }
               isExpanded={expandedTabs.userConfig}
-              onToggle={() => toggleTab('userConfig')}
+              onToggle={() => toggleTab("userConfig")}
             >
               <UserConfig
                 config={config}
@@ -1311,7 +1311,7 @@ function AdminPageClient() {
                 <Video size={20} className='text-gray-600 dark:text-gray-400' />
               }
               isExpanded={expandedTabs.videoSource}
-              onToggle={() => toggleTab('videoSource')}
+              onToggle={() => toggleTab("videoSource")}
             >
               <VideoSourceConfig config={config} refreshConfig={fetchConfig} />
             </CollapsibleTab>

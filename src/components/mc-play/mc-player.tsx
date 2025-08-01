@@ -1,8 +1,8 @@
-'use client';
+"use client";
 
-import Artplayer from 'artplayer';
-import Hls from 'hls.js';
-import { useEffect, useRef } from 'react';
+import Artplayer from "artplayer";
+import Hls from "hls.js";
+import { useEffect, useRef } from "react";
 
 interface McPlayerProps {
   videoUrl: string;
@@ -35,7 +35,7 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
       artPlayerRef.current = new Artplayer({
         container: artRef.current,
         url: videoUrl,
-        poster: poster || '',
+        poster: poster || "",
         volume: 0.7,
         isLive: false,
         muted: false,
@@ -57,20 +57,20 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
         playsInline: true,
         autoPlayback: false,
         airplay: true,
-        theme: '#22c55e',
-        lang: 'zh-cn',
+        theme: "#22c55e",
+        lang: "zh-cn",
         hotkey: true,
         fastForward: true,
         autoOrientation: true,
         lock: true,
         moreVideoAttr: {
-          crossOrigin: 'anonymous',
+          crossOrigin: "anonymous",
         },
         // HLS support configuration
         customType: {
           m3u8: function (video: HTMLVideoElement, url: string) {
             if (!Hls) {
-              console.error('HLS.js not loaded');
+              console.error("HLS.js not loaded");
               return;
             }
 
@@ -92,24 +92,24 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
             video.hls = hls;
 
             // Ensure video source
-            const sources = Array.from(video.getElementsByTagName('source'));
+            const sources = Array.from(video.getElementsByTagName("source"));
             const existed = sources.some((s) => s.src === url);
             if (!existed) {
               sources.forEach((s) => s.remove());
-              const sourceEl = document.createElement('source');
+              const sourceEl = document.createElement("source");
               sourceEl.src = url;
               video.appendChild(sourceEl);
             }
 
             video.disableRemotePlayback = false;
-            if (video.hasAttribute('disableRemotePlayback')) {
-              video.removeAttribute('disableRemotePlayback');
+            if (video.hasAttribute("disableRemotePlayback")) {
+              video.removeAttribute("disableRemotePlayback");
             }
 
             hls.on(Hls.Events.ERROR, function (_event: any, data: any) {
               // Only log in development and for fatal errors
-              if (process.env.NODE_ENV === 'development' && data.fatal) {
-                console.warn('HLS Fatal Error:', data.type, data.details);
+              if (process.env.NODE_ENV === "development" && data.fatal) {
+                console.warn("HLS Fatal Error:", data.type, data.details);
               }
 
               if (data.fatal) {
@@ -146,15 +146,15 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
       });
 
       // Player event listeners
-      artPlayerRef.current.on('ready', () => {
-        console.log('Player ready');
+      artPlayerRef.current.on("ready", () => {
+        console.log("Player ready");
       });
 
-      artPlayerRef.current.on('error', (err: unknown) => {
-        console.error('Player error:', err);
+      artPlayerRef.current.on("error", (err: unknown) => {
+        console.error("Player error:", err);
       });
     } catch (err) {
-      console.error('Failed to create player:', err);
+      console.error("Failed to create player:", err);
     }
 
     // Cleanup on unmount

@@ -1,7 +1,7 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
-import { Dazahui } from '@/schemas/dazahui';
+import { Dazahui } from "@/schemas/dazahui";
 
 type UserState = {
   watchHistory: Dazahui[];
@@ -16,7 +16,7 @@ type UserState = {
   updateBookmarks: (
     user_id: string,
     item: Dazahui,
-    action: 'add' | 'delete',
+    action: "add" | "delete",
   ) => void;
 };
 
@@ -51,16 +51,16 @@ export const useUserStore = create<UserState>()(
             watchHistory: [],
           };
         }),
-      lastUpdatedAt: '',
+      lastUpdatedAt: "",
       setLastUpdatedAt: (ts: string) => set({ lastUpdatedAt: ts }),
-      localPassword: '',
+      localPassword: "",
       setLocalPassword: (p?: string) => set({ localPassword: p }),
-      adultMode: '',
+      adultMode: "",
       setAdultMode: (ts: string) => set({ adultMode: ts }),
       bookmarks: {},
-      updateBookmarks: (user_id: string, item: Dazahui, action = 'add') => {
+      updateBookmarks: (user_id: string, item: Dazahui, action = "add") => {
         set((state) => {
-          if (action === 'add') {
+          if (action === "add") {
             return {
               bookmarks:
                 state.bookmarks &&
@@ -77,7 +77,7 @@ export const useUserStore = create<UserState>()(
             };
           }
 
-          if (action === 'delete') {
+          if (action === "delete") {
             return {
               bookmarks: {
                 ...state.bookmarks,
@@ -95,7 +95,7 @@ export const useUserStore = create<UserState>()(
       },
     }),
     {
-      name: 'mc_user',
+      name: "mc_user",
     },
   ),
 );

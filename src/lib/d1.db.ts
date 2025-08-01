@@ -1,7 +1,7 @@
 /* eslint-disable no-console, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-import { AdminConfig } from './admin.types';
-import { Favorite, IStorage, PlayRecord } from './types';
+import { AdminConfig } from "./admin.types";
+import { Favorite, IStorage, PlayRecord } from "./types";
 
 // 搜索历史最大条数
 const SEARCH_HISTORY_LIMIT = 20;
@@ -55,12 +55,12 @@ export class D1Storage implements IStorage {
   // 播放记录相关
   async getPlayRecord(
     userName: string,
-    key: string
+    key: string,
   ): Promise<PlayRecord | null> {
     try {
       const db = await this.getDatabase();
       const result = await db
-        .prepare('SELECT * FROM play_records WHERE username = ? AND key = ?')
+        .prepare("SELECT * FROM play_records WHERE username = ? AND key = ?")
         .bind(userName, key)
         .first<any>();
 
@@ -79,7 +79,7 @@ export class D1Storage implements IStorage {
         search_title: result.search_title || undefined,
       };
     } catch (err) {
-      console.error('Failed to get play record:', err);
+      console.error("Failed to get play record:", err);
       throw err;
     }
   }
@@ -87,7 +87,7 @@ export class D1Storage implements IStorage {
   async setPlayRecord(
     userName: string,
     key: string,
-    record: PlayRecord
+    record: PlayRecord,
   ): Promise<void> {
     try {
       const db = await this.getDatabase();
@@ -97,7 +97,7 @@ export class D1Storage implements IStorage {
           INSERT OR REPLACE INTO play_records 
           (username, key, title, source_name, cover, year, index_episode, total_episodes, play_time, total_time, save_time, search_title)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
-        `
+        `,
         )
         .bind(
           userName,
@@ -111,23 +111,23 @@ export class D1Storage implements IStorage {
           record.play_time,
           record.total_time,
           record.save_time,
-          record.search_title || null
+          record.search_title || null,
         )
         .run();
     } catch (err) {
-      console.error('Failed to set play record:', err);
+      console.error("Failed to set play record:", err);
       throw err;
     }
   }
 
   async getAllPlayRecords(
-    userName: string
+    userName: string,
   ): Promise<Record<string, PlayRecord>> {
     try {
       const db = await this.getDatabase();
       const result = await db
         .prepare(
-          'SELECT * FROM play_records WHERE username = ? ORDER BY save_time DESC'
+          "SELECT * FROM play_records WHERE username = ? ORDER BY save_time DESC",
         )
         .bind(userName)
         .all<any>();
@@ -151,7 +151,7 @@ export class D1Storage implements IStorage {
 
       return records;
     } catch (err) {
-      console.error('Failed to get all play records:', err);
+      console.error("Failed to get all play records:", err);
       throw err;
     }
   }
@@ -160,11 +160,11 @@ export class D1Storage implements IStorage {
     try {
       const db = await this.getDatabase();
       await db
-        .prepare('DELETE FROM play_records WHERE username = ? AND key = ?')
+        .prepare("DELETE FROM play_records WHERE username = ? AND key = ?")
         .bind(userName, key)
         .run();
     } catch (err) {
-      console.error('Failed to delete play record:', err);
+      console.error("Failed to delete play record:", err);
       throw err;
     }
   }
@@ -174,7 +174,7 @@ export class D1Storage implements IStorage {
     try {
       const db = await this.getDatabase();
       const result = await db
-        .prepare('SELECT * FROM favorites WHERE username = ? AND key = ?')
+        .prepare("SELECT * FROM favorites WHERE username = ? AND key = ?")
         .bind(userName, key)
         .first<any>();
 
@@ -190,7 +190,7 @@ export class D1Storage implements IStorage {
         search_title: result.search_title,
       };
     } catch (err) {
-      console.error('Failed to get favorite:', err);
+      console.error("Failed to get favorite:", err);
       throw err;
     }
   }
@@ -198,7 +198,7 @@ export class D1Storage implements IStorage {
   async setFavorite(
     userName: string,
     key: string,
-    favorite: Favorite
+    favorite: Favorite,
   ): Promise<void> {
     try {
       const db = await this.getDatabase();
@@ -208,7 +208,7 @@ export class D1Storage implements IStorage {
           INSERT OR REPLACE INTO favorites 
           (username, key, title, source_name, cover, year, total_episodes, save_time)
           VALUES (?, ?, ?, ?, ?, ?, ?, ?)
-        `
+        `,
         )
         .bind(
           userName,
@@ -218,11 +218,11 @@ export class D1Storage implements IStorage {
           favorite.cover,
           favorite.year,
           favorite.total_episodes,
-          favorite.save_time
+          favorite.save_time,
         )
         .run();
     } catch (err) {
-      console.error('Failed to set favorite:', err);
+      console.error("Failed to set favorite:", err);
       throw err;
     }
   }
@@ -232,7 +232,7 @@ export class D1Storage implements IStorage {
       const db = await this.getDatabase();
       const result = await db
         .prepare(
-          'SELECT * FROM favorites WHERE username = ? ORDER BY save_time DESC'
+          "SELECT * FROM favorites WHERE username = ? ORDER BY save_time DESC",
         )
         .bind(userName)
         .all<any>();
@@ -253,7 +253,7 @@ export class D1Storage implements IStorage {
 
       return favorites;
     } catch (err) {
-      console.error('Failed to get all favorites:', err);
+      console.error("Failed to get all favorites:", err);
       throw err;
     }
   }
@@ -262,11 +262,11 @@ export class D1Storage implements IStorage {
     try {
       const db = await this.getDatabase();
       await db
-        .prepare('DELETE FROM favorites WHERE username = ? AND key = ?')
+        .prepare("DELETE FROM favorites WHERE username = ? AND key = ?")
         .bind(userName, key)
         .run();
     } catch (err) {
-      console.error('Failed to delete favorite:', err);
+      console.error("Failed to delete favorite:", err);
       throw err;
     }
   }
@@ -276,11 +276,11 @@ export class D1Storage implements IStorage {
     try {
       const db = await this.getDatabase();
       await db
-        .prepare('INSERT INTO users (username, password) VALUES (?, ?)')
+        .prepare("INSERT INTO users (username, password) VALUES (?, ?)")
         .bind(userName, password)
         .run();
     } catch (err) {
-      console.error('Failed to register user:', err);
+      console.error("Failed to register user:", err);
       throw err;
     }
   }
@@ -289,13 +289,13 @@ export class D1Storage implements IStorage {
     try {
       const db = await this.getDatabase();
       const result = await db
-        .prepare('SELECT password FROM users WHERE username = ?')
+        .prepare("SELECT password FROM users WHERE username = ?")
         .bind(userName)
         .first<{ password: string }>();
 
       return result?.password === password;
     } catch (err) {
-      console.error('Failed to verify user:', err);
+      console.error("Failed to verify user:", err);
       throw err;
     }
   }
@@ -304,13 +304,13 @@ export class D1Storage implements IStorage {
     try {
       const db = await this.getDatabase();
       const result = await db
-        .prepare('SELECT 1 FROM users WHERE username = ?')
+        .prepare("SELECT 1 FROM users WHERE username = ?")
         .bind(userName)
         .first();
 
       return result !== null;
     } catch (err) {
-      console.error('Failed to check user existence:', err);
+      console.error("Failed to check user existence:", err);
       throw err;
     }
   }
@@ -319,11 +319,11 @@ export class D1Storage implements IStorage {
     try {
       const db = await this.getDatabase();
       await db
-        .prepare('UPDATE users SET password = ? WHERE username = ?')
+        .prepare("UPDATE users SET password = ? WHERE username = ?")
         .bind(newPassword, userName)
         .run();
     } catch (err) {
-      console.error('Failed to change password:', err);
+      console.error("Failed to change password:", err);
       throw err;
     }
   }
@@ -332,19 +332,19 @@ export class D1Storage implements IStorage {
     try {
       const db = await this.getDatabase();
       const statements = [
-        db.prepare('DELETE FROM users WHERE username = ?').bind(userName),
+        db.prepare("DELETE FROM users WHERE username = ?").bind(userName),
         db
-          .prepare('DELETE FROM play_records WHERE username = ?')
+          .prepare("DELETE FROM play_records WHERE username = ?")
           .bind(userName),
-        db.prepare('DELETE FROM favorites WHERE username = ?').bind(userName),
+        db.prepare("DELETE FROM favorites WHERE username = ?").bind(userName),
         db
-          .prepare('DELETE FROM search_history WHERE username = ?')
+          .prepare("DELETE FROM search_history WHERE username = ?")
           .bind(userName),
       ];
 
       await db.batch(statements);
     } catch (err) {
-      console.error('Failed to delete user:', err);
+      console.error("Failed to delete user:", err);
       throw err;
     }
   }
@@ -355,14 +355,14 @@ export class D1Storage implements IStorage {
       const db = await this.getDatabase();
       const result = await db
         .prepare(
-          'SELECT keyword FROM search_history WHERE username = ? ORDER BY created_at DESC LIMIT ?'
+          "SELECT keyword FROM search_history WHERE username = ? ORDER BY created_at DESC LIMIT ?",
         )
         .bind(userName, SEARCH_HISTORY_LIMIT)
         .all<{ keyword: string }>();
 
       return result.results.map((row) => row.keyword);
     } catch (err) {
-      console.error('Failed to get search history:', err);
+      console.error("Failed to get search history:", err);
       throw err;
     }
   }
@@ -373,14 +373,14 @@ export class D1Storage implements IStorage {
       // 先删除可能存在的重复记录
       await db
         .prepare(
-          'DELETE FROM search_history WHERE username = ? AND keyword = ?'
+          "DELETE FROM search_history WHERE username = ? AND keyword = ?",
         )
         .bind(userName, keyword)
         .run();
 
       // 添加新记录
       await db
-        .prepare('INSERT INTO search_history (username, keyword) VALUES (?, ?)')
+        .prepare("INSERT INTO search_history (username, keyword) VALUES (?, ?)")
         .bind(userName, keyword)
         .run();
 
@@ -395,12 +395,12 @@ export class D1Storage implements IStorage {
             ORDER BY created_at DESC 
             LIMIT ?
           )
-        `
+        `,
         )
         .bind(userName, userName, SEARCH_HISTORY_LIMIT)
         .run();
     } catch (err) {
-      console.error('Failed to add search history:', err);
+      console.error("Failed to add search history:", err);
       throw err;
     }
   }
@@ -411,18 +411,18 @@ export class D1Storage implements IStorage {
       if (keyword) {
         await db
           .prepare(
-            'DELETE FROM search_history WHERE username = ? AND keyword = ?'
+            "DELETE FROM search_history WHERE username = ? AND keyword = ?",
           )
           .bind(userName, keyword)
           .run();
       } else {
         await db
-          .prepare('DELETE FROM search_history WHERE username = ?')
+          .prepare("DELETE FROM search_history WHERE username = ?")
           .bind(userName)
           .run();
       }
     } catch (err) {
-      console.error('Failed to delete search history:', err);
+      console.error("Failed to delete search history:", err);
       throw err;
     }
   }
@@ -432,12 +432,12 @@ export class D1Storage implements IStorage {
     try {
       const db = await this.getDatabase();
       const result = await db
-        .prepare('SELECT username FROM users ORDER BY created_at ASC')
+        .prepare("SELECT username FROM users ORDER BY created_at ASC")
         .all<{ username: string }>();
 
       return result.results.map((row) => row.username);
     } catch (err) {
-      console.error('Failed to get all users:', err);
+      console.error("Failed to get all users:", err);
       throw err;
     }
   }
@@ -447,14 +447,14 @@ export class D1Storage implements IStorage {
     try {
       const db = await this.getDatabase();
       const result = await db
-        .prepare('SELECT config FROM admin_config WHERE id = 1')
+        .prepare("SELECT config FROM admin_config WHERE id = 1")
         .first<{ config: string }>();
 
       if (!result) return null;
 
       return JSON.parse(result.config) as AdminConfig;
     } catch (err) {
-      console.error('Failed to get admin config:', err);
+      console.error("Failed to get admin config:", err);
       throw err;
     }
   }
@@ -464,12 +464,12 @@ export class D1Storage implements IStorage {
       const db = await this.getDatabase();
       await db
         .prepare(
-          'INSERT OR REPLACE INTO admin_config (id, config) VALUES (1, ?)'
+          "INSERT OR REPLACE INTO admin_config (id, config) VALUES (1, ?)",
         )
         .bind(JSON.stringify(config))
         .run();
     } catch (err) {
-      console.error('Failed to set admin config:', err);
+      console.error("Failed to set admin config:", err);
       throw err;
     }
   }

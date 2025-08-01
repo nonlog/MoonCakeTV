@@ -1,24 +1,24 @@
-import type { Metadata, Viewport } from 'next';
-import { Inter } from 'next/font/google';
+import type { Metadata, Viewport } from "next";
+import { Inter } from "next/font/google";
 
-import './globals.css';
-import 'sweetalert2/dist/sweetalert2.min.css';
+import "./globals.css";
+import "sweetalert2/dist/sweetalert2.min.css";
 
-import { Toaster } from '@/components/ui/sonner';
+import { Toaster } from "@/components/ui/sonner";
 
-import { ThemeProvider } from '../components/ThemeProvider';
+import { ThemeProvider } from "../components/ThemeProvider";
 
-const inter = Inter({ subsets: ['latin'] });
+const inter = Inter({ subsets: ["latin"] });
 
 // 静态 metadata 对象
 export const metadata: Metadata = {
-  title: '月饼TV',
-  description: '影视聚合',
-  manifest: '/manifest.json',
+  title: "月饼TV",
+  description: "影视聚合",
+  manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {
-  themeColor: '#000000',
+  themeColor: "#000000",
 };
 
 export default async function RootLayout({

@@ -1,20 +1,20 @@
-'use client';
+"use client";
 
-import { Loader2, Play } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useState } from 'react';
-import { toast } from 'sonner';
+import { Loader2, Play } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-import { MediaCard } from '@/components/common/media-card';
-import McSearchBar from '@/components/mc-search/search-bar';
-import PageLayout from '@/components/PageLayout';
+import { MediaCard } from "@/components/common/media-card";
+import McSearchBar from "@/components/mc-search/search-bar";
+import PageLayout from "@/components/PageLayout";
 
-import { Dazahui } from '@/schemas/dazahui';
+import { Dazahui } from "@/schemas/dazahui";
 
 export default function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [keyword, setKeyword] = useState('');
+  const [keyword, setKeyword] = useState("");
   const [results, setResults] = useState<Dazahui[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
@@ -34,7 +34,7 @@ export default function SearchPage() {
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error);
-      toast.error('搜索失败');
+      toast.error("搜索失败");
     } finally {
       setIsLoading(false);
     }
@@ -50,7 +50,7 @@ export default function SearchPage() {
     } catch (error) {
       // eslint-disable-next-line no-console
       console.error(error);
-      toast.error('搜索失败');
+      toast.error("搜索失败");
     } finally {
       setIsLoading(false);
     }
@@ -58,7 +58,7 @@ export default function SearchPage() {
 
   // Initialize keyword from URL params and trigger search if present
   useEffect(() => {
-    const urlKeyword = searchParams.get('keyword') || '';
+    const urlKeyword = searchParams.get("keyword") || "";
     if (urlKeyword) {
       setKeyword(urlKeyword);
       handleSearch(urlKeyword);
@@ -69,9 +69,9 @@ export default function SearchPage() {
   const updateUrlParams = (newKeyword: string) => {
     const params = new URLSearchParams(searchParams.toString());
     if (newKeyword.trim()) {
-      params.set('keyword', newKeyword.trim());
+      params.set("keyword", newKeyword.trim());
     } else {
-      params.delete('keyword');
+      params.delete("keyword");
     }
     router.replace(`/search?${params.toString()}`, { scroll: false });
   };

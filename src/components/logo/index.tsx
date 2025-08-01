@@ -1,6 +1,6 @@
-import Link from 'next/link';
+import Link from "next/link";
 
-import { useGlobalStore } from '@/stores/global';
+import { useGlobalStore } from "@/stores/global";
 
 // 可替换为你自己的 logo 图片
 export const Logo = () => {

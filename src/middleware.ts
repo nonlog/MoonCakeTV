@@ -1,8 +1,8 @@
 /* eslint-disable no-console */
 
-import { NextRequest, NextResponse } from 'next/server';
+import { NextRequest, NextResponse } from "next/server";
 
-import { getAuthInfoFromCookie } from '@/lib/auth';
+import { getAuthInfoFromCookie } from "@/lib/auth";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -12,10 +12,10 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const storageType = process.env.NEXT_PUBLIC_STORAGE_TYPE || 'localstorage';
+  const storageType = process.env.NEXT_PUBLIC_STORAGE_TYPE || "localstorage";
 
   // 如果没有设置密码，直接放行
-  if (storageType === 'localstorage' && !process.env.PASSWORD) {
+  if (storageType === "localstorage" && !process.env.PASSWORD) {
     return NextResponse.next();
   }
 
@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
   }
 
   // localstorage模式：在middleware中完成验证
-  if (storageType === 'localstorage') {
+  if (storageType === "localstorage") {
     if (!authInfo.password || authInfo.password !== process.env.PASSWORD) {
       return handleAuthFailure(request, pathname);
     }
@@ -45,7 +45,7 @@ export async function middleware(request: NextRequest) {
     const isValidSignature = await verifySignature(
       authInfo.username,
       authInfo.signature,
-      process.env.PASSWORD || '',
+      process.env.PASSWORD || "",
     );
 
     // 签名验证通过即可
@@ -71,11 +71,11 @@ async function verifySignature(
   try {
     // 导入密钥
     const key = await crypto.subtle.importKey(
-      'raw',
+      "raw",
       keyData,
-      { name: 'HMAC', hash: 'SHA-256' },
+      { name: "HMAC", hash: "SHA-256" },
       false,
-      ['verify'],
+      ["verify"],
     );
 
     // 将十六进制字符串转换为Uint8Array
@@ -85,13 +85,13 @@ async function verifySignature(
 
     // 验证签名
     return await crypto.subtle.verify(
-      'HMAC',
+      "HMAC",
       key,
       signatureBuffer,
       messageData,
     );
   } catch (error) {
-    console.error('签名验证失败:', error);
+    console.error("签名验证失败:", error);
     return false;
   }
 }
@@ -102,28 +102,28 @@ function handleAuthFailure(
   pathname: string,
 ): NextResponse {
   // 如果是 API 路由，返回 401 状态码
-  if (pathname.startsWith('/api')) {
-    return new NextResponse('Unauthorized', { status: 401 });
+  if (pathname.startsWith("/api")) {
+    return new NextResponse("Unauthorized", { status: 401 });
   }
 
   // 否则重定向到登录页面
-  const loginUrl = new URL('/login', request.url);
+  const loginUrl = new URL("/login", request.url);
   // 保留完整的URL，包括查询参数
   const fullUrl = `${pathname}${request.nextUrl.search}`;
-  loginUrl.searchParams.set('redirect', fullUrl);
+  loginUrl.searchParams.set("redirect", fullUrl);
   return NextResponse.redirect(loginUrl);
 }
 
 // 判断是否需要跳过认证的路径
 function shouldSkipAuth(pathname: string): boolean {
   const skipPaths = [
-    '/_next',
-    '/favicon.ico',
-    '/robots.txt',
-    '/manifest.json',
-    '/icons/',
-    '/logo.png',
-    '/screenshot.png',
+    "/_next",
+    "/favicon.ico",
+    "/robots.txt",
+    "/manifest.json",
+    "/icons/",
+    "/logo.png",
+    "/screenshot.png",
   ];
 
   return skipPaths.some((path) => pathname.startsWith(path));
@@ -132,6 +132,6 @@ function shouldSkipAuth(pathname: string): boolean {
 // 配置middleware匹配规则
 export const config = {
   matcher: [
-    '/((?!_next/static|_next/image|favicon.ico|login|api/login|api/register|api/logout|api/server-config).*)',
+    "/((?!_next/static|_next/image|favicon.ico|login|api/login|api/register|api/logout|api/server-config).*)",
   ],
 };

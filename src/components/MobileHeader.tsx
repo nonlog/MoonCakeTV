@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import Link from 'next/link';
+import Link from "next/link";
 
-import { useGlobalStore } from '@/stores/global';
+import { useGlobalStore } from "@/stores/global";
 
-import { BackButton } from './BackButton';
-import { ThemeToggle } from './common/theme-toggle';
-import { LogoutButton } from './sidebar/logout-button';
+import { BackButton } from "./BackButton";
+import { ThemeToggle } from "./common/theme-toggle";
+import { LogoutButton } from "./sidebar/logout-button";
 
 interface MobileHeaderProps {
   showBackButton?: boolean;

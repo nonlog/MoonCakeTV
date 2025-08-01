@@ -1,6 +1,6 @@
-import { AdminConfig } from './admin.types';
+import { AdminConfig } from "./admin.types";
 
-import { SearchFilters } from '@/types/search';
+import { SearchFilters } from "@/types/search";
 
 // 播放记录数据结构
 export interface PlayRecord {
@@ -94,22 +94,22 @@ export interface DoubanResult {
   list: DoubanItem[];
 }
 
-export interface MovieFilters extends Omit<SearchFilters, 'category'> {
+export interface MovieFilters extends Omit<SearchFilters, "category"> {
   duration?: { min?: number; max?: number }; // in minutes
   director?: string;
   actor?: string;
 }
 
-export interface TVFilters extends Omit<SearchFilters, 'category'> {
+export interface TVFilters extends Omit<SearchFilters, "category"> {
   seasons?: number;
   episodes?: { min?: number; max?: number };
-  status?: 'ongoing' | 'completed' | 'upcoming';
+  status?: "ongoing" | "completed" | "upcoming";
 }
 
 export interface CategorySearchParams {
   category: string;
   page?: number;
   limit?: number;
-  sortBy?: 'latest' | 'popular' | 'rating' | 'year';
+  sortBy?: "latest" | "popular" | "rating" | "year";
   filters?: Partial<SearchFilters>;
 }

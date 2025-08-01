@@ -1,18 +1,18 @@
 /* eslint-disable no-console,react-hooks/exhaustive-deps */
 
-'use client';
+"use client";
 
-import { useSearchParams } from 'next/navigation';
-import { Suspense } from 'react';
-import { useCallback, useEffect, useRef, useState } from 'react';
+import { useSearchParams } from "next/navigation";
+import { Suspense } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 
-import { getDoubanCategories } from '@/lib/douban.client';
-import { DoubanItem } from '@/lib/types';
+import { getDoubanCategories } from "@/lib/douban.client";
+import { DoubanItem } from "@/lib/types";
 
-import DoubanCardSkeleton from '@/components/DoubanCardSkeleton';
-import DoubanSelector from '@/components/DoubanSelector';
-import PageLayout from '@/components/PageLayout';
-import VideoCard from '@/components/VideoCard';
+import DoubanCardSkeleton from "@/components/DoubanCardSkeleton";
+import DoubanSelector from "@/components/DoubanSelector";
+import PageLayout from "@/components/PageLayout";
+import VideoCard from "@/components/VideoCard";
 
 function DoubanPageClient() {
   const searchParams = useSearchParams();
@@ -26,17 +26,17 @@ function DoubanPageClient() {
   const loadingRef = useRef<HTMLDivElement>(null);
   const debounceTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 
-  const type = searchParams.get('type') || 'movie';
+  const type = searchParams.get("type") || "movie";
 
   // 选择器状态 - 完全独立，不依赖URL参数
   const [primarySelection, setPrimarySelection] = useState<string>(() => {
-    return type === 'movie' ? '热门' : '';
+    return type === "movie" ? "热门" : "";
   });
   const [secondarySelection, setSecondarySelection] = useState<string>(() => {
-    if (type === 'movie') return '全部';
-    if (type === 'tv') return 'tv';
-    if (type === 'show') return 'show';
-    return '全部';
+    if (type === "movie") return "全部";
+    if (type === "tv") return "tv";
+    if (type === "show") return "show";
+    return "全部";
   });
 
   // 初始化时标记选择器为准备好状态
@@ -58,18 +58,18 @@ function DoubanPageClient() {
   // 当type变化时重置选择器状态
   useEffect(() => {
     // 批量更新选择器状态
-    if (type === 'movie') {
-      setPrimarySelection('热门');
-      setSecondarySelection('全部');
-    } else if (type === 'tv') {
-      setPrimarySelection('');
-      setSecondarySelection('tv');
-    } else if (type === 'show') {
-      setPrimarySelection('');
-      setSecondarySelection('show');
+    if (type === "movie") {
+      setPrimarySelection("热门");
+      setSecondarySelection("全部");
+    } else if (type === "tv") {
+      setPrimarySelection("");
+      setSecondarySelection("tv");
+    } else if (type === "show") {
+      setPrimarySelection("");
+      setSecondarySelection("show");
     } else {
-      setPrimarySelection('');
-      setSecondarySelection('全部');
+      setPrimarySelection("");
+      setSecondarySelection("全部");
     }
 
     // 使用短暂延迟确保状态更新完成后标记选择器准备好
@@ -87,9 +87,9 @@ function DoubanPageClient() {
   const getRequestParams = useCallback(
     (pageStart: number) => {
       // 当type为tv或show时，kind统一为'tv'，category使用type本身
-      if (type === 'tv' || type === 'show') {
+      if (type === "tv" || type === "show") {
         return {
-          kind: 'tv' as const,
+          kind: "tv" as const,
           category: type,
           type: secondarySelection,
           pageLimit: 25,
@@ -99,14 +99,14 @@ function DoubanPageClient() {
 
       // 电影类型保持原逻辑
       return {
-        kind: type as 'tv' | 'movie',
+        kind: type as "tv" | "movie",
         category: primarySelection,
         type: secondarySelection,
         pageLimit: 25,
         pageStart,
       };
     },
-    [type, primarySelection, secondarySelection]
+    [type, primarySelection, secondarySelection],
   );
 
   // 防抖的数据加载函数
@@ -120,7 +120,7 @@ function DoubanPageClient() {
         setHasMore(data.list.length === 25);
         setLoading(false);
       } else {
-        throw new Error(data.message || '获取数据失败');
+        throw new Error(data.message || "获取数据失败");
       }
     } catch (err) {
       console.error(err);
@@ -172,14 +172,14 @@ function DoubanPageClient() {
           setIsLoadingMore(true);
 
           const data = await getDoubanCategories(
-            getRequestParams(currentPage * 25)
+            getRequestParams(currentPage * 25),
           );
 
           if (data.code === 200) {
             setDoubanData((prev) => [...prev, ...data.list]);
             setHasMore(data.list.length === 25);
           } else {
-            throw new Error(data.message || '获取数据失败');
+            throw new Error(data.message || "获取数据失败");
           }
         } catch (err) {
           console.error(err);
@@ -210,7 +210,7 @@ function DoubanPageClient() {
           setCurrentPage((prev) => prev + 1);
         }
       },
-      { threshold: 0.1 }
+      { threshold: 0.1 },
     );
 
     observer.observe(loadingRef.current);
@@ -229,7 +229,7 @@ function DoubanPageClient() {
       setLoading(true);
       setPrimarySelection(value);
     },
-    [type]
+    [type],
   );
 
   const handleSecondaryChange = useCallback((value: string) => {
@@ -239,15 +239,15 @@ function DoubanPageClient() {
 
   const getPageTitle = () => {
     // 根据 type 生成标题
-    return type === 'movie' ? '电影' : type === 'tv' ? '电视剧' : '综艺';
+    return type === "movie" ? "电影" : type === "tv" ? "电视剧" : "综艺";
   };
 
   const getActivePath = () => {
     const params = new URLSearchParams();
-    if (type) params.set('type', type);
+    if (type) params.set("type", type);
 
     const queryString = params.toString();
-    const activePath = `/douban${queryString ? `?${queryString}` : ''}`;
+    const activePath = `/douban${queryString ? `?${queryString}` : ""}`;
     return activePath;
   };
 
@@ -269,7 +269,7 @@ function DoubanPageClient() {
           {/* 选择器组件 */}
           <div className='bg-white/60 dark:bg-gray-800/40 rounded-2xl p-4 sm:p-6 border border-gray-200/30 dark:border-gray-700/30 backdrop-blur-xs'>
             <DoubanSelector
-              type={type as 'movie' | 'tv' | 'show'}
+              type={type as "movie" | "tv" | "show"}
               primarySelection={primarySelection}
               secondarySelection={secondarySelection}
               onPrimaryChange={handlePrimaryChange}

@@ -1,5 +1,5 @@
-import { create } from 'zustand';
-import { persist } from 'zustand/middleware';
+import { create } from "zustand";
+import { persist } from "zustand/middleware";
 
 type SidebarState = {
   expanded: boolean;
@@ -14,12 +14,12 @@ export const useSidebarStore = create<SidebarState>()(
     (set) => ({
       expanded: true,
       setExpand: (exp: boolean) => set({ expanded: exp }),
-      activePath: '/',
+      activePath: "/",
       setActivePath: (ap: string) => set({ activePath: ap }),
       toggleSidebar: () => set((state) => ({ expanded: !state.expanded })),
     }),
     {
-      name: 'mc_sidebar',
+      name: "mc_sidebar",
     },
   ),
 );

@@ -1,32 +1,32 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-'use client';
+"use client";
 
-import { useRouter, useSearchParams } from 'next/navigation';
-import { Suspense, useState } from 'react';
+import { useRouter, useSearchParams } from "next/navigation";
+import { Suspense, useState } from "react";
 
-import { ThemeToggle } from '@/components/common/theme-toggle';
+import { ThemeToggle } from "@/components/common/theme-toggle";
 
-import { useGlobalStore } from '@/stores/global';
+import { useGlobalStore } from "@/stores/global";
 
 function LoginPageClient() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [password, setPassword] = useState('');
-  const [username, setUsername] = useState('');
+  const [password, setPassword] = useState("");
+  const [username, setUsername] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { siteName } = useGlobalStore();
 
   // 当 STORAGE_TYPE 不为空且不为 localstorage 时，要求输入用户名
   const shouldAskUsername =
-    typeof window !== 'undefined' &&
+    typeof window !== "undefined" &&
     (window as any).RUNTIME_CONFIG?.STORAGE_TYPE &&
-    (window as any).RUNTIME_CONFIG?.STORAGE_TYPE !== 'localstorage';
+    (window as any).RUNTIME_CONFIG?.STORAGE_TYPE !== "localstorage";
 
   // 是否允许注册
   const enableRegister =
-    typeof window !== 'undefined' &&
+    typeof window !== "undefined" &&
     Boolean((window as any).RUNTIME_CONFIG?.ENABLE_REGISTER);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -37,9 +37,9 @@ function LoginPageClient() {
 
     try {
       setLoading(true);
-      const res = await fetch('/api/login', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
           password,
           ...(shouldAskUsername ? { username } : {}),
@@ -47,16 +47,16 @@ function LoginPageClient() {
       });
 
       if (res.ok) {
-        const redirect = searchParams.get('redirect') || '/';
+        const redirect = searchParams.get("redirect") || "/";
         router.replace(redirect);
       } else if (res.status === 401) {
-        setError('密码错误');
+        setError("密码错误");
       } else {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? '服务器错误');
+        setError(data.error ?? "服务器错误");
       }
     } catch (error) {
-      setError('网络错误，请稍后重试');
+      setError("网络错误，请稍后重试");
     } finally {
       setLoading(false);
     }
@@ -69,21 +69,21 @@ function LoginPageClient() {
 
     try {
       setLoading(true);
-      const res = await fetch('/api/register', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
+      const res = await fetch("/api/register", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ username, password }),
       });
 
       if (res.ok) {
-        const redirect = searchParams.get('redirect') || '/';
+        const redirect = searchParams.get("redirect") || "/";
         router.replace(redirect);
       } else {
         const data = await res.json().catch(() => ({}));
-        setError(data.error ?? '服务器错误');
+        setError(data.error ?? "服务器错误");
       }
     } catch (error) {
-      setError('网络错误，请稍后重试');
+      setError("网络错误，请稍后重试");
     } finally {
       setLoading(false);
     }
@@ -144,7 +144,7 @@ function LoginPageClient() {
                 disabled={!password || !username || loading}
                 className='flex-1 inline-flex justify-center rounded-lg bg-blue-600 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-blue-700 disabled:cursor-not-allowed disabled:opacity-50'
               >
-                {loading ? '注册中...' : '注册'}
+                {loading ? "注册中..." : "注册"}
               </button>
               <button
                 type='submit'
@@ -153,7 +153,7 @@ function LoginPageClient() {
                 }
                 className='flex-1 inline-flex justify-center rounded-lg bg-green-600 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:from-green-600 hover:to-blue-600 disabled:cursor-not-allowed disabled:opacity-50'
               >
-                {loading ? '登录中...' : '登录'}
+                {loading ? "登录中..." : "登录"}
               </button>
             </div>
           ) : (
@@ -164,7 +164,7 @@ function LoginPageClient() {
               }
               className='inline-flex w-full justify-center rounded-lg bg-green-600 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:from-green-600 hover:to-blue-600 disabled:cursor-not-allowed disabled:opacity-50'
             >
-              {loading ? '登录中...' : '登录'}
+              {loading ? "登录中..." : "登录"}
             </button>
           )}
         </form>

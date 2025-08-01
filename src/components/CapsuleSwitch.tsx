@@ -1,6 +1,6 @@
 /* eslint-disable react-hooks/exhaustive-deps */
 
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useEffect, useRef, useState } from "react";
 
 interface CapsuleSwitchProps {
   options: { label: string; value: string }[];
@@ -63,7 +63,7 @@ const CapsuleSwitch: React.FC<CapsuleSwitchProps> = ({
     <div
       ref={containerRef}
       className={`relative inline-flex bg-gray-300/80 rounded-full p-1 dark:bg-gray-700 ${
-        className || ''
+        className || ""
       }`}
     >
       {/* 滑动的白色背景指示器 */}
@@ -88,8 +88,8 @@ const CapsuleSwitch: React.FC<CapsuleSwitchProps> = ({
             onClick={() => onChange(opt.value)}
             className={`relative z-10 w-16 px-3 py-1 text-xs sm:w-20 sm:py-2 sm:text-sm rounded-full font-medium transition-all duration-200 cursor-pointer ${
               isActive
-                ? 'text-gray-900 dark:text-gray-100'
-                : 'text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100'
+                ? "text-gray-900 dark:text-gray-100"
+                : "text-gray-700 hover:text-gray-900 dark:text-gray-400 dark:hover:text-gray-100"
             }`}
           >
             {opt.label}

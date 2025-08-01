@@ -1,9 +1,9 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 
-import { CheckCircle, Heart, Link, PlayCircleIcon } from 'lucide-react';
-import Image from 'next/image';
-import { useRouter } from 'next/navigation';
-import React, { useCallback, useEffect, useMemo, useState } from 'react';
+import { CheckCircle, Heart, Link, PlayCircleIcon } from "lucide-react";
+import Image from "next/image";
+import { useRouter } from "next/navigation";
+import React, { useCallback, useEffect, useMemo, useState } from "react";
 
 import {
   deleteFavorite,
@@ -12,12 +12,12 @@ import {
   isFavorited,
   saveFavorite,
   subscribeToDataUpdates,
-} from '@/lib/db.client';
-import { processImageUrl } from '@/lib/utils';
+} from "@/lib/db.client";
+import { processImageUrl } from "@/lib/utils";
 
-import { ImagePlaceholder } from '@/components/ImagePlaceholder';
+import { ImagePlaceholder } from "@/components/ImagePlaceholder";
 
-import { SearchResult } from '@/types/search';
+import { SearchResult } from "@/types/search";
 
 interface VideoCardProps {
   id?: string;
@@ -29,7 +29,7 @@ interface VideoCardProps {
   source_name?: string;
   progress?: number;
   year?: string;
-  from: 'playrecord' | 'favorite' | 'search' | 'douban';
+  from: "playrecord" | "favorite" | "search" | "douban";
   currentEpisode?: number;
   douban_id?: string;
   onDelete?: () => void;
@@ -39,9 +39,9 @@ interface VideoCardProps {
 
 export default function VideoCard({
   id,
-  title = '',
-  query = '',
-  poster = '',
+  title = "",
+  query = "",
+  poster = "",
   episodes,
   source,
   source_name,
@@ -58,7 +58,7 @@ export default function VideoCard({
   const [favorited, setFavorited] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  const isAggregate = from === 'search' && !!items?.length;
+  const isAggregate = from === "search" && !!items?.length;
 
   const aggregateData = useMemo(() => {
     if (!isAggregate || !items) return null;
@@ -104,23 +104,23 @@ export default function VideoCard({
   );
   const actualEpisodes = aggregateData?.mostFrequentEpisodes ?? episodes;
   const actualYear = aggregateData?.first.year ?? year;
-  const actualQuery = query || '';
+  const actualQuery = query || "";
   const actualSearchType = isAggregate
     ? aggregateData?.first.episodes.length === 1
-      ? 'movie'
-      : 'tv'
-    : '';
+      ? "movie"
+      : "tv"
+    : "";
 
   // 获取收藏状态
   useEffect(() => {
-    if (from === 'douban' || !actualSource || !actualId) return;
+    if (from === "douban" || !actualSource || !actualId) return;
 
     const fetchFavoriteStatus = async () => {
       try {
         const fav = await isFavorited(actualSource, actualId);
         setFavorited(fav);
       } catch (err) {
-        throw new Error('检查收藏状态失败');
+        throw new Error("检查收藏状态失败");
       }
     };
 
@@ -129,7 +129,7 @@ export default function VideoCard({
     // 监听收藏状态更新事件
     const storageKey = generateStorageKey(actualSource, actualId);
     const unsubscribe = subscribeToDataUpdates(
-      'favoritesUpdated',
+      "favoritesUpdated",
       (newFavorites: Record<string, any>) => {
         // 检查当前项目是否在新的收藏列表中
         const isNowFavorited = !!newFavorites[storageKey];
@@ -144,7 +144,7 @@ export default function VideoCard({
     async (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      if (from === 'douban' || !actualSource || !actualId) return;
+      if (from === "douban" || !actualSource || !actualId) return;
       try {
         if (favorited) {
           // 如果已收藏，删除收藏
@@ -154,8 +154,8 @@ export default function VideoCard({
           // 如果未收藏，添加收藏
           await saveFavorite(actualSource, actualId, {
             title: actualTitle,
-            source_name: source_name || '',
-            year: actualYear || '',
+            source_name: source_name || "",
+            year: actualYear || "",
             cover: actualPoster,
             total_episodes: actualEpisodes ?? 1,
             save_time: Date.now(),
@@ -163,7 +163,7 @@ export default function VideoCard({
           setFavorited(true);
         }
       } catch (err) {
-        throw new Error('切换收藏状态失败');
+        throw new Error("切换收藏状态失败");
       }
     },
     [
@@ -183,33 +183,33 @@ export default function VideoCard({
     async (e: React.MouseEvent) => {
       e.preventDefault();
       e.stopPropagation();
-      if (from !== 'playrecord' || !actualSource || !actualId) return;
+      if (from !== "playrecord" || !actualSource || !actualId) return;
       try {
         await deletePlayRecord(actualSource, actualId);
         onDelete?.();
       } catch (err) {
-        throw new Error('删除播放记录失败');
+        throw new Error("删除播放记录失败");
       }
     },
     [from, actualSource, actualId, onDelete],
   );
 
   const handleClick = useCallback(() => {
-    if (from === 'douban') {
+    if (from === "douban") {
       router.push(
         `/play?title=${encodeURIComponent(actualTitle.trim())}${
-          actualYear ? `&year=${actualYear}` : ''
+          actualYear ? `&year=${actualYear}` : ""
         }`,
       );
     } else if (actualSource && actualId) {
       router.push(
         `/play?source=${actualSource}&id=${actualId}&title=${encodeURIComponent(
           actualTitle,
-        )}${actualYear ? `&year=${actualYear}` : ''}${
-          isAggregate ? '&prefer=true' : ''
+        )}${actualYear ? `&year=${actualYear}` : ""}${
+          isAggregate ? "&prefer=true" : ""
         }${
-          actualQuery ? `&stitle=${encodeURIComponent(actualQuery.trim())}` : ''
-        }${actualSearchType ? `&stype=${actualSearchType}` : ''}`,
+          actualQuery ? `&stitle=${encodeURIComponent(actualQuery.trim())}` : ""
+        }${actualSearchType ? `&stype=${actualSearchType}` : ""}`,
       );
     }
   }, [
@@ -315,8 +315,8 @@ export default function VideoCard({
                 size={20}
                 className={`transition-all duration-300 ease-out ${
                   favorited
-                    ? 'fill-red-600 stroke-red-600'
-                    : 'fill-transparent stroke-white hover:stroke-red-400'
+                    ? "fill-red-600 stroke-red-600"
+                    : "fill-transparent stroke-white hover:stroke-red-400"
                 } hover:scale-[1.1]`}
               />
             )}

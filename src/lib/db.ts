@@ -1,26 +1,26 @@
 /* eslint-disable no-console, @typescript-eslint/no-explicit-any, @typescript-eslint/no-non-null-assertion */
 
-import { AdminConfig } from './admin.types';
-import { D1Storage } from './d1.db';
-import { RedisStorage } from './redis.db';
-import { Favorite, IStorage, PlayRecord } from './types';
+import { AdminConfig } from "./admin.types";
+import { D1Storage } from "./d1.db";
+import { RedisStorage } from "./redis.db";
+import { Favorite, IStorage, PlayRecord } from "./types";
 
 // storage type 常量: 'localstorage' | 'redis' | 'd1'，默认 'localstorage'
 const STORAGE_TYPE =
   (process.env.NEXT_PUBLIC_STORAGE_TYPE as
-    | 'localstorage'
-    | 'redis'
-    | 'd1'
-    | undefined) || 'localstorage';
+    | "localstorage"
+    | "redis"
+    | "d1"
+    | undefined) || "localstorage";
 
 // 创建存储实例
 function createStorage(): IStorage {
   switch (STORAGE_TYPE) {
-    case 'redis':
+    case "redis":
       return new RedisStorage();
-    case 'd1':
+    case "d1":
       return new D1Storage();
-    case 'localstorage':
+    case "localstorage":
     default:
       // 默认返回内存实现，保证本地开发可用
       return null as unknown as IStorage;
@@ -54,7 +54,7 @@ export class DbManager {
   async getPlayRecord(
     userName: string,
     source: string,
-    id: string
+    id: string,
   ): Promise<PlayRecord | null> {
     const key = generateStorageKey(source, id);
     return this.storage.getPlayRecord(userName, key);
@@ -64,7 +64,7 @@ export class DbManager {
     userName: string,
     source: string,
     id: string,
-    record: PlayRecord
+    record: PlayRecord,
   ): Promise<void> {
     const key = generateStorageKey(source, id);
     await this.storage.setPlayRecord(userName, key, record);
@@ -79,7 +79,7 @@ export class DbManager {
   async deletePlayRecord(
     userName: string,
     source: string,
-    id: string
+    id: string,
   ): Promise<void> {
     const key = generateStorageKey(source, id);
     await this.storage.deletePlayRecord(userName, key);
@@ -89,7 +89,7 @@ export class DbManager {
   async getFavorite(
     userName: string,
     source: string,
-    id: string
+    id: string,
   ): Promise<Favorite | null> {
     const key = generateStorageKey(source, id);
     return this.storage.getFavorite(userName, key);
@@ -99,14 +99,14 @@ export class DbManager {
     userName: string,
     source: string,
     id: string,
-    favorite: Favorite
+    favorite: Favorite,
   ): Promise<void> {
     const key = generateStorageKey(source, id);
     await this.storage.setFavorite(userName, key, favorite);
   }
 
   async getAllFavorites(
-    userName: string
+    userName: string,
   ): Promise<{ [key: string]: Favorite }> {
     return this.storage.getAllFavorites(userName);
   }
@@ -114,7 +114,7 @@ export class DbManager {
   async deleteFavorite(
     userName: string,
     source: string,
-    id: string
+    id: string,
   ): Promise<void> {
     const key = generateStorageKey(source, id);
     await this.storage.deleteFavorite(userName, key);
@@ -123,7 +123,7 @@ export class DbManager {
   async isFavorited(
     userName: string,
     source: string,
-    id: string
+    id: string,
   ): Promise<boolean> {
     const favorite = await this.getFavorite(userName, source, id);
     return favorite !== null;
@@ -158,7 +158,7 @@ export class DbManager {
 
   // 获取全部用户名
   async getAllUsers(): Promise<string[]> {
-    if (typeof (this.storage as any).getAllUsers === 'function') {
+    if (typeof (this.storage as any).getAllUsers === "function") {
       return (this.storage as any).getAllUsers();
     }
     return [];
@@ -166,14 +166,14 @@ export class DbManager {
 
   // ---------- 管理员配置 ----------
   async getAdminConfig(): Promise<AdminConfig | null> {
-    if (typeof (this.storage as any).getAdminConfig === 'function') {
+    if (typeof (this.storage as any).getAdminConfig === "function") {
       return (this.storage as any).getAdminConfig();
     }
     return null;
   }
 
   async saveAdminConfig(config: AdminConfig): Promise<void> {
-    if (typeof (this.storage as any).setAdminConfig === 'function') {
+    if (typeof (this.storage as any).setAdminConfig === "function") {
       await (this.storage as any).setAdminConfig(config);
     }
   }

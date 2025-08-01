@@ -1,6 +1,6 @@
-import { Search } from 'lucide-react';
+import { Search } from "lucide-react";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 
 export default function McSearchBar({
   handleSearch,
@@ -26,7 +26,7 @@ export default function McSearchBar({
         onKeyUp={(e) => {
           e.preventDefault();
           e.stopPropagation();
-          if (e.key === 'Enter') {
+          if (e.key === "Enter") {
             handleSearch();
           }
         }}

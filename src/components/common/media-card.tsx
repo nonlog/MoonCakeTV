@@ -1,24 +1,24 @@
-import Hls from 'hls.js';
-import { Calendar, Globe, Play, Wifi } from 'lucide-react';
-import { useEffect, useState } from 'react';
-import { FaRegBookmark } from 'react-icons/fa6';
-import { toast } from 'sonner';
+import Hls from "hls.js";
+import { Calendar, Globe, Play, Wifi } from "lucide-react";
+import { useEffect, useState } from "react";
+import { FaRegBookmark } from "react-icons/fa6";
+import { toast } from "sonner";
 
-import { Badge } from '@/components/ui/badge';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Badge } from "@/components/ui/badge";
+import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
-import { useUserStore } from '@/stores/user';
+import { useUserStore } from "@/stores/user";
 
-import { Dazahui } from '@/schemas/dazahui';
+import { Dazahui } from "@/schemas/dazahui";
 
-import { SpeedTestResult } from './types';
+import { SpeedTestResult } from "./types";
 import {
   getFirstM3u8Url,
   getPingBadgeProps,
   getSourceBrand,
   getSpeedBadgeProps,
   testStreamSpeed,
-} from './utils';
+} from "./utils";
 
 interface MediaCardProps {
   dazahui: Dazahui;
@@ -31,7 +31,7 @@ export function MediaCard({
   dazahui,
   onClick,
   showSpeedTest = false,
-  userId = 'me',
+  userId = "me",
 }: MediaCardProps) {
   const {
     id,
@@ -65,13 +65,13 @@ export function MediaCard({
     e.stopPropagation(); // Prevent card click
     if (!userId) return;
 
-    const action = isBookmarked ? 'delete' : 'add';
+    const action = isBookmarked ? "delete" : "add";
     updateBookmarks(userId, dazahui, action);
-    if (action === 'add') {
-      toast.success('添加收藏夹成功');
+    if (action === "add") {
+      toast.success("添加收藏夹成功");
     }
-    if (action === 'delete') {
-      toast.error('从收藏夹中移除成功');
+    if (action === "delete") {
+      toast.error("从收藏夹中移除成功");
     }
   };
 
@@ -81,10 +81,10 @@ export function MediaCard({
     if (showSpeedTest && firstUrl && !speedTestResult && !isTestingSpeed) {
       // Check if HLS.js is available
       if (!Hls.isSupported()) {
-        console.error('❌ HLS.js is not supported in this browser');
+        console.error("❌ HLS.js is not supported in this browser");
         setSpeedTestResult({
-          quality: '未知',
-          loadSpeed: '不支持',
+          quality: "未知",
+          loadSpeed: "不支持",
           pingTime: 0,
         });
         return;
@@ -93,14 +93,14 @@ export function MediaCard({
       setIsTestingSpeed(true);
       testStreamSpeed(firstUrl)
         .then((result) => {
-          console.log('✅ Speed test completed:', result);
+          console.log("✅ Speed test completed:", result);
           setSpeedTestResult(result);
         })
         .catch((error) => {
-          console.error('❌ Speed test failed:', error);
+          console.error("❌ Speed test failed:", error);
           setSpeedTestResult({
-            quality: '未知',
-            loadSpeed: '测试失败',
+            quality: "未知",
+            loadSpeed: "测试失败",
             pingTime: 0,
           });
         })
@@ -126,8 +126,8 @@ export function MediaCard({
               loading='lazy'
               className='w-full h-full object-cover group-hover:scale-105 transition-transform duration-300'
               onError={(e) => {
-                e.currentTarget.style.display = 'none';
-                e.currentTarget.nextElementSibling?.classList.remove('hidden');
+                e.currentTarget.style.display = "none";
+                e.currentTarget.nextElementSibling?.classList.remove("hidden");
               }}
             />
             <div className='hidden aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200 justify-center items-center'>
@@ -147,13 +147,13 @@ export function MediaCard({
             onClick={handleBookmarkClick}
             className={`cursor-pointer p-1.5 rounded-full backdrop-blur-sm transition-all duration-200 hover:scale-110 ${
               isBookmarked
-                ? 'bg-red-500/90 text-white shadow-lg'
-                : 'bg-black/50 text-white hover:bg-black/70'
+                ? "bg-red-500/90 text-white shadow-lg"
+                : "bg-black/50 text-white hover:bg-black/70"
             }`}
-            title={isBookmarked ? '取消收藏' : '添加收藏'}
+            title={isBookmarked ? "取消收藏" : "添加收藏"}
           >
             <FaRegBookmark
-              className={`w-8 h-8 ${isBookmarked ? 'fill-current' : ''}`}
+              className={`w-8 h-8 ${isBookmarked ? "fill-current" : ""}`}
             />
           </button>
         </div>
@@ -206,10 +206,10 @@ export function MediaCard({
               >
                 <Wifi className='w-3 h-3 mr-1' />
                 {!m3u8_urls
-                  ? '无URL'
+                  ? "无URL"
                   : !getFirstM3u8Url(m3u8_urls)
-                    ? '解析失败'
-                    : '等待中...'}
+                    ? "解析失败"
+                    : "等待中..."}
               </Badge>
             )}
           </div>
@@ -222,7 +222,7 @@ export function MediaCard({
 
       <CardHeader className=''>
         <CardTitle className='text-sm font-medium line-clamp-2 leading-tight flex items-center justify-between'>
-          {title}{' '}
+          {title}{" "}
           {source && (
             <Badge
               variant='secondary'

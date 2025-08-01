@@ -1,12 +1,12 @@
-'use client';
+"use client";
 
-import { Settings } from 'lucide-react';
+import { Settings } from "lucide-react";
 
-import { useAdultModeToggle } from '@/components/common/adult-mode';
-import { ThemeToggle } from '@/components/common/theme-toggle';
-import PageLayout from '@/components/PageLayout';
-import { LogoutButton } from '@/components/sidebar/logout-button';
-import { SettingsButton } from '@/components/sidebar/settings-button';
+import { useAdultModeToggle } from "@/components/common/adult-mode";
+import { ThemeToggle } from "@/components/common/theme-toggle";
+import PageLayout from "@/components/PageLayout";
+import { LogoutButton } from "@/components/sidebar/logout-button";
+import { SettingsButton } from "@/components/sidebar/settings-button";
 
 export default function SettingsPage() {
   const { handleAdultModeToggle, AdultModeDialog } = useAdultModeToggle();
@@ -36,7 +36,7 @@ export default function SettingsPage() {
               <div
                 onClick={() => {
                   const button = document.querySelector(
-                    '#theme-toggle-button',
+                    "#theme-toggle-button",
                   ) as HTMLButtonElement;
                   button?.click();
                 }}

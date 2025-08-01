@@ -10,7 +10,7 @@ export interface AdminConfig {
     AllowRegister: boolean;
     Users: {
       username: string;
-      role: 'user' | 'admin' | 'owner';
+      role: "user" | "admin" | "owner";
       banned?: boolean;
     }[];
   };
@@ -19,12 +19,12 @@ export interface AdminConfig {
     name: string;
     api: string;
     detail?: string;
-    from: 'config' | 'custom';
+    from: "config" | "custom";
     disabled?: boolean;
   }[];
 }
 
 export interface AdminConfigResult {
-  Role: 'owner' | 'admin';
+  Role: "owner" | "admin";
   Config: AdminConfig;
 }

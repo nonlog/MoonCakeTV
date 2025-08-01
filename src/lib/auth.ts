@@ -1,4 +1,4 @@
-import { NextRequest } from 'next/server';
+import { NextRequest } from "next/server";
 
 // 从cookie获取认证信息 (服务端使用)
 export function getAuthInfoFromCookie(request: NextRequest): {
@@ -7,7 +7,7 @@ export function getAuthInfoFromCookie(request: NextRequest): {
   signature?: string;
   timestamp?: number;
 } | null {
-  const authCookie = request.cookies.get('auth');
+  const authCookie = request.cookies.get("auth");
 
   if (!authCookie) {
     return null;
@@ -29,28 +29,31 @@ export function getAuthInfoFromBrowserCookie(): {
   signature?: string;
   timestamp?: number;
 } | null {
-  if (typeof window === 'undefined') {
+  if (typeof window === "undefined") {
     return null;
   }
 
   try {
     // 解析 document.cookie
-    const cookies = document.cookie.split(';').reduce((acc, cookie) => {
-      const trimmed = cookie.trim();
-      const firstEqualIndex = trimmed.indexOf('=');
+    const cookies = document.cookie.split(";").reduce(
+      (acc, cookie) => {
+        const trimmed = cookie.trim();
+        const firstEqualIndex = trimmed.indexOf("=");
 
-      if (firstEqualIndex > 0) {
-        const key = trimmed.substring(0, firstEqualIndex);
-        const value = trimmed.substring(firstEqualIndex + 1);
-        if (key && value) {
-          acc[key] = value;
+        if (firstEqualIndex > 0) {
+          const key = trimmed.substring(0, firstEqualIndex);
+          const value = trimmed.substring(firstEqualIndex + 1);
+          if (key && value) {
+            acc[key] = value;
+          }
         }
-      }
 
-      return acc;
-    }, {} as Record<string, string>);
+        return acc;
+      },
+      {} as Record<string, string>,
+    );
 
-    const authCookie = cookies['auth'];
+    const authCookie = cookies["auth"];
     if (!authCookie) {
       return null;
     }
@@ -59,7 +62,7 @@ export function getAuthInfoFromBrowserCookie(): {
     let decoded = decodeURIComponent(authCookie);
 
     // 如果解码后仍然包含 %，说明是双重编码，需要再次解码
-    if (decoded.includes('%')) {
+    if (decoded.includes("%")) {
       decoded = decodeURIComponent(decoded);
     }
 

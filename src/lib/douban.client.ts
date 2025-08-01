@@ -1,7 +1,7 @@
-import { DoubanItem, DoubanResult } from './types';
+import { DoubanItem, DoubanResult } from "./types";
 
 interface DoubanCategoriesParams {
-  kind: 'tv' | 'movie';
+  kind: "tv" | "movie";
   category: string;
   type: string;
   pageLimit?: number;
@@ -29,7 +29,7 @@ interface DoubanCategoryApiResponse {
  */
 async function fetchWithTimeout(
   url: string,
-  options: RequestInit = {}
+  options: RequestInit = {},
 ): Promise<Response> {
   const controller = new AbortController();
   const timeoutId = setTimeout(() => controller.abort(), 10000); // 10秒超时
@@ -42,10 +42,10 @@ async function fetchWithTimeout(
     ...options,
     signal: controller.signal,
     headers: {
-      'User-Agent':
-        'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36',
-      Referer: 'https://movie.douban.com/',
-      Accept: 'application/json, text/plain, */*',
+      "User-Agent":
+        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36",
+      Referer: "https://movie.douban.com/",
+      Accept: "application/json, text/plain, */*",
       ...options.headers,
     },
   };
@@ -64,9 +64,9 @@ async function fetchWithTimeout(
  * 获取豆瓣代理 URL 设置
  */
 export function getDoubanProxyUrl(): string | null {
-  if (typeof window === 'undefined') return null;
+  if (typeof window === "undefined") return null;
 
-  const doubanProxyUrl = localStorage.getItem('doubanProxyUrl');
+  const doubanProxyUrl = localStorage.getItem("doubanProxyUrl");
   return doubanProxyUrl && doubanProxyUrl.trim() ? doubanProxyUrl.trim() : null;
 }
 
@@ -81,25 +81,25 @@ export function shouldUseDoubanClient(): boolean {
  * 浏览器端豆瓣分类数据获取函数
  */
 export async function fetchDoubanCategories(
-  params: DoubanCategoriesParams
+  params: DoubanCategoriesParams,
 ): Promise<DoubanResult> {
   const { kind, category, type, pageLimit = 20, pageStart = 0 } = params;
 
   // 验证参数
-  if (!['tv', 'movie'].includes(kind)) {
-    throw new Error('kind 参数必须是 tv 或 movie');
+  if (!["tv", "movie"].includes(kind)) {
+    throw new Error("kind 参数必须是 tv 或 movie");
   }
 
   if (!category || !type) {
-    throw new Error('category 和 type 参数不能为空');
+    throw new Error("category 和 type 参数不能为空");
   }
 
   if (pageLimit < 1 || pageLimit > 100) {
-    throw new Error('pageLimit 必须在 1-100 之间');
+    throw new Error("pageLimit 必须在 1-100 之间");
   }
 
   if (pageStart < 0) {
-    throw new Error('pageStart 不能小于 0');
+    throw new Error("pageStart 不能小于 0");
   }
 
   const target = `https://m.douban.com/rexxar/api/v2/subject/recent_hot/${kind}?start=${pageStart}&limit=${pageLimit}&category=${category}&type=${type}`;
@@ -117,14 +117,14 @@ export async function fetchDoubanCategories(
     const list: DoubanItem[] = doubanData.items.map((item) => ({
       id: item.id,
       title: item.title,
-      poster: item.pic?.normal || item.pic?.large || '',
-      rate: item.rating?.value ? item.rating.value.toFixed(1) : '',
-      year: item.card_subtitle?.match(/(\d{4})/)?.[1] || '',
+      poster: item.pic?.normal || item.pic?.large || "",
+      rate: item.rating?.value ? item.rating.value.toFixed(1) : "",
+      year: item.card_subtitle?.match(/(\d{4})/)?.[1] || "",
     }));
 
     return {
       code: 200,
-      message: '获取成功',
+      message: "获取成功",
       list: list,
     };
   } catch (error) {
@@ -136,7 +136,7 @@ export async function fetchDoubanCategories(
  * 统一的豆瓣分类数据获取函数，根据代理设置选择使用服务端 API 或客户端代理获取
  */
 export async function getDoubanCategories(
-  params: DoubanCategoriesParams
+  params: DoubanCategoriesParams,
 ): Promise<DoubanResult> {
   if (shouldUseDoubanClient()) {
     // 使用客户端代理获取（当设置了代理 URL 时）
@@ -145,11 +145,11 @@ export async function getDoubanCategories(
     // 使用服务端 API（当没有设置代理 URL 时）
     const { kind, category, type, pageLimit = 20, pageStart = 0 } = params;
     const response = await fetch(
-      `/api/douban/categories?kind=${kind}&category=${category}&type=${type}&limit=${pageLimit}&start=${pageStart}`
+      `/api/douban/categories?kind=${kind}&category=${category}&type=${type}&limit=${pageLimit}&start=${pageStart}`,
     );
 
     if (!response.ok) {
-      throw new Error('获取豆瓣分类数据失败');
+      throw new Error("获取豆瓣分类数据失败");
     }
 
     return response.json();

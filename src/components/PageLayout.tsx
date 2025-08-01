@@ -1,17 +1,17 @@
-import MobileBottomNav from './MobileBottomNav';
-import MobileHeader from './MobileHeader';
-import { Sidebar } from './sidebar';
+import MobileBottomNav from "./MobileBottomNav";
+import MobileHeader from "./MobileHeader";
+import { Sidebar } from "./sidebar";
 
 interface PageLayoutProps {
   children: React.ReactNode;
   activePath?: string;
 }
 
-export const PageLayout = ({ children, activePath = '/' }: PageLayoutProps) => {
+export const PageLayout = ({ children, activePath = "/" }: PageLayoutProps) => {
   return (
     <div className='w-full min-h-screen'>
       {/* 移动端头部 */}
-      <MobileHeader showBackButton={['/play'].includes(activePath)} />
+      <MobileHeader showBackButton={["/play"].includes(activePath)} />
 
       {/* 主要布局容器 */}
       <div className='flex md:grid md:grid-cols-[auto_1fr] w-full min-h-screen md:min-h-auto'>

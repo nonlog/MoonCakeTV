@@ -1,18 +1,18 @@
 /* eslint-disable @typescript-eslint/no-explicit-any, react-hooks/exhaustive-deps */
 
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useEffect, useState } from 'react';
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
-import { MediaCard } from '@/components/common/media-card';
-import PageLayout from '@/components/PageLayout';
+import { MediaCard } from "@/components/common/media-card";
+import PageLayout from "@/components/PageLayout";
 
-import { useGlobalStore } from '@/stores/global';
+import { useGlobalStore } from "@/stores/global";
 
-import { Dazahui } from '@/schemas/dazahui';
+import { Dazahui } from "@/schemas/dazahui";
 
-import { ApiResponse } from '@/types/common';
+import { ApiResponse } from "@/types/common";
 
 export default function HomePage() {
   const router = useRouter();
@@ -38,7 +38,7 @@ export default function HomePage() {
 
   useEffect(() => {
     setLoading(true);
-    fetch('https://s1.m3u8.io/v1/random')
+    fetch("https://s1.m3u8.io/v1/random")
       .then((res) => {
         return res.json() as Promise<ApiResponse<{ items: Dazahui[] } | null>>;
       })
@@ -90,7 +90,7 @@ export default function HomePage() {
       {isHydrated && !hasSeenDisclaimer && (
         <div
           className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs dark:bg-black/70 p-4 transition-opacity duration-300 ${
-            hasSeenDisclaimer && 'opacity-0 pointer-events-none'
+            hasSeenDisclaimer && "opacity-0 pointer-events-none"
           }`}
         >
           <div className='w-full max-w-md rounded-xl bg-white p-6 shadow-xl dark:bg-gray-900 transform transition-all duration-300 hover:shadow-2xl'>

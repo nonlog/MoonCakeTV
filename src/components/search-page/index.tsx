@@ -1,9 +1,9 @@
 /* eslint-disable react-hooks/exhaustive-deps, @typescript-eslint/no-explicit-any */
-'use client';
+"use client";
 
-import { Search, X } from 'lucide-react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import { useEffect, useMemo, useState } from 'react';
+import { Search, X } from "lucide-react";
+import { useRouter, useSearchParams } from "next/navigation";
+import { useEffect, useMemo, useState } from "react";
 
 import {
   addSearchHistory,
@@ -11,12 +11,12 @@ import {
   deleteSearchHistory,
   getSearchHistory,
   subscribeToDataUpdates,
-} from '@/lib/db.client';
+} from "@/lib/db.client";
 
-import PageLayout from '@/components/PageLayout';
-import VideoCard from '@/components/VideoCard';
+import PageLayout from "@/components/PageLayout";
+import VideoCard from "@/components/VideoCard";
 
-import { SearchResult } from '@/types/search';
+import { SearchResult } from "@/types/search";
 
 export const SearchComponent = () => {
   // 搜索历史
@@ -24,15 +24,15 @@ export const SearchComponent = () => {
 
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState('');
+  const [searchQuery, setSearchQuery] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showResults, setShowResults] = useState(false);
   const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
 
   // 获取默认聚合设置：只读取用户本地设置，默认为 true
   const getDefaultAggregate = () => {
-    if (typeof window !== 'undefined') {
-      const userSetting = localStorage.getItem('defaultAggregateSearch');
+    if (typeof window !== "undefined") {
+      const userSetting = localStorage.getItem("defaultAggregateSearch");
       if (userSetting !== null) {
         return JSON.parse(userSetting);
       }
@@ -40,8 +40,8 @@ export const SearchComponent = () => {
     return true; // 默认启用聚合
   };
 
-  const [viewMode, setViewMode] = useState<'agg' | 'all'>(() => {
-    return getDefaultAggregate() ? 'agg' : 'all';
+  const [viewMode, setViewMode] = useState<"agg" | "all">(() => {
+    return getDefaultAggregate() ? "agg" : "all";
   });
 
   // 聚合后的结果（按标题和年份分组）
@@ -49,9 +49,9 @@ export const SearchComponent = () => {
     const map = new Map<string, SearchResult[]>();
     searchResults.forEach((item) => {
       // 使用 title + year + type 作为键，year 必然存在，但依然兜底 'unknown'
-      const key = `${item.title.replaceAll(' ', '')}-${
-        item.year || 'unknown'
-      }-${item.episodes.length === 1 ? 'movie' : 'tv'}`;
+      const key = `${item.title.replaceAll(" ", "")}-${
+        item.year || "unknown"
+      }-${item.episodes.length === 1 ? "movie" : "tv"}`;
       const arr = map.get(key) || [];
       arr.push(item);
       map.set(key, arr);
@@ -59,11 +59,11 @@ export const SearchComponent = () => {
     return Array.from(map.entries()).sort((a, b) => {
       // 优先排序：标题与搜索词完全一致的排在前面
       const aExactMatch = a[1][0].title
-        .replaceAll(' ', '')
-        .includes(searchQuery.trim().replaceAll(' ', ''));
+        .replaceAll(" ", "")
+        .includes(searchQuery.trim().replaceAll(" ", ""));
       const bExactMatch = b[1][0].title
-        .replaceAll(' ', '')
-        .includes(searchQuery.trim().replaceAll(' ', ''));
+        .replaceAll(" ", "")
+        .includes(searchQuery.trim().replaceAll(" ", ""));
 
       if (aExactMatch && !bExactMatch) return -1;
       if (!aExactMatch && bExactMatch) return 1;
@@ -76,11 +76,11 @@ export const SearchComponent = () => {
         const aYear = a[1][0].year;
         const bYear = b[1][0].year;
 
-        if (aYear === 'unknown' && bYear === 'unknown') {
+        if (aYear === "unknown" && bYear === "unknown") {
           return 0;
-        } else if (aYear === 'unknown') {
+        } else if (aYear === "unknown") {
           return 1; // a 排在后面
-        } else if (bYear === 'unknown') {
+        } else if (bYear === "unknown") {
           return -1; // b 排在后面
         } else {
           // 都是数字年份，按数字大小排序（大的在前面）
@@ -92,14 +92,14 @@ export const SearchComponent = () => {
 
   useEffect(() => {
     // 无搜索参数时聚焦搜索框
-    !searchParams.get('q') && document.getElementById('searchInput')?.focus();
+    !searchParams.get("q") && document.getElementById("searchInput")?.focus();
 
     // 初始加载搜索历史
     getSearchHistory().then(setSearchHistory);
 
     // 监听搜索历史更新事件
     const unsubscribe = subscribeToDataUpdates(
-      'searchHistoryUpdated',
+      "searchHistoryUpdated",
       (newHistory: string[]) => {
         setSearchHistory(newHistory);
       },
@@ -110,7 +110,7 @@ export const SearchComponent = () => {
 
   useEffect(() => {
     // 当搜索参数变化时更新搜索状态
-    const query = searchParams.get('q');
+    const query = searchParams.get("q");
     if (query) {
       setSearchQuery(query);
       fetchSearchResults(query);
@@ -143,11 +143,11 @@ export const SearchComponent = () => {
             return a.title.localeCompare(b.title);
           } else {
             // 处理 unknown 的情况
-            if (a.year === 'unknown' && b.year === 'unknown') {
+            if (a.year === "unknown" && b.year === "unknown") {
               return 0;
-            } else if (a.year === 'unknown') {
+            } else if (a.year === "unknown") {
               return 1; // a 排在后面
-            } else if (b.year === 'unknown') {
+            } else if (b.year === "unknown") {
               return -1; // b 排在后面
             } else {
               // 都是数字年份，按数字大小排序（大的在前面）
@@ -166,7 +166,7 @@ export const SearchComponent = () => {
 
   const handleSearch = (e: React.FormEvent) => {
     e.preventDefault();
-    const trimmed = searchQuery.trim().replace(/\s+/g, ' ');
+    const trimmed = searchQuery.trim().replace(/\s+/g, " ");
     if (!trimmed) return;
 
     // 回显搜索框
@@ -224,9 +224,9 @@ export const SearchComponent = () => {
                     <input
                       type='checkbox'
                       className='sr-only peer'
-                      checked={viewMode === 'agg'}
+                      checked={viewMode === "agg"}
                       onChange={() =>
-                        setViewMode(viewMode === 'agg' ? 'all' : 'agg')
+                        setViewMode(viewMode === "agg" ? "all" : "agg")
                       }
                     />
                     <div className='w-9 h-5 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors dark:bg-gray-600'></div>
@@ -238,7 +238,7 @@ export const SearchComponent = () => {
                 key={`search-results-${viewMode}`}
                 className='justify-start grid grid-cols-3 gap-x-2 gap-y-14 sm:gap-y-20 px-0 sm:px-2 sm:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] sm:gap-x-8'
               >
-                {viewMode === 'agg'
+                {viewMode === "agg"
                   ? aggregatedResults.map(([mapKey, group]) => {
                       return (
                         <div key={`agg-${mapKey}`} className='w-full'>
@@ -248,7 +248,7 @@ export const SearchComponent = () => {
                             query={
                               searchQuery.trim() !== group[0].title
                                 ? searchQuery.trim()
-                                : ''
+                                : ""
                             }
                           />
                         </div>
@@ -270,7 +270,7 @@ export const SearchComponent = () => {
                           query={
                             searchQuery.trim() !== item.title
                               ? searchQuery.trim()
-                              : ''
+                              : ""
                           }
                           from='search'
                         />

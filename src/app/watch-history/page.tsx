@@ -1,15 +1,15 @@
-'use client';
+"use client";
 
-import { Clock, Play, Trash2 } from 'lucide-react';
-import { useRouter } from 'next/navigation';
+import { Clock, Play, Trash2 } from "lucide-react";
+import { useRouter } from "next/navigation";
 
-import { MediaCard } from '@/components/common/media-card';
-import PageLayout from '@/components/PageLayout';
+import { MediaCard } from "@/components/common/media-card";
+import PageLayout from "@/components/PageLayout";
 
-import { useSidebarStore } from '@/stores/sidebar';
-import { useUserStore } from '@/stores/user';
+import { useSidebarStore } from "@/stores/sidebar";
+import { useUserStore } from "@/stores/user";
 
-import { Dazahui } from '@/schemas/dazahui';
+import { Dazahui } from "@/schemas/dazahui";
 
 export default function WatchHistoryPage() {
   const router = useRouter();
@@ -17,14 +17,14 @@ export default function WatchHistoryPage() {
   const { setActivePath } = useSidebarStore();
 
   // For now, using a default user ID - this should be replaced with actual user authentication
-  const currentUserId = 'me';
+  const currentUserId = "me";
 
   const handleCardClick = (dazahui: Dazahui) => {
     router.push(`/play?mc_id=${dazahui.mc_id}`);
   };
 
   const handleClearHistory = () => {
-    if (confirm('确定要清空所有观看历史吗？此操作无法撤销。')) {
+    if (confirm("确定要清空所有观看历史吗？此操作无法撤销。")) {
       setWatchHistory(); // Clear all watch history
     }
   };
@@ -57,7 +57,7 @@ export default function WatchHistoryPage() {
           <p className='text-gray-600 dark:text-gray-400'>
             {watchHistory.length > 0
               ? `最近观看了 ${watchHistory.length} 部作品 (最多保留100部)`
-              : '还没有观看记录'}
+              : "还没有观看记录"}
           </p>
         </div>
 
@@ -75,8 +75,8 @@ export default function WatchHistoryPage() {
             </p>
             <button
               onClick={() => {
-                setActivePath('/search');
-                router.push('/search');
+                setActivePath("/search");
+                router.push("/search");
               }}
               className='inline-flex items-center gap-2 px-4 py-2 bg-blue-500 text-white rounded-lg hover:bg-blue-600 transition-colors'
             >

@@ -1,11 +1,11 @@
-'use client';
+"use client";
 
-import { useRouter } from 'next/navigation';
-import { useState } from 'react';
-import { MdOutlineNoAdultContent } from 'react-icons/md';
-import { toast } from 'sonner';
+import { useRouter } from "next/navigation";
+import { useState } from "react";
+import { MdOutlineNoAdultContent } from "react-icons/md";
+import { toast } from "sonner";
 
-import { Button } from '@/components/ui/button';
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -13,27 +13,27 @@ import {
   DialogFooter,
   DialogHeader,
   DialogTitle,
-} from '@/components/ui/dialog';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
+} from "@/components/ui/dialog";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
 
-import { useUserStore } from '@/stores/user';
+import { useUserStore } from "@/stores/user";
 
 export const useAdultModeToggle = () => {
   const { localPassword, setAdultMode } = useUserStore();
   const router = useRouter();
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [password, setPassword] = useState('');
+  const [password, setPassword] = useState("");
 
   const handleAdultModeToggle = () => {
     if (!localPassword) {
-      toast.error('未设置密码', {
-        description: '请先在设置页面设置本地密码。',
+      toast.error("未设置密码", {
+        description: "请先在设置页面设置本地密码。",
         action: {
-          label: '前往设置',
+          label: "前往设置",
           onClick: () => {
             const settingsButton = document.querySelector(
-              '#settings-button-container',
+              "#settings-button-container",
             ) as HTMLDivElement;
             settingsButton?.click();
           },
@@ -48,25 +48,25 @@ export const useAdultModeToggle = () => {
   const handleConfirm = () => {
     if (password === localPassword) {
       setAdultMode(new Date().toISOString());
-      toast.success('成人模式已启用', {
-        position: 'top-center',
+      toast.success("成人模式已启用", {
+        position: "top-center",
       });
       setIsDialogOpen(false);
-      setPassword('');
+      setPassword("");
     } else {
-      toast.error('密码错误');
+      toast.error("密码错误");
     }
   };
 
   const handleCancel = () => {
     setIsDialogOpen(false);
-    setPassword('');
+    setPassword("");
   };
 
   const handleOpenChange = (o: boolean) => {
     if (!o) {
       setIsDialogOpen(false);
-      setPassword('');
+      setPassword("");
     }
   };
 
@@ -94,7 +94,7 @@ export const useAdultModeToggle = () => {
               className='col-span-3'
               placeholder='请输入本地密码'
               onKeyDown={(e) => {
-                if (e.key === 'Enter') {
+                if (e.key === "Enter") {
                   handleConfirm();
                 }
               }}
