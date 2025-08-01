@@ -31,7 +31,12 @@ export const useAdultModeToggle = () => {
         description: '请先在设置页面设置本地密码。',
         action: {
           label: '前往设置',
-          onClick: () => router.push('/settings'),
+          onClick: () => {
+            const settingsButton = document.querySelector(
+              '#settings-button-container',
+            ) as HTMLDivElement;
+            settingsButton?.click();
+          },
         },
       });
       return;

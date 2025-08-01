@@ -22,7 +22,10 @@ export default function SettingsPage() {
             {/* Simple grid layout for buttons */}
             <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
               <SettingsButton>
-                <div className='cursor-pointer flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors'>
+                <div
+                  id='settings-button-container'
+                  className='cursor-pointer flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors'
+                >
                   <Settings className='w-8 h-8' />
                   <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
                     应用设置
