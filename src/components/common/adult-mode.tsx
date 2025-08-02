@@ -1,7 +1,6 @@
 "use client";
 
-import { useRouter } from "next/navigation";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import { MdOutlineNoAdultContent } from "react-icons/md";
 import { toast } from "sonner";
 
@@ -21,9 +20,9 @@ import { useUserStore } from "@/stores/user";
 
 export const useAdultModeToggle = () => {
   const { localPassword, setAdultMode } = useUserStore();
-  const router = useRouter();
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [password, setPassword] = useState("");
+  const passwordRef = useRef<HTMLInputElement>(null);
 
   const handleAdultModeToggle = () => {
     if (!localPassword) {
@@ -46,13 +45,14 @@ export const useAdultModeToggle = () => {
   };
 
   const handleConfirm = () => {
+    const password = passwordRef.current?.value || "";
     if (password === localPassword) {
       setAdultMode(new Date().toISOString());
       toast.success("成人模式已启用", {
         position: "top-center",
       });
       setIsDialogOpen(false);
-      setPassword("");
+      if (passwordRef.current) passwordRef.current.value = "";
     } else {
       toast.error("密码错误");
     }
@@ -60,13 +60,13 @@ export const useAdultModeToggle = () => {
 
   const handleCancel = () => {
     setIsDialogOpen(false);
-    setPassword("");
+    if (passwordRef.current) passwordRef.current.value = "";
   };
 
   const handleOpenChange = (o: boolean) => {
     if (!o) {
       setIsDialogOpen(false);
-      setPassword("");
+      if (passwordRef.current) passwordRef.current.value = "";
     }
   };
 
@@ -89,8 +89,7 @@ export const useAdultModeToggle = () => {
             <Input
               id='password'
               type='password'
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              ref={passwordRef}
               className='col-span-3'
               placeholder='请输入本地密码'
               onKeyDown={(e) => {
