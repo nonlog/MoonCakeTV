@@ -9,7 +9,8 @@ import { LogoutButton } from "@/components/sidebar/logout-button";
 import { SettingsButton } from "@/components/sidebar/settings-button";
 
 export default function SettingsPage() {
-  const { handleAdultModeToggle, AdultModeDialog } = useAdultModeToggle();
+  const { handleAdultModeToggle, AdultModeDialog, AdultModeStatus } =
+    useAdultModeToggle();
   return (
     <PageLayout activePath='/settings'>
       <div className='container mx-auto px-4 py-8'>
@@ -55,21 +56,27 @@ export default function SettingsPage() {
                 </span>
               </div>
               <div
-                onClick={handleAdultModeToggle}
+                onClick={(e) => {
+                  e.stopPropagation();
+                  handleAdultModeToggle();
+                }}
                 className='cursor-pointer flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors'
               >
-                <AdultModeDialog />
                 <div className='flex items-center gap-2'>
                   <span className='text-2xl'>🔞</span>
-                  <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                    18禁模式
-                  </span>
+                  <div className='flex flex-col'>
+                    <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+                      18禁模式
+                    </span>
+                    <AdultModeStatus />
+                  </div>
                 </div>
               </div>
             </div>
           </div>
         </div>
       </div>
+      <AdultModeDialog />
     </PageLayout>
   );
 }

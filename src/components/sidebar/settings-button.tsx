@@ -120,8 +120,8 @@ export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
         {/* 设置项 */}
         <div className='space-y-6'>
           {/* 密码 */}
-          <div className='flex items-center justify-between'>
-            <div>
+          <div className='flex flex-col justify-center gap-2'>
+            <div className='flex items-center gap-4'>
               <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
                 设置密码
               </h4>
@@ -129,12 +129,15 @@ export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
                 本地保存，没有加密的明文密码
               </p>
             </div>
-            <label className='flex items-center cursor-pointer'>
+            <label className='flex items-center cursor-pointer w-full'>
               <input
                 type='text'
                 autoFocus
-                placeholder={localPassword}
+                placeholder={
+                  localPassword ? `您的密码：${localPassword}` : "请设置密码"
+                }
                 id='local_password'
+                className='w-full'
               />
             </label>
             <Button
@@ -145,6 +148,8 @@ export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
                 setLocalPassword(password);
                 toast.success("密码保存成功");
               }}
+              size='lg'
+              className='w-fit'
             >
               保存
             </Button>
