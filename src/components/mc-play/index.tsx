@@ -65,23 +65,21 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
   };
 
   // Set initial episode
-  useMemo(() => {
+  useEffect(() => {
     if (episodes.length > 0 && !currentEpisode) {
       setCurrentEpisode(episodes[0].episode);
     }
   }, [episodes, currentEpisode]);
 
-  // Sanitize summary on client side only
-  useEffect(() => {
-    if (mc_item?.summary && typeof window !== "undefined") {
-      setSanitizedSummary(DOMPurify.sanitize(mc_item.summary));
-    }
-  }, [mc_item?.summary]);
-
   // Update watch history when playing content
   useEffect(() => {
     if (mc_item && mc_item.mc_id) {
       setWatchHistory(mc_item);
+    }
+
+    // Sanitize summary on client side only
+    if (mc_item?.summary && typeof window !== "undefined") {
+      setSanitizedSummary(DOMPurify.sanitize(mc_item.summary));
     }
   }, [mc_item]); // eslint-disable-line
 
