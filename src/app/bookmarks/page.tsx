@@ -5,7 +5,7 @@ import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
 import { MediaCard } from "@/components/common/media-card";
-import PageLayout from "@/components/PageLayout";
+import PageLayout from "@/components/common/page-layout";
 
 import { useUserStore } from "@/stores/user";
 

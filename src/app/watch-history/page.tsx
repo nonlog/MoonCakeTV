@@ -4,9 +4,8 @@ import { Clock, Play, Trash2 } from "lucide-react";
 import { useRouter } from "next/navigation";
 
 import { MediaCard } from "@/components/common/media-card";
-import PageLayout from "@/components/PageLayout";
+import PageLayout from "@/components/common/page-layout";
 
-import { useSidebarStore } from "@/stores/sidebar";
 import { useUserStore } from "@/stores/user";
 
 import { Dazahui } from "@/schemas/dazahui";

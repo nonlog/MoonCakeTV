@@ -1,337 +1,153 @@
-/* eslint-disable react-hooks/exhaustive-deps, @typescript-eslint/no-explicit-any */
 "use client";
 
-import { Search, X } from "lucide-react";
+import { Loader2, Play } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useState } from "react";
+import { toast } from "sonner";
 
-import {
-  addSearchHistory,
-  clearSearchHistory,
-  deleteSearchHistory,
-  getSearchHistory,
-  subscribeToDataUpdates,
-} from "@/lib/db.client";
+import { MediaCard } from "@/components/common/media-card";
+import PageLayout from "@/components/common/page-layout";
+import McSearchBar from "@/components/mc-search/search-bar";
 
-import PageLayout from "@/components/PageLayout";
-import VideoCard from "@/components/VideoCard";
+import { Dazahui } from "@/schemas/dazahui";
 
-import { SearchResult } from "@/types/search";
-
-export const SearchComponent = () => {
-  // 搜索历史
-  const [searchHistory, setSearchHistory] = useState<string[]>([]);
-
+export function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const [searchQuery, setSearchQuery] = useState("");
+  const [keyword, setKeyword] = useState("");
+  const [results, setResults] = useState<Dazahui[]>([]);
   const [isLoading, setIsLoading] = useState(false);
-  const [showResults, setShowResults] = useState(false);
-  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [hasSearched, setHasSearched] = useState(false);
 
-  // 获取默认聚合设置：只读取用户本地设置，默认为 true
-  const getDefaultAggregate = () => {
-    if (typeof window !== "undefined") {
-      const userSetting = localStorage.getItem("defaultAggregateSearch");
-      if (userSetting !== null) {
-        return JSON.parse(userSetting);
-      }
-    }
-    return true; // 默认启用聚合
-  };
+  const handleSearch = async (searchKeyword?: string) => {
+    const searchTerm = searchKeyword || keyword;
+    if (!searchTerm.trim() || searchTerm.trim().length <= 1) return;
 
-  const [viewMode, setViewMode] = useState<"agg" | "all">(() => {
-    return getDefaultAggregate() ? "agg" : "all";
-  });
-
-  // 聚合后的结果（按标题和年份分组）
-  const aggregatedResults = useMemo(() => {
-    const map = new Map<string, SearchResult[]>();
-    searchResults.forEach((item) => {
-      // 使用 title + year + type 作为键，year 必然存在，但依然兜底 'unknown'
-      const key = `${item.title.replaceAll(" ", "")}-${
-        item.year || "unknown"
-      }-${item.episodes.length === 1 ? "movie" : "tv"}`;
-      const arr = map.get(key) || [];
-      arr.push(item);
-      map.set(key, arr);
-    });
-    return Array.from(map.entries()).sort((a, b) => {
-      // 优先排序：标题与搜索词完全一致的排在前面
-      const aExactMatch = a[1][0].title
-        .replaceAll(" ", "")
-        .includes(searchQuery.trim().replaceAll(" ", ""));
-      const bExactMatch = b[1][0].title
-        .replaceAll(" ", "")
-        .includes(searchQuery.trim().replaceAll(" ", ""));
-
-      if (aExactMatch && !bExactMatch) return -1;
-      if (!aExactMatch && bExactMatch) return 1;
-
-      // 年份排序
-      if (a[1][0].year === b[1][0].year) {
-        return a[0].localeCompare(b[0]);
-      } else {
-        // 处理 unknown 的情况
-        const aYear = a[1][0].year;
-        const bYear = b[1][0].year;
-
-        if (aYear === "unknown" && bYear === "unknown") {
-          return 0;
-        } else if (aYear === "unknown") {
-          return 1; // a 排在后面
-        } else if (bYear === "unknown") {
-          return -1; // b 排在后面
-        } else {
-          // 都是数字年份，按数字大小排序（大的在前面）
-          return aYear > bYear ? -1 : 1;
-        }
-      }
-    });
-  }, [searchResults]);
-
-  useEffect(() => {
-    // 无搜索参数时聚焦搜索框
-    !searchParams.get("q") && document.getElementById("searchInput")?.focus();
-
-    // 初始加载搜索历史
-    getSearchHistory().then(setSearchHistory);
-
-    // 监听搜索历史更新事件
-    const unsubscribe = subscribeToDataUpdates(
-      "searchHistoryUpdated",
-      (newHistory: string[]) => {
-        setSearchHistory(newHistory);
-      },
-    );
-
-    return unsubscribe;
-  }, []);
-
-  useEffect(() => {
-    // 当搜索参数变化时更新搜索状态
-    const query = searchParams.get("q");
-    if (query) {
-      setSearchQuery(query);
-      fetchSearchResults(query);
-
-      // 保存到搜索历史 (事件监听会自动更新界面)
-      addSearchHistory(query);
-    } else {
-      setShowResults(false);
-    }
-  }, [searchParams]);
-
-  const fetchSearchResults = async (query: string) => {
+    setIsLoading(true);
+    setHasSearched(true);
     try {
-      setIsLoading(true);
-      const response = await fetch(
-        `/api/search?q=${encodeURIComponent(query.trim())}`,
+      const res = await fetch(
+        `https://s1.m3u8.io/v1/search?keyword=${encodeURIComponent(searchTerm)}`,
       );
-      const data = await response.json();
-      setSearchResults(
-        data.results.sort((a: SearchResult, b: SearchResult) => {
-          // 优先排序：标题与搜索词完全一致的排在前面
-          const aExactMatch = a.title === query.trim();
-          const bExactMatch = b.title === query.trim();
-
-          if (aExactMatch && !bExactMatch) return -1;
-          if (!aExactMatch && bExactMatch) return 1;
-
-          // 如果都匹配或都不匹配，则按原来的逻辑排序
-          if (a.year === b.year) {
-            return a.title.localeCompare(b.title);
-          } else {
-            // 处理 unknown 的情况
-            if (a.year === "unknown" && b.year === "unknown") {
-              return 0;
-            } else if (a.year === "unknown") {
-              return 1; // a 排在后面
-            } else if (b.year === "unknown") {
-              return -1; // b 排在后面
-            } else {
-              // 都是数字年份，按数字大小排序（大的在前面）
-              return parseInt(a.year) > parseInt(b.year) ? -1 : 1;
-            }
-          }
-        }),
-      );
-      setShowResults(true);
+      const json = await res.json();
+      setResults(json.data?.items || []);
     } catch (error) {
-      setSearchResults([]);
+      // eslint-disable-next-line no-console
+      console.error(error);
+      toast.error("搜索失败");
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleSearch = (e: React.FormEvent) => {
-    e.preventDefault();
-    const trimmed = searchQuery.trim().replace(/\s+/g, " ");
-    if (!trimmed) return;
-
-    // 回显搜索框
-    setSearchQuery(trimmed);
+  const handleRandom = async () => {
     setIsLoading(true);
-    setShowResults(true);
-
-    router.push(`/search?q=${encodeURIComponent(trimmed)}`);
-    // 直接发请求
-    fetchSearchResults(trimmed);
-
-    // 保存到搜索历史 (事件监听会自动更新界面)
-    addSearchHistory(trimmed);
+    setHasSearched(true);
+    try {
+      const res = await fetch(`https://s1.m3u8.io/v1/random`);
+      const json = await res.json();
+      setResults(json.data?.items || []);
+    } catch (error) {
+      // eslint-disable-next-line no-console
+      console.error(error);
+      toast.error("搜索失败");
+    } finally {
+      setIsLoading(false);
+    }
   };
+
+  // Initialize keyword from URL params and trigger search if present
+  useEffect(() => {
+    const urlKeyword = searchParams.get("keyword") || "";
+    if (urlKeyword) {
+      setKeyword(urlKeyword);
+      handleSearch(urlKeyword);
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
+
+  const updateUrlParams = (newKeyword: string) => {
+    const params = new URLSearchParams(searchParams.toString());
+    if (newKeyword.trim()) {
+      params.set("keyword", newKeyword.trim());
+    } else {
+      params.delete("keyword");
+    }
+    router.replace(`/search?${params.toString()}`, { scroll: false });
+  };
+
+  const handleKeywordChange = (v: string) => {
+    setKeyword(v);
+    updateUrlParams(v);
+  };
+
+  if (isLoading) {
+    return (
+      <PageLayout activePath='/search'>
+        <div className='px-4 sm:px-10 py-4 sm:py-8 overflow-visible w-full min-h-full flex flex-col gap-4'>
+          <McSearchBar
+            handleSearch={handleSearch}
+            keyword={keyword}
+            handleKeywordChange={handleKeywordChange}
+            handleRandom={handleRandom}
+          />
+          <div className='grow flex items-center justify-center w-full h-full'>
+            <Loader2 className='w-10 h-10 animate-spin' />
+          </div>
+        </div>
+      </PageLayout>
+    );
+  }
 
   return (
     <PageLayout activePath='/search'>
-      <div className='px-4 sm:px-10 py-4 sm:py-8 overflow-visible mb-10'>
-        {/* 搜索框 */}
-        <div className='mb-8'>
-          <form onSubmit={handleSearch} className='max-w-2xl mx-auto'>
-            <div className='relative'>
-              <Search className='absolute left-3 top-1/2 h-5 w-5 -translate-y-1/2 text-gray-400 dark:text-gray-500' />
-              <input
-                id='searchInput'
-                type='text'
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                placeholder='搜索电影、电视剧...'
-                className='w-full h-12 rounded-lg bg-gray-50/80 py-3 pl-10 pr-4 text-sm text-gray-700 placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-green-400 focus:bg-white border border-gray-200/50 shadow-xs dark:bg-gray-800 dark:text-gray-300 dark:placeholder-gray-500 dark:focus:bg-gray-700 dark:border-gray-700'
+      <div className='px-4 sm:px-10 py-4 sm:py-8 overflow-visible w-full min-h-full flex flex-col gap-4'>
+        <McSearchBar
+          handleSearch={handleSearch}
+          keyword={keyword}
+          handleKeywordChange={handleKeywordChange}
+          handleRandom={handleRandom}
+        />
+        {!hasSearched ? (
+          <div className='flex flex-col items-center justify-center py-12 text-center'>
+            <div className='w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4'>
+              <Play className='w-8 h-8 text-slate-400' />
+            </div>
+            <h3 className='text-lg font-medium text-slate-900 mb-2'>
+              开始搜索内容
+            </h3>
+            <p className='text-slate-500 max-w-sm'>
+              在上方输入关键词并按回车键开始搜索
+            </p>
+          </div>
+        ) : results.length === 0 ? (
+          <div className='flex flex-col items-center justify-center py-12 text-center'>
+            <div className='w-16 h-16 bg-slate-100 rounded-full flex items-center justify-center mb-4'>
+              <Play className='w-8 h-8 text-slate-400' />
+            </div>
+            <h3 className='text-lg font-medium text-slate-900 mb-2'>
+              没有找到相关内容
+            </h3>
+            <p className='text-slate-500 max-w-sm'>
+              尝试使用不同的关键词或检查拼写是否正确
+            </p>
+          </div>
+        ) : (
+          <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
+            {results.map((result) => (
+              <MediaCard
+                key={result.id}
+                dazahui={result}
+                showSpeedTest={true}
+                onClick={() => {
+                  // Handle click - navigate to play page or show details
+                  router.push(`/play?mc_id=${result.mc_id}`);
+                }}
               />
-            </div>
-          </form>
-        </div>
-
-        {/* 搜索结果或搜索历史 */}
-        <div className='max-w-[95%] mx-auto mt-12 overflow-visible'>
-          {isLoading ? (
-            <div className='flex justify-center items-center h-40'>
-              <div className='animate-spin rounded-full h-8 w-8 border-b-2 border-green-500'></div>
-            </div>
-          ) : showResults ? (
-            <section className='mb-12'>
-              {/* 标题 + 聚合开关 */}
-              <div className='mb-8 flex items-center justify-between'>
-                <h2 className='text-xl font-bold text-gray-800 dark:text-gray-200'>
-                  搜索结果
-                </h2>
-                {/* 聚合开关 */}
-                <label className='flex items-center gap-2 cursor-pointer select-none'>
-                  <span className='text-sm text-gray-700 dark:text-gray-300'>
-                    聚合
-                  </span>
-                  <div className='relative'>
-                    <input
-                      type='checkbox'
-                      className='sr-only peer'
-                      checked={viewMode === "agg"}
-                      onChange={() =>
-                        setViewMode(viewMode === "agg" ? "all" : "agg")
-                      }
-                    />
-                    <div className='w-9 h-5 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors dark:bg-gray-600'></div>
-                    <div className='absolute top-0.5 left-0.5 w-4 h-4 bg-white rounded-full transition-transform peer-checked:translate-x-4'></div>
-                  </div>
-                </label>
-              </div>
-              <div
-                key={`search-results-${viewMode}`}
-                className='justify-start grid grid-cols-3 gap-x-2 gap-y-14 sm:gap-y-20 px-0 sm:px-2 sm:grid-cols-[repeat(auto-fill,minmax(11rem,1fr))] sm:gap-x-8'
-              >
-                {viewMode === "agg"
-                  ? aggregatedResults.map(([mapKey, group]) => {
-                      return (
-                        <div key={`agg-${mapKey}`} className='w-full'>
-                          <VideoCard
-                            from='search'
-                            items={group}
-                            query={
-                              searchQuery.trim() !== group[0].title
-                                ? searchQuery.trim()
-                                : ""
-                            }
-                          />
-                        </div>
-                      );
-                    })
-                  : searchResults.map((item) => (
-                      <div
-                        key={`all-${item.source}-${item.id}`}
-                        className='w-full'
-                      >
-                        <VideoCard
-                          id={item.id}
-                          title={item.title}
-                          poster={item.poster}
-                          episodes={item.episodes.length}
-                          source={item.source}
-                          source_name={item.source_name}
-                          douban_id={item.douban_id?.toString()}
-                          query={
-                            searchQuery.trim() !== item.title
-                              ? searchQuery.trim()
-                              : ""
-                          }
-                          from='search'
-                        />
-                      </div>
-                    ))}
-                {searchResults.length === 0 && (
-                  <div className='col-span-full text-center text-gray-500 py-8 dark:text-gray-400'>
-                    未找到相关结果
-                  </div>
-                )}
-              </div>
-            </section>
-          ) : searchHistory.length > 0 ? (
-            // 搜索历史
-            <section className='mb-12'>
-              <h2 className='mb-4 text-xl font-bold text-gray-800 text-left dark:text-gray-200'>
-                搜索历史
-                {searchHistory.length > 0 && (
-                  <button
-                    onClick={() => {
-                      clearSearchHistory(); // 事件监听会自动更新界面
-                    }}
-                    className='ml-3 text-sm text-gray-500 hover:text-red-500 transition-colors dark:text-gray-400 dark:hover:text-red-500'
-                  >
-                    清空
-                  </button>
-                )}
-              </h2>
-              <div className='flex flex-wrap gap-2'>
-                {searchHistory.map((item) => (
-                  <div key={item} className='relative group'>
-                    <button
-                      onClick={() => {
-                        setSearchQuery(item);
-                        router.push(
-                          `/search?q=${encodeURIComponent(item.trim())}`,
-                        );
-                      }}
-                      className='px-4 py-2 bg-gray-500/10 hover:bg-gray-300 rounded-full text-sm text-gray-700 transition-colors duration-200 dark:bg-gray-700/50 dark:hover:bg-gray-600 dark:text-gray-300'
-                    >
-                      {item}
-                    </button>
-                    {/* 删除按钮 */}
-                    <button
-                      aria-label='删除搜索历史'
-                      onClick={(e) => {
-                        e.stopPropagation();
-                        e.preventDefault();
-                        deleteSearchHistory(item); // 事件监听会自动更新界面
-                      }}
-                      className='absolute -top-1 -right-1 w-4 h-4 opacity-0 group-hover:opacity-100 bg-gray-400 hover:bg-red-500 text-white rounded-full flex items-center justify-center text-[10px] transition-colors'
-                    >
-                      <X className='w-3 h-3' />
-                    </button>
-                  </div>
-                ))}
-              </div>
-            </section>
-          ) : null}
-        </div>
+            ))}
+          </div>
+        )}
       </div>
     </PageLayout>
   );
-};
+}

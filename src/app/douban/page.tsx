@@ -9,9 +9,9 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { getDoubanCategories } from "@/lib/douban.client";
 import { DoubanItem } from "@/lib/types";
 
+import PageLayout from "@/components/common/page-layout";
 import DoubanCardSkeleton from "@/components/DoubanCardSkeleton";
 import DoubanSelector from "@/components/DoubanSelector";
-import PageLayout from "@/components/PageLayout";
 import VideoCard from "@/components/VideoCard";
 
 function DoubanPageClient() {

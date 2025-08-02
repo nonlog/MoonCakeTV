@@ -1,6 +1,6 @@
-import MobileBottomNav from "./MobileBottomNav";
-import MobileHeader from "./MobileHeader";
-import { Sidebar } from "./sidebar";
+import MobileBottomNav from "../MobileBottomNav";
+import MobileHeader from "../MobileHeader";
+import { Sidebar } from "../sidebar";
 
 interface PageLayoutProps {
   children: React.ReactNode;

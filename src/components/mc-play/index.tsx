@@ -16,7 +16,7 @@ import { useUserStore } from "@/stores/user";
 
 import { Dazahui } from "@/schemas/dazahui";
 
-import { PageLayout } from "../PageLayout";
+import { PageLayout } from "../common/page-layout";
 
 export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
   const [currentEpisode, setCurrentEpisode] = useState<string>("");

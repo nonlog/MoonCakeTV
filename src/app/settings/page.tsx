@@ -3,8 +3,8 @@
 import { Settings } from "lucide-react";
 
 import { useAdultModeToggle } from "@/components/common/adult-mode";
+import PageLayout from "@/components/common/page-layout";
 import { ThemeToggle } from "@/components/common/theme-toggle";
-import PageLayout from "@/components/PageLayout";
 import { LogoutButton } from "@/components/sidebar/logout-button";
 import { SettingsButton } from "@/components/sidebar/settings-button";
 
