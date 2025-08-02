@@ -12,12 +12,12 @@ interface McPlayerProps {
 
 export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
   const artPlayerRef = useRef<Artplayer | null>(null);
-  const artRef = useRef<HTMLDivElement | null>(null);
+  const containerRef = useRef<HTMLDivElement | null>(null);
 
   const url_mc_id = useSearchParam("mc_id");
 
   useEffect(() => {
-    if (!Artplayer || !Hls || !videoUrl || !artRef.current) {
+    if (!Artplayer || !Hls || !videoUrl || !containerRef.current) {
       return;
     }
 
@@ -36,7 +36,7 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
       Artplayer.USE_RAF = true;
 
       artPlayerRef.current = new Artplayer({
-        container: artRef.current,
+        container: containerRef.current,
         url: videoUrl,
         poster: poster || "",
         volume: 0.7,
@@ -189,7 +189,7 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
 
   return (
     <div className='bg-black rounded-lg overflow-hidden aspect-video'>
-      <div ref={artRef} className='w-full h-full' />
+      <div ref={containerRef} className='w-full h-full' />
     </div>
   );
 };
