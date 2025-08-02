@@ -1,10 +1,10 @@
-# MoonCakeTV
+# MoonCakeTV 月饼TV
 
 <div align="center">
-  <img src="public/logo.png" alt="LibreTV Logo" width="120">
+  <img src="public/logo.png" alt="MoonCakeTV Logo" width="120">
 </div>
 
-> 🎬 **MoonCakeTV** 是一个开箱即用的、跨平台的影视聚合播放器。它基于 **Next.js 15** + **Tailwind&nbsp;CSS** + **TypeScript** 构建，支持多资源搜索、在线播放、收藏同步、播放记录、本地/云端存储，让你可以随时随地畅享海量免费影视内容。
+> 🎬 **MoonCakeTV 月饼TV** 是一个影视聚合搜索服务。它基于 **Next.js 15** + **Tailwind&nbsp;CSS** + **TypeScript** 构建，支持多资源搜索和在线播放，让你可以随时随地搜索海量免费影视内容。
 
 <div align="center">
 
@@ -20,13 +20,11 @@
 
 ## ✨ 功能特性
 
-- 🔍 **多源聚合搜索**：汇聚数十个免费资源站点，一次搜索立刻返回全源结果。
-- 📄 **丰富详情页**：支持剧集列表、演员、年份、简介等完整信息展示。
-- ▶️ **流畅在线播放**：集成 HLS.js & ArtPlayer。
-- 📱 **PWA**：离线缓存、安装到桌面/主屏，移动端原生体验。
-- 🌗 **响应式布局**：桌面侧边栏 + 移动底部导航，自适应各种屏幕尺寸。
-- 🚀 **极简部署**：一条 Docker 命令即可将完整服务跑起来，或免费部署到 Vercel 和 Cloudflare。
-- 👿 **智能去广告**：自动跳过视频中的切片广告（实验性）
+- 🔍 **多源聚合搜索**：汇聚数十个免费资源站点，一次搜索立刻返回全源结果
+- 📄 **丰富详情页**：支持剧集列表、演员、年份、简介等完整信息展示
+- ▶️ **在线播放**：集成 HLS.js & ArtPlayer 播放器
+- 📱 **响应式布局**：自适应各种屏幕尺寸
+- 🚀 **多平台部署**：支持 Docker、Vercel、Cloudflare Workers 部署
 
 ## 社区
 
@@ -40,12 +38,7 @@
 
 - [技术栈](#技术栈)
 - [部署](#部署)
-- [Docker Compose 最佳实践](#Docker-Compose-最佳实践)
-- [环境变量](#环境变量)
-- [配置说明](#配置说明)
-- [管理员配置](#管理员配置)
-- [AndroidTV 使用](#AndroidTV-使用)
-- [Roadmap](#roadmap)
+- [Docker 部署](#docker-部署)
 - [安全与隐私提醒](#安全与隐私提醒)
 - [License](#license)
 - [致谢](#致谢)
@@ -59,124 +52,73 @@
 | 语言      | TypeScript 5                                                                                          |
 | 播放器    | [ArtPlayer](https://github.com/zhw2590582/ArtPlayer) · [HLS.js](https://github.com/video-dev/hls.js/) |
 | 代码质量  | ESLint · Prettier · Jest                                                                              |
-| 部署      | Docker · Vercel                                                                                       |
+| 部署      | Docker · Vercel · Cloudflare Workers                                                                  |
 
 ## 部署
 
-本项目**支持 Vercel、Docker 和 Cloudflare** 部署。
+本项目支持多种部署方式：**Docker**、**Vercel**、**Cloudflare Workers**。
 
 ### Vercel 部署
 
 > 推荐使用，零运维成本，免费额度足够个人使用。
 
-1. **Fork** 本仓库到你的 GitHub 账户。
-2. 登陆 [Vercel](https://vercel.com/)，点击 **Add New → Project**，选择 Fork 后的仓库。
-3. （强烈建议）设置 PASSWORD 环境变量。
-4. 保持默认设置完成首次部署。
-5. 如需自定义 `config.json`，请直接修改 Fork 后仓库中该文件。
-6. 每次 Push 到 `main` 分支将自动触发重新构建。
+1. **Fork** 本仓库到你的 GitHub 账户
+2. 登陆 [Vercel](https://vercel.com/)，点击 **Add New → Project**，选择 Fork 后的仓库
+3. （可选）设置 PASSWORD 环境变量进行密码保护
+4. 保持默认设置完成部署
 
 部署完成后即可通过分配的域名访问，也可以绑定自定义域名。
 
-### Cloudflare 部署
+### Cloudflare Workers 部署
 
-**Cloudflare Pages 的环境变量尽量设置为密钥而非文本**
+1. **Fork** 本仓库到你的 GitHub 账户
+2. 登陆 [Cloudflare](https://cloudflare.com)，进入 **Workers 和 Pages**
+3. 选择 **Pages**，导入 Git 存储库，选择 Fork 后的仓库
+4. 构建设置：
+   - 构建命令：`npm install && npm run build`
+   - 构建输出目录：`out`
+5. （可选）设置 PASSWORD 环境变量进行密码保护
+6. 完成部署
 
-#### 普通部署（localstorage）
+> 注意：Cloudflare Workers 部署可能需要根据具体配置进行调整，建议先测试 Docker 或 Vercel 部署。
 
-1. **Fork** 本仓库到你的 GitHub 账户。
-2. 登陆 [Cloudflare](https://cloudflare.com)，点击 **计算（Workers）-> Workers 和 Pages**，点击创建
-3. 选择 Pages，导入现有的 Git 存储库，选择 Fork 后的仓库
-4. 构建命令填写 **pnpm install --frozen-lockfile && pnpm run pages:build**，预设框架为无，构建输出目录为 `.vercel/output/static`
-5. 保持默认设置完成首次部署。进入设置，将兼容性标志设置为 `nodejs_compat`
-6. （强烈建议）首次部署完成后进入设置，新增 PASSWORD 密钥（变量和机密下），而后重试部署。
-7. 如需自定义 `config.json`，请直接修改 Fork 后仓库中该文件。
-8. 每次 Push 到 `main` 分支将自动触发重新构建。
-
-#### D1 支持
-
-1. 点击 **存储和数据库 -> D1 SQL 数据库**，创建一个新的数据库，名称随意
-2. 进入刚创建的数据库，点击左上角的 Explore Data，将[D1 初始化](D1初始化.md) 中的内容粘贴到 Query 窗口后点击 Run All，等待运行完成
-3. 返回你的 pages 项目，进入 **设置 -> 绑定**，添加绑定 D1 数据库，选择你刚创建的数据库，变量名称填 **DB**
-4. 设置环境变量 NEXT_PUBLIC_STORAGE_TYPE，值为 d1；设置 USERNAME 和 PASSWORD 作为站长账号
-5. 重试部署
-
-### Docker 部署
+## Docker 部署
 
 > 适用于自建服务器 / NAS / 群晖等场景。
 
-#### 1. 直接运行（最简单）
+### 直接运行
 
 ```bash
-# 拉取预构建镜像
-docker pull ghcr.io/mooncaketv/mooncaketv:latest
+# 构建镜像
+docker build -t mooncaketv .
 
 # 运行容器
-# -d: 后台运行  -p: 映射端口 3000 -> 3000
-docker run -d --name mooncaketv -p 3000:3000 ghcr.io/mooncaketv/mooncaketv:latest
+docker run -d --name mooncaketv -p 3000:3000 mooncaketv
 ```
 
-访问 `http://服务器 IP:3000` 即可。（需自行到服务器控制台放通 `3000` 端口）
+### Docker Compose
 
-## Docker Compose 最佳实践
-
-若你使用 docker compose 部署，以下是一些 compose 示例
-
-### local storage 版本
+创建 `docker-compose.yml` 文件：
 
 ```yaml
 services:
   mooncaketv:
-    image: ghcr.io/mooncaketv/mooncaketv:latest
+    build: .
     container_name: mooncaketv
     restart: unless-stopped
     ports:
-      - '3000:3000'
+      - "3000:3000"
     environment:
-      - PASSWORD=your_password
-    # 如需自定义配置，可挂载文件
-    # volumes:
-    #   - ./config.json:/app/config.json:ro
+      - PASSWORD=your_password # 可选：设置访问密码
 ```
 
-## 自动同步最近更改
+运行：
 
-建议在 fork 的仓库中启用本仓库自带的 GitHub Actions 自动同步功能（见 `.github/workflows/sync.yml`）。
+```bash
+docker-compose up -d
+```
 
-如需手动同步主仓库更新，也可以使用 GitHub 官方的 [Sync fork](https://docs.github.com/cn/github/collaborating-with-issues-and-pull-requests/syncing-a-fork) 功能。
-
-- `cache_time`：接口缓存时间（秒）。
-- `api_site`：你可以增删或替换任何资源站，字段说明：
-  - `key`：唯一标识，保持小写字母/数字。
-  - `api`：资源站提供的 `vod` JSON API 根地址。
-  - `name`：在人机界面中展示的名称。
-  - `detail`：（可选）部分无法通过 API 获取剧集详情的站点，需要提供网页详情根 URL，用于爬取。
-
-MoonCakeTV 支持标准的苹果 CMS V10 API 格式。
-
-修改后 **无需重新构建**，服务会在启动时读取一次。
-
-## 管理员配置
-
-**该特性目前仅支持通过 Cloudflare+D1 的部署方式使用**
-
-支持在运行时动态变更服务配置
-
-设置环境变量 USERNAME 和 PASSWORD 即为站长用户，站长可设置用户为管理员
-
-站长或管理员访问 `/admin` 即可进行管理员配置
-
-## AndroidTV 使用
-
-目前该项目可以配合 [OrionTV](https://github.com/zimplexing/OrionTV) 在 Android TV 上使用，可以直接作为 OrionTV 后端
-
-暂时收藏夹与播放记录和网页端隔离，后续会支持同步用户数据
-
-## Roadmap
-
-- [x] 深色模式
-- [x] 持久化存储
-- [x] 多账户
+访问 `http://服务器IP:3000` 即可使用。
 
 ## 安全与隐私提醒
 
