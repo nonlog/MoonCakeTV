@@ -4,6 +4,22 @@ import videojs from "video.js";
 
 import "video.js/dist/video-js.css";
 
+// Add custom styles for proper video sizing
+const videoStyles = `
+  .video-js {
+    width: 100% !important;
+    height: 100% !important;
+  }
+  .video-js .vjs-tech {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: contain;
+  }
+  .vjs-fluid {
+    padding-top: 0 !important;
+  }
+`;
+
 interface VideoJSProps {
   options: any;
   onReady?: (player: unknown) => void;
@@ -35,10 +51,12 @@ export const VideoJS = (props: VideoJSProps) => {
               const hls = new Hls({
                 debug: false,
                 enableWorker: true,
-                lowLatencyMode: true,
+                lowLatencyMode: false, // Disable for better seeking
                 maxBufferLength: 30,
                 backBufferLength: 30,
                 maxBufferSize: 60 * 1000 * 1000,
+                liveSyncDurationCount: 3,
+                liveMaxLatencyDurationCount: 10,
               });
 
               hls.loadSource(source.src);
@@ -46,6 +64,29 @@ export const VideoJS = (props: VideoJSProps) => {
 
               hls.on(Hls.Events.MANIFEST_PARSED, () => {
                 videojs.log("HLS manifest loaded");
+                // Enable seeking after manifest is loaded
+                player.ready(() => {
+                  player.tech().trigger("loadstart");
+                  // Ensure the progress bar is interactive
+                  try {
+                    const progressControl = (player as any).controlBar
+                      ?.progressControl;
+                    if (progressControl) {
+                      progressControl.enable();
+                    }
+                  } catch (e) {
+                    // Progress control setup failed, but continue
+                  }
+                });
+              });
+
+              // Handle seeking events for better scrubbing
+              hls.on(Hls.Events.FRAG_LOADED, () => {
+                // Update player duration and enable seeking
+                const videoEl = player.tech().el() as HTMLVideoElement;
+                if (videoEl && videoEl.duration && !isNaN(videoEl.duration)) {
+                  player.duration(videoEl.duration);
+                }
               });
 
               // Add error handling like in your original code
@@ -130,9 +171,12 @@ export const VideoJS = (props: VideoJSProps) => {
   }, [playerRef]);
 
   return (
-    <div data-vjs-player>
-      <div ref={videoRef} />
-    </div>
+    <>
+      <style dangerouslySetInnerHTML={{ __html: videoStyles }} />
+      <div data-vjs-player className='w-full h-full'>
+        <div ref={videoRef} className='w-full h-full' />
+      </div>
+    </>
   );
 };
 
