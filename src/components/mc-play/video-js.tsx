@@ -136,6 +136,42 @@ export const VideoJS = (props: VideoJSProps) => {
           }
         }
 
+        // Simple keyboard controls - just arrow keys
+        player.ready(() => {
+          const playerEl = player.el();
+          if (playerEl) {
+            // Make sure the player can receive focus
+            playerEl.setAttribute("tabindex", "0");
+
+            // Add global keyboard listener for arrow keys
+            const handleKeydown = (e: KeyboardEvent) => {
+              // Only handle if no input is focused
+              if (
+                document.activeElement?.tagName === "INPUT" ||
+                document.activeElement?.tagName === "TEXTAREA"
+              ) {
+                return;
+              }
+
+              if (e.key === "ArrowLeft") {
+                e.preventDefault();
+                const currentTime = player.currentTime() || 0;
+                player.currentTime(Math.max(0, currentTime - 10));
+              } else if (e.key === "ArrowRight") {
+                e.preventDefault();
+                const currentTime = player.currentTime() || 0;
+                player.currentTime(currentTime + 10);
+              }
+            };
+
+            // Add to document to catch all keyboard events
+            document.addEventListener("keydown", handleKeydown);
+
+            // Store the handler for cleanup
+            (player as any)._keydownHandler = handleKeydown;
+          }
+        });
+
         onReady && onReady(player);
       });
 
@@ -158,6 +194,14 @@ export const VideoJS = (props: VideoJSProps) => {
 
     return () => {
       if (player && !player.isDisposed()) {
+        // Clean up keyboard event listener
+        if ((player as any)._keydownHandler) {
+          document.removeEventListener(
+            "keydown",
+            (player as any)._keydownHandler,
+          );
+        }
+
         // Clean up HLS instance if it exists
         const videoEl = player.tech()?.el();
         if (videoEl && (videoEl as any).hls) {

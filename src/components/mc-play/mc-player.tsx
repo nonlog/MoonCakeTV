@@ -20,6 +20,12 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
     poster: poster || "",
     preload: "metadata",
     liveui: false,
+    // Enable keyboard controls
+    keyboard: {
+      volumeStep: 0.1,
+      seekStep: 5,
+      enableModifiersForNumbers: false,
+    },
     sources: [
       {
         src: videoUrl,
