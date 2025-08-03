@@ -54,7 +54,6 @@
     "@radix-ui/react-toggle-group": "^1.1.10",
     "@radix-ui/react-tooltip": "^1.2.7",
     "@vidstack/react": "^1.12.13",
-    "artplayer": "^5.2.3",
     "class-variance-authority": "^0.7.1",
     "clsx": "^2.1.1",
     "cmdk": "^1.1.1",
@@ -81,6 +80,7 @@
     "swiper": "^11.2.8",
     "tailwind-merge": "^2.6.0",
     "vaul": "^1.1.2",
+    "video.js": "^8.23.3",
     "vidstack": "^0.6.15",
     "zod": "^4.0.10",
     "zustand": "^5.0.7"

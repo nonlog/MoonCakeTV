@@ -24,7 +24,7 @@
 
 - 🔍 **多源聚合搜索**：汇聚数十个免费资源站点，一次搜索立刻返回全源结果
 - 📄 **丰富详情页**：支持剧集列表、演员、年份、简介等完整信息展示
-- ▶️ **在线播放**：集成 HLS.js & ArtPlayer 播放器
+- ▶️ **在线播放**：集成 HLS.js & Video.js 播放器
 - 📱 **响应式布局**：自适应各种屏幕尺寸
 - 🚀 **多平台部署**：支持 Docker、Vercel、Cloudflare Workers 部署
 
@@ -47,14 +47,14 @@
 
 ## 技术栈
 
-| 分类      | 主要依赖                                                                                              |
-| --------- | ----------------------------------------------------------------------------------------------------- |
-| 前端框架  | [Next.js 15](https://nextjs.org/) · App Router                                                        |
-| UI & 样式 | [Tailwind&nbsp;CSS 4](https://tailwindcss.com/)                                                       |
-| 语言      | TypeScript 5                                                                                          |
-| 播放器    | [ArtPlayer](https://github.com/zhw2590582/ArtPlayer) · [HLS.js](https://github.com/video-dev/hls.js/) |
-| 代码质量  | ESLint · Prettier · Jest                                                                              |
-| 部署      | Docker · Vercel · Cloudflare Workers                                                                  |
+| 分类      | 主要依赖                                                                                         |
+| --------- | ------------------------------------------------------------------------------------------------ |
+| 前端框架  | [Next.js 15](https://nextjs.org/) · App Router                                                   |
+| UI & 样式 | [Tailwind&nbsp;CSS 4](https://tailwindcss.com/)                                                  |
+| 语言      | TypeScript 5                                                                                     |
+| 播放器    | [Video.js](https://github.com/videojs/video.js) · [HLS.js](https://github.com/video-dev/hls.js/) |
+| 代码质量  | ESLint · Prettier · Jest                                                                         |
+| 部署      | Docker · Vercel · Cloudflare Workers                                                             |
 
 ## 部署
 
@@ -154,6 +154,6 @@ docker-compose up -d
 - 本项目由[MoonTV](https://github.com/senshinya/MoonTV) fork而来，进行了一系列优化
 - [ts-nextjs-tailwind-starter](https://github.com/theodorusclarence/ts-nextjs-tailwind-starter) — 项目最初基于该脚手架。
 - [LibreTV](https://github.com/LibreSpark/LibreTV) — 由此启发，站在巨人的肩膀上。
-- [ArtPlayer](https://github.com/zhw2590582/ArtPlayer) — 提供强大的网页视频播放器。
+- [Video.js](https://github.com/videojs/video.js) — 提供强大的网页视频播放器。
 - [HLS.js](https://github.com/video-dev/hls.js) — 实现 HLS 流媒体在浏览器中的播放支持。
 - 感谢所有提供免费影视接口的站点。
