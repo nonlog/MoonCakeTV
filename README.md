@@ -71,7 +71,7 @@
 
 部署完成后即可通过分配的域名访问，也可以绑定自定义域名。
 
-### Cloudflare Workers 部署
+### Cloudflare Workers 部署 (WIP)
 
 1. **Fork** 本仓库到你的 GitHub 账户
 2. 登陆 [Cloudflare](https://cloudflare.com)，进入 **Workers 和 Pages**
@@ -97,30 +97,6 @@ docker build -t mooncaketv .
 # 运行容器
 docker run -d --name mooncaketv -p 3000:3000 mooncaketv
 ```
-
-### Docker Compose
-
-创建 `docker-compose.yml` 文件：
-
-```yaml
-services:
-  mooncaketv:
-    build: .
-    container_name: mooncaketv
-    restart: unless-stopped
-    ports:
-      - "3000:3000"
-    environment:
-      - PASSWORD=your_password # 可选：设置访问密码
-```
-
-运行：
-
-```bash
-docker-compose up -d
-```
-
-访问 `http://服务器IP:3000` 即可使用。
 
 ## 安全与隐私提醒
 
