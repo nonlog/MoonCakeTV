@@ -107,6 +107,7 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
             <button
               onClick={handleBookmarkToggle}
               className={cn(
+                "cursor-pointer",
                 "flex items-center gap-2 px-3 py-2 rounded-lg transition-all hover:scale-105",
                 isBookmarked
                   ? "bg-yellow-100 text-yellow-700 border border-yellow-300"
