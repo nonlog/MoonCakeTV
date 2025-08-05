@@ -161,6 +161,13 @@ export const VideoJS = (props: VideoJSProps) => {
                 e.preventDefault();
                 const currentTime = player.currentTime() || 0;
                 player.currentTime(currentTime + 10);
+              } else if (e.key === " ") {
+                e.preventDefault();
+                if (player.paused()) {
+                  player.play();
+                } else {
+                  player.pause();
+                }
               }
             };
 
@@ -205,7 +212,7 @@ export const VideoJS = (props: VideoJSProps) => {
         // Clean up HLS instance if it exists
         const videoEl = player.tech()?.el();
         if (videoEl && (videoEl as any).hls) {
-          (videoEl as any).hls.destroy();
+          (videoEl as unknown).hls.destroy();
         }
 
         player.dispose();
