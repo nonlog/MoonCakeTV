@@ -14,7 +14,7 @@ d-build:
 
 d-run:
 	@if [ -f .env ]; then \
-		docker run -d -p 3333:3333 --env-file .env --name mc-tv mc-tv; \
+		docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv; \
 	else \
-		docker run -d -p 3333:3333 --name mc-tv mc-tv; \
+		docker run -d -p 3333:3333 --name mooncaketv mooncaketv; \
 	fi

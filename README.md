@@ -60,7 +60,50 @@
 
 本项目支持多种部署方式：**Docker**、**Vercel**、**Cloudflare Workers**。
 
-### Vercel 部署
+## Docker 部署
+
+> 适用于自建服务器 / NAS / 群晖等场景。
+
+### 使用 Makefile 命令
+
+```bash
+# 构建镜像
+make d-build
+
+# 运行容器
+make d-run
+```
+
+### 密码保护设置
+
+为了安全起见，建议设置密码保护。创建 `.env` 文件并添加密码：
+
+```bash
+# 复制环境变量模板
+cp .env.example .env
+
+# 编辑 .env 文件，设置环境变量
+# PASSWORD_MODE=env
+# MY_PASSWORD=your_secure_password
+```
+
+运行 `make d-run` 时会自动加载 `.env` 文件中的环境变量。
+
+### 也可以直接运行
+
+```bash
+# 构建镜像
+docker build -t mooncaketv .
+
+# 运行容器
+
+# 无密码保护
+docker run -d --name mooncaketv -p 3333:3333 mooncaketv
+# 密码保护
+docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
+```
+
+### Vercel 部署 (WIP)
 
 > 推荐使用，零运维成本，免费额度足够个人使用。
 
@@ -84,20 +127,6 @@
 
 > 注意：Cloudflare Workers 部署可能需要根据具体配置进行调整，建议先测试 Docker 或 Vercel 部署。
 
-## Docker 部署
-
-> 适用于自建服务器 / NAS / 群晖等场景。
-
-### 直接运行
-
-```bash
-# 构建镜像
-docker build -t mooncaketv .
-
-# 运行容器
-docker run -d --name mooncaketv -p 3000:3000 mooncaketv
-```
-
 ## 安全与隐私提醒
 
 ### 强烈建议设置密码保护
@@ -110,7 +139,7 @@ docker run -d --name mooncaketv -p 3000:3000 mooncaketv
 
 ### 部署建议
 
-1. **设置环境变量 `PASSWORD`**：为您的实例设置一个强密码
+1. **设置环境变量 `PASSWORD_MODE=env`和`MY_PASSWORD=my_password`**：为您的实例设置一个强密码
 2. **仅供个人使用**：请勿将您的实例链接公开分享或传播
 3. **遵守当地法律**：请确保您的使用行为符合当地法律法规
 
