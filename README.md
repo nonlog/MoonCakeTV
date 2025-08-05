@@ -60,7 +60,7 @@
 
 本项目支持多种部署方式：**Docker**、**Vercel**、**Cloudflare Workers**。
 
-## Docker 部署
+## Docker 部署 (已测试，成功)
 
 > 适用于自建服务器 / NAS / 群晖等场景。
 
@@ -103,13 +103,13 @@ docker run -d --name mooncaketv -p 3333:3333 mooncaketv
 docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
 ```
 
-### Vercel 部署 (WIP)
+### Vercel 部署 (已测试，成功)
 
 > 推荐使用，零运维成本，免费额度足够个人使用。
 
 1. **Fork** 本仓库到你的 GitHub 账户
 2. 登陆 [Vercel](https://vercel.com/)，点击 **Add New → Project**，选择 Fork 后的仓库
-3. （可选）设置 PASSWORD 环境变量进行密码保护
+3. （可选）设置 PASSWORD_MODE=env和 MY_PASSWORD=123456 环境变量进行密码保护 (把123456替换成你自己的密码)
 4. 保持默认设置完成部署
 
 部署完成后即可通过分配的域名访问，也可以绑定自定义域名。
