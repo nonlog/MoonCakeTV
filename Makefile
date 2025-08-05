@@ -1,7 +1,10 @@
-.PHONY: tea dev build d-build d-run
+.PHONY: tea vercel dev build d-build d-run
 
 tea:
 	git push tea main
+
+vercel:
+	git push vercel main
 
 build:
 	npm run build
