@@ -1,17 +1,21 @@
 import { NextResponse } from "next/server";
 
-export const runtime = "edge";
+export function POST() {
+  const response = NextResponse.json({
+    code: 200,
+    data: {
+      success: true,
+    },
+    message: "已退出登录",
+  });
 
-export async function POST() {
-  const response = NextResponse.json({ ok: true });
-
-  // 清除认证cookie
-  response.cookies.set("auth", "", {
+  // Clear the auth cookie
+  response.cookies.set("auth-token", "", {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === "production",
+    sameSite: "lax",
+    maxAge: 0, // Expire immediately
     path: "/",
-    expires: new Date(0),
-    sameSite: "lax", // 改为 lax 以支持 PWA
-    httpOnly: false, // PWA 需要客户端可访问
-    secure: false, // 根据协议自动设置
   });
 
   return response;
