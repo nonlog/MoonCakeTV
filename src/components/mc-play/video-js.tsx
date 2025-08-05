@@ -212,7 +212,7 @@ export const VideoJS = (props: VideoJSProps) => {
         // Clean up HLS instance if it exists
         const videoEl = player.tech()?.el();
         if (videoEl && (videoEl as any).hls) {
-          (videoEl as unknown).hls.destroy();
+          (videoEl as any).hls.destroy();
         }
 
         player.dispose();
