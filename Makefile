@@ -1,4 +1,4 @@
-.PHONY: tea dev build
+.PHONY: tea dev build d-build d-run
 
 tea:
 	git push tea main
@@ -8,3 +8,13 @@ build:
 
 dev:
 	npm run dev
+
+d-build:
+	docker build -t mc-tv . --no-cache
+
+d-run:
+	@if [ -f .env ]; then \
+		docker run -d -p 3333:3333 --env-file .env --name mc-tv mc-tv; \
+	else \
+		docker run -d -p 3333:3333 --name mc-tv mc-tv; \
+	fi

@@ -24,7 +24,6 @@ export async function middleware(request: NextRequest) {
   if (passwordMode === "env") {
     const { success } = validatePassword(mcAuthToken);
     if (success) {
-      console.log(112334);
       return NextResponse.next();
     } else {
       // 重定向到登录页面

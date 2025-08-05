@@ -14,7 +14,6 @@ const inter = Inter({ subsets: ["latin"] });
 export const metadata: Metadata = {
   title: "月饼TV",
   description: "影视聚合",
-  manifest: "/manifest.json",
 };
 
 export const viewport: Viewport = {

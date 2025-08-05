@@ -24,13 +24,20 @@ export default function LoginPage() {
   const shouldAskUsername = serverConfig.PASSWORD_MODE === "db";
 
   useEffect(() => {
-    fetch("/api/server-config")
-      .then((res) => res.json())
+    fetch("/api/server-config", {
+      method: "GET",
+      headers: {
+        "Content-Type": "application/json",
+      },
+    })
+      .then((res) => {
+        return res.json();
+      })
       .then((json) => {
         setServerConfig(json.data);
       })
       .catch((err) => {
-        console.log("Err: >>", err);
+        console.error("Server config fetch error:", err);
         setServerConfig({} as AuthConfig);
       });
   }, []);
@@ -59,12 +66,15 @@ export default function LoginPage() {
         const json = await res.json();
 
         if (json.data.success) {
-          // Cookie is set by the server, just redirect
-          window.location.href = "/";
+          // Use a small delay before redirect for Safari compatibility
+          setTimeout(() => {
+            window.location.href = "/";
+          }, 100);
         } else {
           setError(json.message || "登录失败");
         }
       } catch (err) {
+        console.error("Login error:", err);
         setError("网络错误，请重试");
       } finally {
         setLoading(false);
@@ -77,7 +87,7 @@ export default function LoginPage() {
       <div className='absolute top-4 right-4'>
         <ThemeToggle />
       </div>
-      <div className='relative z-10 w-full max-w-md rounded-3xl bg-linear-to-b from-white/90 via-white/70 to-white/40 dark:from-zinc-900/90 dark:via-zinc-900/70 dark:to-zinc-900/40 backdrop-blur-xl shadow-2xl p-10 dark:border dark:border-zinc-800'>
+      <div className='relative z-10 w-full max-w-md rounded-3xl bg-gradient-to-b from-white/90 via-white/70 to-white/40 dark:from-zinc-900/90 dark:via-zinc-900/70 dark:to-zinc-900/40 backdrop-blur-xl shadow-2xl p-10 dark:border dark:border-zinc-800'>
         <h1 className='text-green-600 tracking-tight text-center text-3xl font-extrabold mb-8 bg-clip-text drop-shadow-xs'>
           {siteName}
         </h1>
@@ -91,7 +101,7 @@ export default function LoginPage() {
                 id='username'
                 type='text'
                 autoComplete='username'
-                className='block w-full rounded-lg border-0 py-3 px-4 text-gray-900 dark:text-gray-100 shadow-xs ring-1 ring-white/60 dark:ring-white/20 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:outline-hidden sm:text-base bg-white/60 dark:bg-zinc-800/60 backdrop-blur-sm'
+                className='block w-full rounded-lg border-0 py-3 px-4 text-gray-900 dark:text-gray-100 shadow-xs ring-1 ring-white/60 dark:ring-white/20 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:outline-none sm:text-base bg-white/60 dark:bg-zinc-800/60 backdrop-blur-sm'
                 placeholder='输入用户名'
                 value={username}
                 onChange={(e) => {
@@ -109,11 +119,20 @@ export default function LoginPage() {
               id='password'
               type='password'
               autoComplete='current-password'
-              className='block w-full rounded-lg border-0 py-3 px-4 text-gray-900 dark:text-gray-100 shadow-xs ring-1 ring-white/60 dark:ring-white/20 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:outline-hidden sm:text-base bg-white/60 dark:bg-zinc-800/60 backdrop-blur-sm'
+              className='block w-full rounded-lg border-0 py-3 px-4 text-gray-900 dark:text-gray-100 shadow-xs ring-1 ring-white/60 dark:ring-white/20 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:outline-none sm:text-base bg-white/60 dark:bg-zinc-800/60 backdrop-blur-sm'
               placeholder='输入访问密码'
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value.trim());
+              }}
+              onKeyDown={(e) => {
+                if (e.key === "Enter") {
+                  e.preventDefault();
+                  const form = e.currentTarget.form;
+                  if (form) {
+                    form.requestSubmit();
+                  }
+                }
               }}
             />
           </div>
@@ -125,7 +144,7 @@ export default function LoginPage() {
           <button
             type='submit'
             disabled={!password || loading || (shouldAskUsername && !username)}
-            className='cursor-pointer inline-flex w-full justify-center rounded-lg bg-green-600 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:from-green-600 hover:to-blue-600 disabled:cursor-not-allowed disabled:opacity-50'
+            className='cursor-pointer inline-flex w-full justify-center rounded-lg bg-green-600 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-green-600'
           >
             {loading ? "登录中..." : "登录"}
           </button>
