@@ -1,6 +1,7 @@
 import Hls from "hls.js";
 import React from "react";
 import videojs from "video.js";
+import Player from "video.js/dist/types/player";
 
 import "video.js/dist/video-js.css";
 
@@ -22,12 +23,15 @@ const videoStyles = `
 
 interface VideoJSProps {
   options: any;
-  onReady?: (player: unknown) => void;
+  onReady?: (player: Player) => void;
 }
 
 export const VideoJS = (props: VideoJSProps) => {
   const videoRef = React.useRef<HTMLDivElement>(null);
-  const playerRef = React.useRef<any>(null);
+  const playerRef = React.useRef<Player>(null);
+  const keydownHandlerRef = React.useRef<((e: KeyboardEvent) => void) | null>(
+    null,
+  );
   const { options, onReady } = props;
 
   React.useEffect(() => {
@@ -40,7 +44,7 @@ export const VideoJS = (props: VideoJSProps) => {
       videoRef.current?.appendChild(videoElement);
 
       // Initialize the Video.js player
-      const player = videojs(videoElement, options, () => {
+      const player: Player = videojs(videoElement, options, () => {
         videojs.log("player is ready");
 
         // Setup HLS.js if the source is HLS and browser supports it
@@ -123,8 +127,7 @@ export const VideoJS = (props: VideoJSProps) => {
               });
 
               // Store HLS instance for cleanup
-              (player.tech().el() as HTMLVideoElement & { hls: unknown }).hls =
-                hls;
+              (player.tech().el() as HTMLVideoElement).hls = hls;
             } else if (
               (player.tech().el() as HTMLVideoElement).canPlayType(
                 "application/vnd.apple.mpegurl",
@@ -175,11 +178,11 @@ export const VideoJS = (props: VideoJSProps) => {
             document.addEventListener("keydown", handleKeydown);
 
             // Store the handler for cleanup
-            (player as any)._keydownHandler = handleKeydown;
+            keydownHandlerRef.current = handleKeydown;
           }
         });
 
-        onReady && onReady(player);
+        onReady?.(player);
       });
 
       // Store the player reference
@@ -188,7 +191,7 @@ export const VideoJS = (props: VideoJSProps) => {
       // You could update an existing player in the `else` block here
       // on prop change, for example:
     } else {
-      const player = playerRef.current as any;
+      const player = playerRef.current;
 
       player.autoplay(options.autoplay);
       player.src(options.sources);
@@ -197,22 +200,20 @@ export const VideoJS = (props: VideoJSProps) => {
 
   // Dispose the Video.js player when the functional component unmounts
   React.useEffect(() => {
-    const player = playerRef.current as any;
+    const player = playerRef.current;
 
     return () => {
       if (player && !player.isDisposed()) {
         // Clean up keyboard event listener
-        if ((player as any)._keydownHandler) {
-          document.removeEventListener(
-            "keydown",
-            (player as any)._keydownHandler,
-          );
+        if (keydownHandlerRef.current) {
+          document.removeEventListener("keydown", keydownHandlerRef.current);
+          keydownHandlerRef.current = null;
         }
 
         // Clean up HLS instance if it exists
-        const videoEl = player.tech()?.el();
-        if (videoEl && (videoEl as any).hls) {
-          (videoEl as any).hls.destroy();
+        const videoEl = player.tech()?.el() as HTMLVideoElement;
+        if (videoEl && videoEl.hls) {
+          videoEl.hls.destroy();
         }
 
         player.dispose();

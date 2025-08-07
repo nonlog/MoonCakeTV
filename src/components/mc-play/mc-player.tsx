@@ -39,6 +39,11 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
   const handlePlayerReady = (player: any) => {
     console.log("Video.js player ready");
 
+    // Auto play the video when ready
+    player.play().catch((error: unknown) => {
+      console.warn("Autoplay failed:", error);
+    });
+
     // You can add any additional player setup here
     player.on("error", (err: unknown) => {
       console.error("Player error:", err);
