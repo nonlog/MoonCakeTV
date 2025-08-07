@@ -26,7 +26,7 @@
 - 📄 **丰富详情页**：支持剧集列表、演员、年份、简介等完整信息展示
 - ▶️ **在线播放**：集成 HLS.js & Video.js 播放器
 - 📱 **响应式布局**：自适应各种屏幕尺寸
-- 🚀 **多平台部署**：支持 Docker、Vercel、Cloudflare Workers 部署
+- 🚀 **多平台部署**：支持 Docker、Vercel 部署
 
 ## 社区
 
@@ -54,11 +54,11 @@
 | 语言      | TypeScript 5                                                                                     |
 | 播放器    | [Video.js](https://github.com/videojs/video.js) · [HLS.js](https://github.com/video-dev/hls.js/) |
 | 代码质量  | ESLint · Prettier · Jest                                                                         |
-| 部署      | Docker · Vercel · Cloudflare Workers                                                             |
+| 部署      | Docker · Vercel Workers                                                                          |
 
 ## 部署
 
-本项目支持多种部署方式：**Docker**、**Vercel**、**Cloudflare Workers**。
+本项目支持多种部署方式：**Docker**、**Vercel**。
 
 ## Docker 部署 (已测试，成功)
 
@@ -114,18 +114,7 @@ docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
 
 部署完成后即可通过分配的域名访问，也可以绑定自定义域名。
 
-### Cloudflare Workers 部署 (WIP)
-
-1. **Fork** 本仓库到你的 GitHub 账户
-2. 登陆 [Cloudflare](https://cloudflare.com)，进入 **Workers 和 Pages**
-3. 选择 **Pages**，导入 Git 存储库，选择 Fork 后的仓库
-4. 构建设置：
-   - 构建命令：`npm install && npm run build`
-   - 构建输出目录：`out`
-5. （可选）设置 PASSWORD 环境变量进行密码保护
-6. 完成部署
-
-> 注意：Cloudflare Workers 部署可能需要根据具体配置进行调整，建议先测试 Docker 或 Vercel 部署。
+### Cloudflare Workers 部署 (放弃支持)
 
 ## 安全与隐私提醒
 
