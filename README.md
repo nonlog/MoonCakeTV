@@ -145,7 +145,7 @@ docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
 
 ## 致谢
 
-- 本项目由[MoonTV](https://github.com/senshinya/MoonTV) fork而来，进行了一系列优化
+- 本项目由[MoonTV](https://github.com/LunaTechLab/MoonTV) fork而来，进行了一系列优化
 - [ts-nextjs-tailwind-starter](https://github.com/theodorusclarence/ts-nextjs-tailwind-starter) — 项目最初基于该脚手架。
 - [LibreTV](https://github.com/LibreSpark/LibreTV) — 由此启发，站在巨人的肩膀上。
 - [Video.js](https://github.com/videojs/video.js) — 提供强大的网页视频播放器。
