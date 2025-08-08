@@ -80,7 +80,7 @@ docker run -d --name mooncaketv -p 3333:3333 mooncaketv
 docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
 ```
 
-### Vercel 部署 (已测试，成功 ✅✅✅)
+## Vercel 部署 (已测试，成功 ✅✅✅)
 
 > 零运维成本，免费额度足够个人使用
 
