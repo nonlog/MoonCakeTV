@@ -33,13 +33,27 @@
 
 > 适用于自建服务器 / NAS / 群晖等场景。
 
+### ㊙️㊙️㊙️ 第一步：密码保护设置
+
+> 为了安全起见，建议设置密码保护；创建 `.env` 文件并添加密码：
+
+```bash
+# 复制环境变量模板
+cp .env.example .env
+
+# 编辑 .env 文件，设置环境变量
+# 运行 `make d-run` 时会自动加载 `.env` 文件中的环境变量。
+# PASSWORD_MODE=env
+# MY_PASSWORD=your_secure_password
+```
+
 ### (🔥🔥🔥推荐🔥🔥🔥) 拉取已构建好的镜像
 
 ```shell
 # 拉取镜像
 docker pull ghcr.io/mooncaketv/mooncaketv:latest
 # 本地跑起来
-docker run -d -p 3000:3000 --name mc-tv ghcr.io/mooncaketv/mooncaketv:latest
+docker run -d -p 3000:3000 --env-file .env --name mc-tv ghcr.io/mooncaketv/mooncaketv:latest
 ```
 
 ### 自己构建docker镜像（使用 Makefile 命令）
@@ -66,7 +80,7 @@ docker run -d --name mooncaketv -p 3333:3333 mooncaketv
 docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
 ```
 
-### Vercel 部署 (已测试，成功)
+### Vercel 部署 (已测试，成功 ✅✅✅)
 
 > 零运维成本，免费额度足够个人使用
 
@@ -82,20 +96,6 @@ docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
 ### ~~Cloudflare Workers 部署 (放弃支持)~~
 
 > ~~近期多起封号事件~~
-
-## ㊙️㊙️㊙️ 密码保护设置
-
-### 为了安全起见，建议设置密码保护。创建 `.env` 文件并添加密码：
-
-```bash
-# 复制环境变量模板
-cp .env.example .env
-
-# 编辑 .env 文件，设置环境变量
-# 运行 `make d-run` 时会自动加载 `.env` 文件中的环境变量。
-# PASSWORD_MODE=env
-# MY_PASSWORD=your_secure_password
-```
 
 ## ⚠️⚠️⚠️ 安全与隐私提醒
 
