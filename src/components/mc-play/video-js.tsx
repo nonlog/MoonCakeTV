@@ -1,4 +1,4 @@
-import Hls from "hls.js";
+import Hls, { ErrorData } from "hls.js";
 import React from "react";
 import videojs from "video.js";
 import Player from "video.js/dist/types/player";
@@ -29,6 +29,7 @@ interface VideoJSProps {
 export const VideoJS = (props: VideoJSProps) => {
   const videoRef = React.useRef<HTMLDivElement>(null);
   const playerRef = React.useRef<Player>(null);
+  const hlsRef = React.useRef<Hls | null>(null);
   const keydownHandlerRef = React.useRef<((e: KeyboardEvent) => void) | null>(
     null,
   );
@@ -82,7 +83,19 @@ export const VideoJS = (props: VideoJSProps) => {
 
               // Load playlist via proxy to bypass CORS/GFW
               hls.loadSource(toProxyUrl(source.src));
-              hls.attachMedia(player.tech().el() as HTMLVideoElement);
+              const initialVideoEl = player
+                .el()
+                ?.querySelector("video") as HTMLVideoElement | null;
+              if (initialVideoEl) {
+                hls.attachMedia(initialVideoEl);
+              } else {
+                player.one("ready", () => {
+                  const el = player
+                    .el()
+                    ?.querySelector("video") as HTMLVideoElement | null;
+                  if (el) hls.attachMedia(el);
+                });
+              }
 
               hls.on(Hls.Events.MANIFEST_PARSED, () => {
                 videojs.log("HLS manifest loaded");
@@ -105,51 +118,57 @@ export const VideoJS = (props: VideoJSProps) => {
               // Handle seeking events for better scrubbing
               hls.on(Hls.Events.FRAG_LOADED, () => {
                 // Update player duration and enable seeking
-                const videoEl = player.tech().el() as HTMLVideoElement;
+                const videoEl = player
+                  .el()
+                  ?.querySelector("video") as HTMLVideoElement | null;
                 if (videoEl && videoEl.duration && !isNaN(videoEl.duration)) {
                   player.duration(videoEl.duration);
                 }
               });
 
               // Add error handling like in your original code
-              hls.on(Hls.Events.ERROR, function (_event: any, data: any) {
-                // Only log in development and for fatal errors
-                if (process.env.NODE_ENV === "development" && data.fatal) {
-                  console.warn("HLS Fatal Error:", data.type, data.details);
-                }
-
-                if (data.fatal) {
-                  switch (data.type) {
-                    case Hls.ErrorTypes.NETWORK_ERROR:
-                      // Silently attempt recovery for network errors
-                      try {
-                        hls.startLoad();
-                      } catch (e) {
-                        // Recovery failed, but don't spam console
-                      }
-                      break;
-                    case Hls.ErrorTypes.MEDIA_ERROR:
-                      // Silently attempt recovery for media errors
-                      try {
-                        hls.recoverMediaError();
-                      } catch (e) {
-                        // Recovery failed, but don't spam console
-                      }
-                      break;
-                    default:
-                      // Only destroy HLS instance, don't log unrecoverable errors
-                      hls.destroy();
-                      break;
+              hls.on(
+                Hls.Events.ERROR,
+                function (_event: unknown, data: ErrorData) {
+                  // Only log in development and for fatal errors
+                  if (process.env.NODE_ENV === "development" && data.fatal) {
+                    console.warn("HLS Fatal Error:", data.type, data.details);
                   }
-                }
-              });
+
+                  if (data.fatal) {
+                    switch (data.type) {
+                      case Hls.ErrorTypes.NETWORK_ERROR:
+                        // Silently attempt recovery for network errors
+                        try {
+                          hls.startLoad();
+                        } catch (_e) {
+                          // ignore
+                        }
+                        break;
+                      case Hls.ErrorTypes.MEDIA_ERROR:
+                        // Silently attempt recovery for media errors
+                        try {
+                          hls.recoverMediaError();
+                        } catch (_e) {
+                          // ignore
+                        }
+                        break;
+                      default:
+                        // Only destroy HLS instance, don't log unrecoverable errors
+                        hls.destroy();
+                        break;
+                    }
+                  }
+                },
+              );
 
               // Store HLS instance for cleanup
-              (player.tech().el() as HTMLVideoElement).hls = hls;
+              if (initialVideoEl) (initialVideoEl as any).hls = hls;
+              hlsRef.current = hls;
             } else if (
-              (player.tech().el() as HTMLVideoElement).canPlayType(
-                "application/vnd.apple.mpegurl",
-              )
+              (
+                player.el()?.querySelector("video") as HTMLVideoElement | null
+              )?.canPlayType?.("application/vnd.apple.mpegurl")
             ) {
               // Native HLS support (Safari) - still proxy to avoid CORS/GFW
               player.src(toProxyUrl(source.src));
@@ -210,9 +229,108 @@ export const VideoJS = (props: VideoJSProps) => {
       // on prop change, for example:
     } else {
       const player = playerRef.current;
+      const toProxyUrl = (url: string) => {
+        try {
+          const u = new URL(
+            url,
+            typeof window !== "undefined" ? window.location.href : undefined,
+          );
+          const isHttp = u.protocol === "http:" || u.protocol === "https:";
+          const isAlreadyProxied =
+            u.pathname.startsWith("/api/proxy/hls") &&
+            u.searchParams.has("url");
+          if (!isHttp || isAlreadyProxied) return url;
+          return `/api/proxy/hls?url=${encodeURIComponent(u.toString())}`;
+        } catch {
+          return url;
+        }
+      };
 
       player.autoplay(options.autoplay);
-      player.src(options.sources);
+
+      const srcObj = options.sources && options.sources[0];
+      if (srcObj && typeof srcObj.src === "string") {
+        const isHls = srcObj.src.includes(".m3u8");
+        const proxiedSrc = toProxyUrl(srcObj.src);
+        const videoEl = player
+          .el()
+          ?.querySelector("video") as HTMLVideoElement | null;
+
+        // If the current source is the same, avoid re-initializing
+        const currentSource = player.currentSource() as
+          | { src?: string }
+          | undefined;
+        const currentSrc = currentSource?.src || player.currentSrc();
+        if (currentSrc === proxiedSrc) {
+          return;
+        }
+
+        // If we have an existing Hls instance, destroy before switching
+        if (hlsRef.current) {
+          try {
+            // Stop and detach before destroy to avoid decode errors
+            try {
+              hlsRef.current.stopLoad();
+            } catch (_e) {
+              void 0;
+            }
+            try {
+              hlsRef.current.detachMedia();
+            } catch (_e) {
+              void 0;
+            }
+            hlsRef.current.destroy();
+          } catch (_e) {
+            void 0;
+          }
+          hlsRef.current = null;
+          if (videoEl && (videoEl as any).hls) {
+            (videoEl as any).hls = null;
+          }
+        }
+
+        if (isHls) {
+          if (Hls.isSupported()) {
+            const hls = new Hls({
+              debug: false,
+              enableWorker: true,
+              lowLatencyMode: false,
+              maxBufferLength: 30,
+              backBufferLength: 30,
+              maxBufferSize: 60 * 1000 * 1000,
+              liveSyncDurationCount: 3,
+              liveMaxLatencyDurationCount: 10,
+            });
+            hls.loadSource(proxiedSrc);
+            if (videoEl) {
+              hls.attachMedia(videoEl);
+              (videoEl as any).hls = hls;
+            } else {
+              player.one("ready", () => {
+                const el = player
+                  .el()
+                  ?.querySelector("video") as HTMLVideoElement | null;
+                if (el) {
+                  hls.attachMedia(el);
+                  (el as any).hls = hls;
+                }
+              });
+            }
+            hlsRef.current = hls;
+          } else if (videoEl?.canPlayType?.("application/vnd.apple.mpegurl")) {
+            player.src({ src: proxiedSrc, type: "application/x-mpegURL" });
+          } else {
+            // Fallback: let video.js handle
+            player.src([{ src: proxiedSrc, type: "application/x-mpegURL" }]);
+          }
+        } else {
+          // Non-HLS, ensure proxying for CORS/GFW
+          player.src([{ src: proxiedSrc, type: srcObj.type || "video/mp4" }]);
+        }
+      } else {
+        // Fallback to original behavior
+        player.src(options.sources);
+      }
     }
   }, [onReady, options, videoRef]);
 
@@ -229,9 +347,29 @@ export const VideoJS = (props: VideoJSProps) => {
         }
 
         // Clean up HLS instance if it exists
-        const videoEl = player.tech()?.el() as HTMLVideoElement;
-        if (videoEl && videoEl.hls) {
-          videoEl.hls.destroy();
+        const videoEl = player
+          .el()
+          ?.querySelector("video") as HTMLVideoElement | null;
+        if (hlsRef.current) {
+          try {
+            try {
+              hlsRef.current.stopLoad();
+            } catch (_e) {
+              void 0;
+            }
+            try {
+              hlsRef.current.detachMedia();
+            } catch (_e) {
+              void 0;
+            }
+            hlsRef.current.destroy();
+          } catch (_e) {
+            void 0;
+          }
+          hlsRef.current = null;
+        }
+        if (videoEl && (videoEl as any).hls) {
+          (videoEl as any).hls = null;
         }
 
         player.dispose();

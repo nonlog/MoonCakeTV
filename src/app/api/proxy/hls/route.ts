@@ -8,6 +8,11 @@ const ALLOWED_HOSTS = (process.env.HLS_PROXY_ALLOW_HOSTS || "")
   .map((h) => h.trim())
   .filter(Boolean);
 
+// Tunable TTLs (seconds) via environment
+const MANIFEST_VOD_TTL_S = Number(process.env.HLS_MANIFEST_TTL_S ?? 30);
+const MANIFEST_LIVE_TTL_S = Number(process.env.HLS_MANIFEST_LIVE_TTL_S ?? 10);
+const SEGMENT_TTL_S = Number(process.env.HLS_SEGMENT_TTL_S ?? 600);
+
 function isHttpUrl(url: string): boolean {
   try {
     const u = new URL(url);
@@ -15,6 +20,13 @@ function isHttpUrl(url: string): boolean {
   } catch {
     return false;
   }
+}
+
+function detectManifestIsLive(manifest: string): boolean {
+  const lower = manifest.toLowerCase();
+  if (lower.includes("#ext-x-endlist")) return false; // ended/VOD
+  if (lower.includes("playlist-type:vod")) return false;
+  return true; // assume live if no end marker
 }
 
 function isHostAllowed(url: string): boolean {
@@ -27,7 +39,7 @@ function isHostAllowed(url: string): boolean {
   }
 }
 
-function pickCacheTtlMs(targetUrl: string): number {
+function pickCacheTtlMs(targetUrl: string, isLiveManifest = false): number {
   const pathname = (() => {
     try {
       return new URL(targetUrl).pathname.toLowerCase();
@@ -35,16 +47,26 @@ function pickCacheTtlMs(targetUrl: string): number {
       return "";
     }
   })();
-  if (pathname.endsWith(".m3u8")) return 30_000; // manifests: 30s
-  if (pathname.endsWith(".ts") || pathname.endsWith(".m4s")) return 300_000; // segments: 5m
+  if (pathname.endsWith(".m3u8")) {
+    const seconds = isLiveManifest ? MANIFEST_LIVE_TTL_S : MANIFEST_VOD_TTL_S;
+    return seconds * 1000;
+  }
+  if (pathname.endsWith(".ts") || pathname.endsWith(".m4s")) {
+    return SEGMENT_TTL_S * 1000;
+  }
   return 60_000; // default 60s
 }
 
-function buildCacheHeaders(ttlMs: number): HeadersInit {
+function buildCacheHeaders(
+  ttlMs: number,
+  extra?: { immutable?: boolean; varyRange?: boolean },
+): HeadersInit {
   const seconds = Math.max(0, Math.floor(ttlMs / 1000));
-  return {
-    "Cache-Control": `public, max-age=${seconds}`,
+  const headers: Record<string, string> = {
+    "Cache-Control": `public, max-age=${seconds}${extra?.immutable ? ", immutable" : ""}`,
   };
+  if (extra?.varyRange) headers["Vary"] = "Range";
+  return headers;
 }
 
 async function proxy(req: NextRequest): Promise<Response> {
@@ -93,7 +115,9 @@ async function proxy(req: NextRequest): Promise<Response> {
       "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/124.0.0.0 Safari/537.36";
 
   const controller = new AbortController();
-  const ttlMs = pickCacheTtlMs(target);
+  // We will compute TTL after we know if manifest is live; initialize with path heuristic
+  let isLive = /live|hls-live|\blive\b|\/live\//i.test(target);
+  let ttlMs = pickCacheTtlMs(target, isLive);
   try {
     const upstream = await fetch(target, {
       method,
@@ -125,10 +149,6 @@ async function proxy(req: NextRequest): Promise<Response> {
       if (v) resHeaders.set(h, v);
     });
 
-    // Set caching
-    const cacheHeaders = buildCacheHeaders(ttlMs);
-    Object.entries(cacheHeaders).forEach(([k, v]) => resHeaders.set(k, v));
-
     const status = upstream.status;
 
     if (isPlaylist && method === "GET") {
@@ -138,6 +158,10 @@ async function proxy(req: NextRequest): Promise<Response> {
       const refAttach = effectiveRef
         ? `&ref=${encodeURIComponent(effectiveRef)}`
         : "";
+
+      // Decide live vs VOD based on manifest content
+      isLive = detectManifestIsLive(text);
+      ttlMs = pickCacheTtlMs(target, isLive);
 
       const rewriteAttrUris = (line: string): string => {
         // Replace URI="..." or URI='...'
@@ -185,8 +209,21 @@ async function proxy(req: NextRequest): Promise<Response> {
         "content-type",
         upstream.headers.get("content-type") || "application/vnd.apple.mpegurl",
       );
+      // Now set caching headers after we decide TTL using content-based detection
+      const cacheHeadersManifest = buildCacheHeaders(ttlMs);
+      Object.entries(cacheHeadersManifest).forEach(([k, v]) =>
+        resHeaders.set(k, v),
+      );
       return new Response(rewritten, { status, headers: resHeaders });
     }
+
+    // Set caching for non-playlists (segments and others)
+    const isSegment = /\.(ts|m4s)(\?|$)/i.test(target);
+    const cacheHeaders = buildCacheHeaders(ttlMs, {
+      immutable: isSegment,
+      varyRange: isSegment,
+    });
+    Object.entries(cacheHeaders).forEach(([k, v]) => resHeaders.set(k, v));
 
     // Stream body for segments and other assets; avoid body on HEAD
     if (method === "HEAD") {

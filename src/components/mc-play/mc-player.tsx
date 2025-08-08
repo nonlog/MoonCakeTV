@@ -81,7 +81,11 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
 
   return (
     <div className='bg-black rounded-lg overflow-hidden aspect-video'>
-      <VideoJS options={videoJsOptions} onReady={handlePlayerReady} />
+      <VideoJS
+        key={videoUrl}
+        options={videoJsOptions}
+        onReady={handlePlayerReady}
+      />
     </div>
   );
 };

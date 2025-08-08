@@ -24,6 +24,7 @@
       }
     ],
     "no-console": "off",
+    "no-empty": "warn",
     "@typescript-eslint/explicit-module-boundary-types": "off",
     "react/no-unescaped-entities": "off",
     "react/display-name": "off",
