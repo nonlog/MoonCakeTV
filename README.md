@@ -64,6 +64,12 @@
 
 > 适用于自建服务器 / NAS / 群晖等场景。
 
+### 拉取已构建好的镜像 (推荐:fire::fire::fire: :white_check_mark: :white_check_mark: :white_check_mark:)
+
+```shell
+docker pull ghcr.io/mooncaketv/mooncaketv:latest
+```
+
 ### 使用 Makefile 命令
 
 ```bash
