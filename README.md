@@ -93,7 +93,7 @@ docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
 
 部署完成后即可通过分配的域名访问，也可以绑定自定义域名。
 
-### ~~Cloudflare Workers 部署 (放弃支持)~~
+## ~~Cloudflare Workers 部署 (放弃支持)~~
 
 > ~~近期多起封号事件~~
 
