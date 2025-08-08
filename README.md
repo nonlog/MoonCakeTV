@@ -10,9 +10,6 @@
 
 <div align="center">
 
-![Next.js](https://img.shields.io/badge/Next.js-15-000?logo=nextdotjs)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-38bdf8?logo=tailwindcss)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript)
 ![License](https://img.shields.io/badge/License-MIT-green)
 ![Docker Ready](https://img.shields.io/badge/Docker-ready-blue?logo=docker)
 
@@ -36,27 +33,7 @@
 
 <img src="public/screenshot.png" alt="项目截图" style="max-width:600px">
 
-## 🗺 目录
-
-- [技术栈](#技术栈)
-- [部署](#部署)
-- [Docker 部署](#docker-部署)
-- [安全与隐私提醒](#安全与隐私提醒)
-- [License](#license)
-- [致谢](#致谢)
-
-## 技术栈
-
-| 分类      | 主要依赖                                                                                         |
-| --------- | ------------------------------------------------------------------------------------------------ |
-| 前端框架  | [Next.js 15](https://nextjs.org/) · App Router                                                   |
-| UI & 样式 | [Tailwind&nbsp;CSS 4](https://tailwindcss.com/)                                                  |
-| 语言      | TypeScript 5                                                                                     |
-| 播放器    | [Video.js](https://github.com/videojs/video.js) · [HLS.js](https://github.com/video-dev/hls.js/) |
-| 代码质量  | ESLint · Prettier · Jest                                                                         |
-| 部署      | Docker · Vercel Workers                                                                          |
-
-## 部署
+## 怎样部署
 
 本项目支持多种部署方式：**Docker**、**Vercel**。
 
@@ -148,6 +125,27 @@ docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
 ## License
 
 [MIT](LICENSE) © 2025 MoonCakeTV & Contributors
+
+## 技术栈
+
+<div align="center">
+
+![Next.js](https://img.shields.io/badge/Next.js-15-000?logo=nextdotjs)
+![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-38bdf8?logo=tailwindcss)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript)
+![License](https://img.shields.io/badge/License-MIT-green)
+![Docker Ready](https://img.shields.io/badge/Docker-ready-blue?logo=docker)
+
+</div>
+
+| 分类      | 主要依赖                                                                                         |
+| --------- | ------------------------------------------------------------------------------------------------ |
+| 前端框架  | [Next.js 15](https://nextjs.org/) · App Router                                                   |
+| UI & 样式 | [Tailwind&nbsp;CSS 4](https://tailwindcss.com/)                                                  |
+| 语言      | TypeScript 5                                                                                     |
+| 播放器    | [Video.js](https://github.com/videojs/video.js) · [HLS.js](https://github.com/video-dev/hls.js/) |
+| 代码质量  | ESLint · Prettier · Jest                                                                         |
+| 部署      | Docker · Vercel Workers                                                                          |
 
 ## 致谢
 
