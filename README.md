@@ -172,8 +172,8 @@ docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
       <td>ESLint · Prettier · Jest</td>
     </tr>
     <tr>
-      <td>部署</td>
-      <td>Docker · Vercel Workers</td>
+      <td>服务器</td>
+      <td>Open Search · Cloudflare Workers</td>
     </tr>
   </tbody>
 </table>
