@@ -44,7 +44,10 @@
 ### 拉取已构建好的镜像 (推荐🔥🔥🔥 ✅✅✅)
 
 ```shell
+# 拉取镜像
 docker pull ghcr.io/mooncaketv/mooncaketv:latest
+# 本地跑起来
+docker run -d -p 3000:3000 --name mc-tv ghcr.io/mooncaketv/mooncaketv:latest
 ```
 
 ### 使用 Makefile 命令
