@@ -1,9 +1,9 @@
-import Hls from "hls.js";
-
 import { SpeedTestResult } from "./types";
 
 // Get badge color and style based on speed
-export const getSpeedBadgeProps = (loadSpeed: string) => {
+export const getSpeedBadgeProps = (speedTestResult: SpeedTestResult) => {
+  const { loadSpeed } = speedTestResult;
+
   // Handle error states with specific colors
   const errorStates = [
     "连接失败",
@@ -125,187 +125,92 @@ export const getFirstM3u8Url = (
   return null;
 };
 
+const MAX_CONCURRENT_TESTS = 4;
+
+function createConcurrencyLimiter(maxConcurrent: number) {
+  let activeCount = 0;
+  const queue: Array<() => void> = [];
+
+  const dequeueIfPossible = () => {
+    if (activeCount >= maxConcurrent) return;
+    const start = queue.shift();
+    start?.();
+  };
+
+  const runWithLimit = async <T>(task: () => Promise<T>): Promise<T> => {
+    if (activeCount >= maxConcurrent) {
+      await new Promise<void>((resolve) => queue.push(resolve));
+    }
+    activeCount += 1;
+    try {
+      return await task();
+    } finally {
+      activeCount = Math.max(0, activeCount - 1);
+      dequeueIfPossible();
+    }
+  };
+
+  return runWithLimit;
+}
+
+const limitSpeedTests = createConcurrencyLimiter(MAX_CONCURRENT_TESTS);
+
+type CacheEntry = { result: SpeedTestResult; timestamp: number; ttlMs: number };
+const speedTestCache = new Map<string, CacheEntry>();
+const inflightSpeedTests = new Map<string, Promise<SpeedTestResult>>();
+
 export const testStreamSpeed = async (
   m3u8Url: string,
+  options?: { signal?: AbortSignal; cacheKey?: string; ttlMs?: number },
 ): Promise<SpeedTestResult> => {
-  // First try a simple connectivity test
-  try {
-    const connectivityTest = await fetch(m3u8Url, {
-      method: "HEAD",
-      mode: "no-cors",
-      signal: AbortSignal.timeout(3000), // 3 second timeout
-    });
-    console.log("Connectivity test passed for:", m3u8Url);
-  } catch (error) {
-    console.warn("Connectivity test failed:", error);
-    // If basic connectivity fails, return a fallback result
-    return {
-      quality: "未知",
-      loadSpeed: "连接失败",
-      pingTime: 0,
-    };
+  const signal = options?.signal;
+  const cacheKey = options?.cacheKey ?? m3u8Url;
+  const ttlMs = options?.ttlMs ?? 60_000; // default 60s
+
+  // Cache check
+  const cached = cacheKey ? speedTestCache.get(cacheKey) : undefined;
+  if (cached && Date.now() - cached.timestamp < cached.ttlMs) {
+    return cached.result;
   }
 
-  return new Promise((resolve) => {
-    const video = document.createElement("video");
-    video.muted = true;
-    video.preload = "metadata";
-    video.crossOrigin = "anonymous"; // Try to handle CORS
+  if (cacheKey && inflightSpeedTests.has(cacheKey)) {
+    const inFlight = inflightSpeedTests.get(cacheKey);
+    if (inFlight) return inFlight;
+  }
 
-    // Measure network latency
-    const pingStart = performance.now();
-    let pingTime = 0;
-
-    fetch(m3u8Url, { method: "HEAD", mode: "no-cors" })
-      .then(() => {
-        pingTime = performance.now() - pingStart;
-      })
-      .catch(() => {
-        pingTime = performance.now() - pingStart;
-      });
-
-    const hls = new Hls({
-      debug: false,
-      enableWorker: false, // Disable worker to avoid some CORS issues
-      maxLoadingDelay: 2000, // Reduce loading delay
-      maxBufferLength: 10, // Reduce buffer to speed up testing
-      fragLoadingTimeOut: 3000, // 3 second timeout for fragments
-      manifestLoadingTimeOut: 3000, // 3 second timeout for manifest
-    });
-
-    const timeout = setTimeout(() => {
-      console.warn("Speed test timeout for:", m3u8Url);
-      hls.destroy();
-      video.remove();
-      // Return a timeout result instead of rejecting
-      resolve({
-        quality: "未知",
-        loadSpeed: "超时",
-        pingTime: Math.round(pingTime) || 0,
-      });
-    }, 6000); // Increased timeout to 6 seconds
-
-    video.onerror = (error) => {
-      console.warn("Video element error:", error);
-      clearTimeout(timeout);
-      hls.destroy();
-      video.remove();
-      // Return an error result instead of rejecting
-      resolve({
-        quality: "未知",
-        loadSpeed: "视频错误",
-        pingTime: Math.round(pingTime) || 0,
-      });
-    };
-
-    let actualLoadSpeed = "未知";
-    let hasSpeedCalculated = false;
-    let hasMetadataLoaded = false;
-    let fragmentStartTime = 0;
-
-    const checkAndResolve = () => {
-      if (
-        hasMetadataLoaded &&
-        (hasSpeedCalculated || actualLoadSpeed !== "未知")
-      ) {
-        clearTimeout(timeout);
-        const width = video.videoWidth;
-        hls.destroy();
-        video.remove();
-
-        const quality =
-          width >= 3840
-            ? "4K"
-            : width >= 2560
-              ? "2K"
-              : width >= 1920
-                ? "1080p"
-                : width >= 1280
-                  ? "720p"
-                  : width >= 854
-                    ? "480p"
-                    : width > 0
-                      ? "SD"
-                      : "未知";
-
-        resolve({
-          quality,
-          loadSpeed: actualLoadSpeed,
-          pingTime: Math.round(pingTime),
+  const run = limitSpeedTests(async () => {
+    try {
+      if (signal?.aborted) throw new DOMException("Aborted", "AbortError");
+      const res = await fetch(
+        `/api/speed-test?url=${encodeURIComponent(m3u8Url)}`,
+        { cache: "no-store", signal },
+      );
+      if (!res.ok) {
+        return { quality: "未知", loadSpeed: "测试失败", pingTime: 0 };
+      }
+      const data = (await res.json()) as SpeedTestResult;
+      if (cacheKey) {
+        speedTestCache.set(cacheKey, {
+          result: data,
+          timestamp: Date.now(),
+          ttlMs,
         });
       }
-    };
-
-    hls.on(Hls.Events.FRAG_LOADING, () => {
-      fragmentStartTime = performance.now();
-    });
-
-    hls.on(Hls.Events.FRAG_LOADED, (_event: any, data: any) => {
-      if (
-        fragmentStartTime > 0 &&
-        data &&
-        data.payload &&
-        !hasSpeedCalculated
-      ) {
-        const loadTime = performance.now() - fragmentStartTime;
-        const size = data.payload.byteLength || 0;
-
-        if (loadTime > 0 && size > 0) {
-          const speedKBps = size / 1024 / (loadTime / 1000);
-
-          if (speedKBps >= 1024) {
-            actualLoadSpeed = `${(speedKBps / 1024).toFixed(1)} MB/s`;
-          } else {
-            actualLoadSpeed = `${speedKBps.toFixed(1)} KB/s`;
-          }
-          hasSpeedCalculated = true;
-          checkAndResolve();
-        }
+      return data;
+    } catch (err: unknown) {
+      if ((err as Error)?.name === "AbortError") {
+        return { quality: "未知", loadSpeed: "", pingTime: 0 };
       }
-    });
-
-    hls.loadSource(m3u8Url);
-    hls.attachMedia(video);
-
-    hls.on(Hls.Events.ERROR, (_event: any, data: any) => {
-      if (data.fatal) {
-        clearTimeout(timeout);
-        hls.destroy();
-        video.remove();
-
-        // Provide more specific error messages based on error type
-        let errorMessage = "测试失败";
-        switch (data.type) {
-          case Hls.ErrorTypes.NETWORK_ERROR:
-            errorMessage = "网络错误";
-            break;
-          case Hls.ErrorTypes.MEDIA_ERROR:
-            errorMessage = "媒体错误";
-            break;
-          case Hls.ErrorTypes.MUX_ERROR:
-            errorMessage = "解码错误";
-            break;
-          case Hls.ErrorTypes.OTHER_ERROR:
-            errorMessage = "未知错误";
-            break;
-          default:
-            errorMessage = "播放失败";
-        }
-
-        // Return an error result instead of rejecting to avoid breaking the UI
-        resolve({
-          quality: "未知",
-          loadSpeed: errorMessage,
-          pingTime: Math.round(pingTime) || 0,
-        });
-      }
-    });
-
-    video.onloadedmetadata = () => {
-      hasMetadataLoaded = true;
-      checkAndResolve();
-    };
+      return { quality: "未知", loadSpeed: "连接失败", pingTime: 0 };
+    }
   });
+
+  if (cacheKey) inflightSpeedTests.set(cacheKey, run);
+  try {
+    return await run;
+  } finally {
+    if (cacheKey) inflightSpeedTests.delete(cacheKey);
+  }
 };
 
 export const getSourceBrand = (source: string) => {

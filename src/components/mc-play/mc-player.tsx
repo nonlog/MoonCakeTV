@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import type Player from "video.js/dist/types/player";
 
 import VideoJS from "./video-js";
 
@@ -10,6 +11,22 @@ interface McPlayerProps {
 }
 
 export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
+  const toProxyUrl = (url: string) => {
+    try {
+      const u = new URL(
+        url,
+        typeof window !== "undefined" ? window.location.href : undefined,
+      );
+      const isHttp = u.protocol === "http:" || u.protocol === "https:";
+      const isAlreadyProxied =
+        u.pathname.startsWith("/api/proxy/hls") && u.searchParams.has("url");
+      if (!isHttp || isAlreadyProxied) return url;
+      return `/api/proxy/hls?url=${encodeURIComponent(u.toString())}`;
+    } catch {
+      return url;
+    }
+  };
+
   // Video.js options configuration
   const videoJsOptions = {
     autoplay: true,
@@ -28,7 +45,9 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
     },
     sources: [
       {
-        src: videoUrl,
+        // For MP4 or non-HLS, route through proxy to bypass CORS/GFW
+        // For HLS, keep original; Hls.js will proxy requests internally in VideoJS component
+        src: videoUrl.includes(".m3u8") ? videoUrl : toProxyUrl(videoUrl),
         type: videoUrl.includes(".m3u8")
           ? "application/x-mpegURL"
           : "video/mp4",
@@ -36,11 +55,11 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
     ],
   };
 
-  const handlePlayerReady = (player: any) => {
+  const handlePlayerReady = (player: Player) => {
     console.log("Video.js player ready");
 
     // Auto play the video when ready
-    player.play().catch((error: unknown) => {
+    player.play()?.catch((error: unknown) => {
       console.warn("Autoplay failed:", error);
     });
 

@@ -1,6 +1,5 @@
-import Hls from "hls.js";
 import { Calendar, Globe, Play, Wifi } from "lucide-react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { FaRegBookmark } from "react-icons/fa6";
 import { toast } from "sonner";
 
@@ -51,6 +50,17 @@ export function MediaCard({
   const [speedTestResult, setSpeedTestResult] =
     useState<SpeedTestResult | null>(null);
   const [isTestingSpeed, setIsTestingSpeed] = useState(false);
+  const isMountedRef = useRef(true);
+  const hasStartedRef = useRef(false);
+  const abortRef = useRef<AbortController | null>(null);
+  const timeoutRef = useRef<number | null>(null);
+
+  useEffect(() => {
+    isMountedRef.current = true;
+    return () => {
+      isMountedRef.current = false;
+    };
+  }, []);
 
   // Bookmark functionality
   const { bookmarks, updateBookmarks } = useUserStore();
@@ -76,37 +86,71 @@ export function MediaCard({
   };
 
   // Run speed test when component mounts and showSpeedTest is true
+  // eslint-disable-next-line react-hooks/exhaustive-deps
   useEffect(() => {
     const firstUrl = getFirstM3u8Url(m3u8_urls);
-    if (showSpeedTest && firstUrl && !speedTestResult && !isTestingSpeed) {
-      // Check if HLS.js is available
-      if (!Hls.isSupported()) {
-        console.error("❌ HLS.js is not supported in this browser");
-        setSpeedTestResult({
-          quality: "未知",
-          loadSpeed: "不支持",
-          pingTime: 0,
-        });
-        return;
-      }
+    if (!showSpeedTest || !firstUrl || speedTestResult) {
+      return () => {
+        if (timeoutRef.current) {
+          clearTimeout(timeoutRef.current);
+          timeoutRef.current = null;
+        }
+        if (abortRef.current) {
+          abortRef.current.abort();
+          abortRef.current = null;
+        }
+        hasStartedRef.current = false;
+      };
+    }
 
+    if (hasStartedRef.current) {
+      return () => {
+        // no-op cleanup; an in-flight test is already managed
+      };
+    }
+
+    timeoutRef.current = window.setTimeout(() => {
+      if (!isMountedRef.current || hasStartedRef.current) return;
+      hasStartedRef.current = true;
+      const abortController = new AbortController();
+      abortRef.current = abortController;
       setIsTestingSpeed(true);
-      testStreamSpeed(firstUrl)
+      testStreamSpeed(firstUrl, { signal: abortController.signal })
         .then((result) => {
-          setSpeedTestResult(result);
+          if (isMountedRef.current && !abortController.signal.aborted) {
+            setSpeedTestResult(result);
+          }
         })
-        .catch((error) => {
-          setSpeedTestResult({
-            quality: "未知",
-            loadSpeed: "测试失败",
-            pingTime: 0,
-          });
+        .catch(() => {
+          if (isMountedRef.current && !abortController.signal.aborted) {
+            setSpeedTestResult({
+              quality: "未知",
+              loadSpeed: "测试失败",
+              pingTime: 0,
+            });
+          }
         })
         .finally(() => {
-          setIsTestingSpeed(false);
+          if (isMountedRef.current) {
+            setIsTestingSpeed(false);
+          }
+          abortRef.current = null;
         });
-    }
-  }, [showSpeedTest, m3u8_urls, speedTestResult, isTestingSpeed]);
+    }, 400);
+
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+        timeoutRef.current = null;
+      }
+      if (abortRef.current) {
+        abortRef.current.abort();
+        abortRef.current = null;
+      }
+      // allow restart only when dependencies change meaningfully
+      hasStartedRef.current = false;
+    };
+  }, [showSpeedTest, m3u8_urls, speedTestResult]);
 
   return (
     <Card
@@ -171,12 +215,8 @@ export function MediaCard({
               <>
                 {/* Speed and Quality Badge */}
                 <Badge
-                  variant={
-                    getSpeedBadgeProps(speedTestResult.loadSpeed).variant
-                  }
-                  className={
-                    getSpeedBadgeProps(speedTestResult.loadSpeed).className
-                  }
+                  variant={getSpeedBadgeProps(speedTestResult).variant}
+                  className={getSpeedBadgeProps(speedTestResult).className}
                 >
                   <Wifi className='w-3 h-3 mr-1' />
                   {speedTestResult.quality} | {speedTestResult.loadSpeed}

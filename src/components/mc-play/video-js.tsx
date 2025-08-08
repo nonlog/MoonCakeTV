@@ -44,6 +44,23 @@ export const VideoJS = (props: VideoJSProps) => {
       videoRef.current?.appendChild(videoElement);
 
       // Initialize the Video.js player
+      const toProxyUrl = (url: string) => {
+        try {
+          const u = new URL(
+            url,
+            typeof window !== "undefined" ? window.location.href : undefined,
+          );
+          const isHttp = u.protocol === "http:" || u.protocol === "https:";
+          const isAlreadyProxied =
+            u.pathname.startsWith("/api/proxy/hls") &&
+            u.searchParams.has("url");
+          if (!isHttp || isAlreadyProxied) return url;
+          return `/api/proxy/hls?url=${encodeURIComponent(u.toString())}`;
+        } catch {
+          return url;
+        }
+      };
+
       const player: Player = videojs(videoElement, options, () => {
         videojs.log("player is ready");
 
@@ -63,7 +80,8 @@ export const VideoJS = (props: VideoJSProps) => {
                 liveMaxLatencyDurationCount: 10,
               });
 
-              hls.loadSource(source.src);
+              // Load playlist via proxy to bypass CORS/GFW
+              hls.loadSource(toProxyUrl(source.src));
               hls.attachMedia(player.tech().el() as HTMLVideoElement);
 
               hls.on(Hls.Events.MANIFEST_PARSED, () => {
@@ -133,8 +151,8 @@ export const VideoJS = (props: VideoJSProps) => {
                 "application/vnd.apple.mpegurl",
               )
             ) {
-              // Native HLS support (Safari)
-              player.src(source.src);
+              // Native HLS support (Safari) - still proxy to avoid CORS/GFW
+              player.src(toProxyUrl(source.src));
             }
           }
         }
