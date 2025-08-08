@@ -17,7 +17,7 @@
 
 ---
 
-## ✨ 功能特性
+## ✨✨✨ 功能特性
 
 - 🔍 **多源聚合搜索**：汇聚数十个免费资源站点，一次搜索立刻返回全源结果
 - 📄 **丰富详情页**：支持剧集列表、演员、年份、简介等完整信息展示
@@ -25,7 +25,7 @@
 - 📱 **响应式布局**：自适应各种屏幕尺寸
 - 🚀 **多平台部署**：支持 Docker、Vercel 部署
 
-## 社区
+## 🎃🎃🎃 社区
 
 - Telegram: https://t.me/mooncaketv
 
@@ -33,7 +33,7 @@
 
 > 适用于自建服务器 / NAS / 群晖等场景。
 
-### ㊙️㊙️㊙️ 第一步：密码保护设置
+### 第一步：密码保护设置㊙️㊙️㊙️
 
 > 为了安全起见，建议设置密码保护；创建 `.env` 文件并添加密码：
 
@@ -47,7 +47,7 @@ cp .env.example .env
 # MY_PASSWORD=your_secure_password
 ```
 
-### (🔥🔥🔥推荐🔥🔥🔥) 拉取已构建好的镜像
+### 拉取已构建好的镜像 (🔥🔥🔥推荐🔥🔥🔥)
 
 ```shell
 # 拉取镜像
@@ -149,31 +149,27 @@ docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
   </thead>
   <tbody>
     <tr>
-      <td>前端框架</td>
-      <td><a href="https://nextjs.org/">Next.js 15</a> · App Router</td>
-    </tr>
-    <tr>
-      <td>UI & 样式</td>
-      <td><a href="https://tailwindcss.com/">Tailwind&nbsp;CSS 4</a></td>
-    </tr>
-    <tr>
-      <td>语言</td>
-      <td>TypeScript 5</td>
+      <td>前端</td>
+      <td><a href="https://nextjs.org/">Next.js</a> · <a href="https://tailwindcss.com/">Tailwind CSS</a> · TypeScript</td>
     </tr>
     <tr>
       <td>播放器</td>
       <td>
-        <a href="https://github.com/videojs/video.js">Video.js</a><br />
+        <a href="https://github.com/videojs/video.js">Video.js</a> · 
         <a href="https://github.com/video-dev/hls.js/">HLS.js</a>
       </td>
     </tr>
     <tr>
       <td>代码质量</td>
-      <td>ESLint · Prettier · Jest</td>
+      <td>ESLint · Prettier</td>
     </tr>
     <tr>
       <td>服务器</td>
-      <td>Open Search · Cloudflare Workers</td>
+      <td>Cloudflare Workers · Racknerd VPS</td>
+    </tr>
+    <tr>
+      <td>数据库</td>
+      <td>Open Search · Cloudflare D1</td>
     </tr>
   </tbody>
 </table>
