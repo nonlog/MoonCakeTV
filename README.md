@@ -29,19 +29,11 @@
 
 - Telegram: https://t.me/mooncaketv
 
-## 界面截图
-
-<img src="public/screenshot.png" alt="项目截图" style="max-width:600px">
-
-## 怎样部署
-
-本项目支持多种部署方式：**Docker**、**Vercel**。
-
-## Docker 部署 (已测试，成功)
+## Docker 部署 (已测试，成功✅✅✅)
 
 > 适用于自建服务器 / NAS / 群晖等场景。
 
-### 拉取已构建好的镜像 (推荐🔥🔥🔥 ✅✅✅)
+### (🔥🔥🔥推荐🔥🔥🔥) 拉取已构建好的镜像
 
 ```shell
 # 拉取镜像
@@ -50,7 +42,7 @@ docker pull ghcr.io/mooncaketv/mooncaketv:latest
 docker run -d -p 3000:3000 --name mc-tv ghcr.io/mooncaketv/mooncaketv:latest
 ```
 
-### 使用 Makefile 命令
+### 自己构建docker镜像（使用 Makefile 命令）
 
 ```bash
 # 构建镜像
@@ -60,22 +52,7 @@ make d-build
 make d-run
 ```
 
-### 密码保护设置
-
-为了安全起见，建议设置密码保护。创建 `.env` 文件并添加密码：
-
-```bash
-# 复制环境变量模板
-cp .env.example .env
-
-# 编辑 .env 文件，设置环境变量
-# PASSWORD_MODE=env
-# MY_PASSWORD=your_secure_password
-```
-
-运行 `make d-run` 时会自动加载 `.env` 文件中的环境变量。
-
-### 也可以直接运行
+### 自己构建docker镜像 (使用docker命令行)
 
 ```bash
 # 构建镜像
@@ -89,9 +66,25 @@ docker run -d --name mooncaketv -p 3333:3333 mooncaketv
 docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
 ```
 
+## ㊙️㊙️㊙️ 密码保护设置
+
+### 为了安全起见，建议设置密码保护。创建 `.env` 文件并添加密码：
+
+```bash
+# 复制环境变量模板
+cp .env.example .env
+
+# 编辑 .env 文件，设置环境变量
+# 运行 `make d-run` 时会自动加载 `.env` 文件中的环境变量。
+# PASSWORD_MODE=env
+# MY_PASSWORD=your_secure_password
+```
+
 ### Vercel 部署 (已测试，成功)
 
-> 推荐使用，零运维成本，免费额度足够个人使用。
+> 零运维成本，免费额度足够个人使用
+
+> 请注意⚠️⚠️⚠️：现在所有的流量都从`/api/proxy/hls`走，会使用服务器大量的流量；vercel是否会因此封号，这是值得注意的
 
 1. **Fork** 本仓库到你的 GitHub 账户
 2. 登陆 [Vercel](https://vercel.com/)，点击 **Add New → Project**，选择 Fork 后的仓库
@@ -100,13 +93,15 @@ docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
 
 部署完成后即可通过分配的域名访问，也可以绑定自定义域名。
 
-### Cloudflare Workers 部署 (放弃支持)
+### ~~Cloudflare Workers 部署 (放弃支持)~~
 
-## 安全与隐私提醒
+> ~~近期多起封号事件~~
+
+## ⚠️⚠️⚠️ 安全与隐私提醒
 
 ### 强烈建议设置密码保护
 
-为了您的安全和避免潜在的法律风险，我们**强烈建议**在部署时设置密码保护：
+#### 为了您的安全和避免潜在的法律风险，我们**强烈建议**在部署时设置密码保护：
 
 - **避免公开访问**：不设置密码的实例任何人都可以访问，可能被恶意利用
 - **防范版权风险**：公开的视频搜索服务可能面临版权方的投诉举报
@@ -127,7 +122,11 @@ docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
 
 ## License
 
-[MIT](LICENSE) © 2025 MoonCakeTV & Contributors
+[MIT](LICENSE)
+
+## 界面截图
+
+<img src="public/screenshot.png" alt="项目截图" style="max-width:600px">
 
 ## 技术栈
 
@@ -141,14 +140,43 @@ docker run -d -p 3333:3333 --env-file .env --name mooncaketv mooncaketv
 
 </div>
 
-| 分类      | 主要依赖                                                                                         |
-| --------- | ------------------------------------------------------------------------------------------------ |
-| 前端框架  | [Next.js 15](https://nextjs.org/) · App Router                                                   |
-| UI & 样式 | [Tailwind&nbsp;CSS 4](https://tailwindcss.com/)                                                  |
-| 语言      | TypeScript 5                                                                                     |
-| 播放器    | [Video.js](https://github.com/videojs/video.js) · [HLS.js](https://github.com/video-dev/hls.js/) |
-| 代码质量  | ESLint · Prettier · Jest                                                                         |
-| 部署      | Docker · Vercel Workers                                                                          |
+<table>
+  <thead>
+    <tr>
+      <th>分类</th>
+      <th>主要依赖</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>前端框架</td>
+      <td><a href="https://nextjs.org/">Next.js 15</a> · App Router</td>
+    </tr>
+    <tr>
+      <td>UI & 样式</td>
+      <td><a href="https://tailwindcss.com/">Tailwind&nbsp;CSS 4</a></td>
+    </tr>
+    <tr>
+      <td>语言</td>
+      <td>TypeScript 5</td>
+    </tr>
+    <tr>
+      <td>播放器</td>
+      <td>
+        <a href="https://github.com/videojs/video.js">Video.js</a><br />
+        <a href="https://github.com/video-dev/hls.js/">HLS.js</a>
+      </td>
+    </tr>
+    <tr>
+      <td>代码质量</td>
+      <td>ESLint · Prettier · Jest</td>
+    </tr>
+    <tr>
+      <td>部署</td>
+      <td>Docker · Vercel Workers</td>
+    </tr>
+  </tbody>
+</table>
 
 ## 致谢
 
