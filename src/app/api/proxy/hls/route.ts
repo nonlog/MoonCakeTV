@@ -155,9 +155,10 @@ async function proxy(req: NextRequest): Promise<Response> {
       // Rewrite playlist so all URIs (lines and attribute URIs) go back through this proxy
       const text = await upstream.text();
       const base = new URL(target);
-      const refAttach = effectiveRef
-        ? `&ref=${encodeURIComponent(effectiveRef)}`
-        : "";
+      // Use provided ref if any; otherwise default to the playlist URL so
+      // segments and key URIs get the exact playlist as Referer. Many CDNs
+      // validate the full Referer path, not just the origin.
+      const refAttach = `&ref=${encodeURIComponent(base.toString())}`;
 
       // Decide live vs VOD based on manifest content
       isLive = detectManifestIsLive(text);
