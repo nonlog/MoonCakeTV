@@ -3,7 +3,7 @@
 import React from "react";
 import type Player from "video.js/dist/types/player";
 
-import VideoJS from "./video-js";
+import { McVideo } from "./mc-video";
 
 interface McPlayerProps {
   videoUrl: string;
@@ -66,9 +66,9 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
 
   return (
     <div className='bg-black rounded-lg overflow-hidden aspect-video'>
-      <VideoJS
+      <McVideo
         key={videoUrl}
-        options={videoJsOptions}
+        videoJsOptions={videoJsOptions}
         onReady={handlePlayerReady}
       />
     </div>
