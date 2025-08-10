@@ -63,6 +63,10 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
       console.warn("Autoplay failed:", error);
     });
 
+    player.on("loadedmetadata", () => {
+      console.log(player.duration());
+    });
+
     // You can add any additional player setup here
     player.on("error", (err: unknown) => {
       console.error("Player error:", err);
