@@ -45,23 +45,6 @@ export const VideoJS = (props: VideoJSProps) => {
       videoRef.current?.appendChild(videoElement);
 
       // Initialize the Video.js player
-      const toProxyUrl = (url: string) => {
-        try {
-          const u = new URL(
-            url,
-            typeof window !== "undefined" ? window.location.href : undefined,
-          );
-          const isHttp = u.protocol === "http:" || u.protocol === "https:";
-          const isAlreadyProxied =
-            u.pathname.startsWith("/api/proxy/hls") &&
-            u.searchParams.has("url");
-          if (!isHttp || isAlreadyProxied) return url;
-          return `/api/proxy/hls?url=${encodeURIComponent(u.toString())}`;
-        } catch {
-          return url;
-        }
-      };
-
       const player: Player = videojs(videoElement, options, () => {
         videojs.log("player is ready");
 
@@ -81,8 +64,8 @@ export const VideoJS = (props: VideoJSProps) => {
                 liveMaxLatencyDurationCount: 10,
               });
 
-              // Load playlist via proxy to bypass CORS/GFW
-              hls.loadSource(toProxyUrl(source.src));
+              // Load playlist directly (no proxy)
+              hls.loadSource(source.src);
               const initialVideoEl = player
                 .el()
                 ?.querySelector("video") as HTMLVideoElement | null;
@@ -110,7 +93,7 @@ export const VideoJS = (props: VideoJSProps) => {
                       progressControl.enable();
                     }
                   } catch (e) {
-                    // Progress control setup failed, but continue
+                    // ignore
                   }
                 });
               });
@@ -126,11 +109,10 @@ export const VideoJS = (props: VideoJSProps) => {
                 }
               });
 
-              // Add error handling like in your original code
+              // Error handling
               hls.on(
                 Hls.Events.ERROR,
                 function (_event: unknown, data: ErrorData) {
-                  // Only log in development and for fatal errors
                   if (process.env.NODE_ENV === "development" && data.fatal) {
                     console.warn("HLS Fatal Error:", data.type, data.details);
                   }
@@ -138,23 +120,16 @@ export const VideoJS = (props: VideoJSProps) => {
                   if (data.fatal) {
                     switch (data.type) {
                       case Hls.ErrorTypes.NETWORK_ERROR:
-                        // Silently attempt recovery for network errors
                         try {
                           hls.startLoad();
-                        } catch (_e) {
-                          // ignore
-                        }
+                        } catch (_e) {}
                         break;
                       case Hls.ErrorTypes.MEDIA_ERROR:
-                        // Silently attempt recovery for media errors
                         try {
                           hls.recoverMediaError();
-                        } catch (_e) {
-                          // ignore
-                        }
+                        } catch (_e) {}
                         break;
                       default:
-                        // Only destroy HLS instance, don't log unrecoverable errors
                         hls.destroy();
                         break;
                     }
@@ -170,8 +145,8 @@ export const VideoJS = (props: VideoJSProps) => {
                 player.el()?.querySelector("video") as HTMLVideoElement | null
               )?.canPlayType?.("application/vnd.apple.mpegurl")
             ) {
-              // Native HLS support (Safari) - still proxy to avoid CORS/GFW
-              player.src(toProxyUrl(source.src));
+              // Native HLS support (Safari) - load directly
+              player.src({ src: source.src, type: "application/x-mpegURL" });
             }
           }
         }
@@ -180,12 +155,9 @@ export const VideoJS = (props: VideoJSProps) => {
         player.ready(() => {
           const playerEl = player.el();
           if (playerEl) {
-            // Make sure the player can receive focus
             playerEl.setAttribute("tabindex", "0");
 
-            // Add global keyboard listener for arrow keys
             const handleKeydown = (e: KeyboardEvent) => {
-              // Only handle if no input is focused
               if (
                 document.activeElement?.tagName === "INPUT" ||
                 document.activeElement?.tagName === "TEXTAREA"
@@ -211,10 +183,7 @@ export const VideoJS = (props: VideoJSProps) => {
               }
             };
 
-            // Add to document to catch all keyboard events
             document.addEventListener("keydown", handleKeydown);
-
-            // Store the handler for cleanup
             keydownHandlerRef.current = handleKeydown;
           }
         });
@@ -224,34 +193,15 @@ export const VideoJS = (props: VideoJSProps) => {
 
       // Store the player reference
       playerRef.current = player;
-
-      // You could update an existing player in the `else` block here
-      // on prop change, for example:
     } else {
       const player = playerRef.current;
-      const toProxyUrl = (url: string) => {
-        try {
-          const u = new URL(
-            url,
-            typeof window !== "undefined" ? window.location.href : undefined,
-          );
-          const isHttp = u.protocol === "http:" || u.protocol === "https:";
-          const isAlreadyProxied =
-            u.pathname.startsWith("/api/proxy/hls") &&
-            u.searchParams.has("url");
-          if (!isHttp || isAlreadyProxied) return url;
-          return `/api/proxy/hls?url=${encodeURIComponent(u.toString())}`;
-        } catch {
-          return url;
-        }
-      };
 
       player.autoplay(options.autoplay);
 
       const srcObj = options.sources && options.sources[0];
       if (srcObj && typeof srcObj.src === "string") {
         const isHls = srcObj.src.includes(".m3u8");
-        const proxiedSrc = toProxyUrl(srcObj.src);
+        const directSrc = srcObj.src;
         const videoEl = player
           .el()
           ?.querySelector("video") as HTMLVideoElement | null;
@@ -261,28 +211,21 @@ export const VideoJS = (props: VideoJSProps) => {
           | { src?: string }
           | undefined;
         const currentSrc = currentSource?.src || player.currentSrc();
-        if (currentSrc === proxiedSrc) {
+        if (currentSrc === directSrc) {
           return;
         }
 
         // If we have an existing Hls instance, destroy before switching
         if (hlsRef.current) {
           try {
-            // Stop and detach before destroy to avoid decode errors
             try {
               hlsRef.current.stopLoad();
-            } catch (_e) {
-              void 0;
-            }
+            } catch (_e) {}
             try {
               hlsRef.current.detachMedia();
-            } catch (_e) {
-              void 0;
-            }
+            } catch (_e) {}
             hlsRef.current.destroy();
-          } catch (_e) {
-            void 0;
-          }
+          } catch (_e) {}
           hlsRef.current = null;
           if (videoEl && (videoEl as any).hls) {
             (videoEl as any).hls = null;
@@ -301,7 +244,7 @@ export const VideoJS = (props: VideoJSProps) => {
               liveSyncDurationCount: 3,
               liveMaxLatencyDurationCount: 10,
             });
-            hls.loadSource(proxiedSrc);
+            hls.loadSource(directSrc);
             if (videoEl) {
               hls.attachMedia(videoEl);
               (videoEl as any).hls = hls;
@@ -318,17 +261,16 @@ export const VideoJS = (props: VideoJSProps) => {
             }
             hlsRef.current = hls;
           } else if (videoEl?.canPlayType?.("application/vnd.apple.mpegurl")) {
-            player.src({ src: proxiedSrc, type: "application/x-mpegURL" });
+            player.src({ src: directSrc, type: "application/x-mpegURL" });
           } else {
             // Fallback: let video.js handle
-            player.src([{ src: proxiedSrc, type: "application/x-mpegURL" }]);
+            player.src([{ src: directSrc, type: "application/x-mpegURL" }]);
           }
         } else {
-          // Non-HLS, ensure proxying for CORS/GFW
-          player.src([{ src: proxiedSrc, type: srcObj.type || "video/mp4" }]);
+          // Non-HLS
+          player.src([{ src: directSrc, type: srcObj.type || "video/mp4" }]);
         }
       } else {
-        // Fallback to original behavior
         player.src(options.sources);
       }
     }
@@ -354,18 +296,12 @@ export const VideoJS = (props: VideoJSProps) => {
           try {
             try {
               hlsRef.current.stopLoad();
-            } catch (_e) {
-              void 0;
-            }
+            } catch (_e) {}
             try {
               hlsRef.current.detachMedia();
-            } catch (_e) {
-              void 0;
-            }
+            } catch (_e) {}
             hlsRef.current.destroy();
-          } catch (_e) {
-            void 0;
-          }
+          } catch (_e) {}
           hlsRef.current = null;
         }
         if (videoEl && (videoEl as any).hls) {

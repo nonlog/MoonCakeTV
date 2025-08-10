@@ -54,11 +54,6 @@ PASSWORD_MODE=env
 # 当 PASSWORD_MODE=env 时，访问口令：
 MY_PASSWORD=your_secure_password
 
-# 可选：HLS 代理白名单与缓存策略（按需）
-# HLS_PROXY_ALLOW_HOSTS=example.com,cdn.example.com
-# HLS_MANIFEST_TTL_S=30
-# HLS_MANIFEST_LIVE_TTL_S=10
-# HLS_SEGMENT_TTL_S=600
 ```
 
 ### 拉取已构建好的镜像（推荐🔥）
@@ -101,7 +96,7 @@ docker run -d --name mooncaketv --env-file .env -p 3333:3000 mooncaketv
 
 > 零运维成本，免费额度足够个人使用
 
-> 请注意⚠️⚠️⚠️：现在所有的流量都从`/api/proxy/hls`走，会使用服务器大量的流量；vercel是否会因此封号，这是值得注意的
+> 说明：播放直接在浏览器端请求源站 `.m3u8` 与分片资源（不经过服务器代理）。请确保上游源支持 CORS。
 
 1. **Fork** 本仓库到你的 GitHub 账户
 2. 登陆 [Vercel](https://vercel.com/)，点击 **Add New → Project**，选择 Fork 后的仓库
@@ -109,8 +104,6 @@ docker run -d --name mooncaketv --env-file .env -p 3333:3000 mooncaketv
 4. 保持默认设置完成部署
 
 部署完成后即可通过分配的域名访问，也可以绑定自定义域名。
-
-> 注意：目前播放均经由 `/api/proxy/hls`，将占用较多带宽与函数调用；请留意服务商使用条款与流量费用。
 
 ## ~~Cloudflare Workers 部署（放弃支持）~~
 
@@ -146,9 +139,6 @@ docker run -d --name mooncaketv --env-file .env -p 3333:3000 mooncaketv
   - `env`：使用 `MY_PASSWORD` 作为访问口令
   - `db`：预留，暂未启用
 - `MY_PASSWORD`：当 `PASSWORD_MODE=env` 时必填
-- `HLS_PROXY_ALLOW_HOSTS`：允许的上游域名白名单（逗号分隔）。留空表示不限制。
-- `HLS_MANIFEST_TTL_S` / `HLS_MANIFEST_LIVE_TTL_S`：清单文件缓存秒数（点播 / 直播）
-- `HLS_SEGMENT_TTL_S`：分片缓存秒数
 
 ## 🧪 常见问题 FAQ
 
@@ -157,7 +147,7 @@ docker run -d --name mooncaketv --env-file .env -p 3333:3000 mooncaketv
 - Docker 启动后访问不到？
   - 请确认端口映射为 `-p 3333:3000`，并访问 `http://localhost:3333`。
 - Vercel 是否安全？
-  - Vercel 免费额度有限且代理流量较大，请谨慎评估使用风险和成本。
+  - Vercel 免费额度有限；请谨慎评估使用风险和成本。播放走浏览器直连，不消耗函数带宽。
 
 ## License
 

@@ -11,22 +11,6 @@ interface McPlayerProps {
 }
 
 export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
-  const toProxyUrl = (url: string) => {
-    try {
-      const u = new URL(
-        url,
-        typeof window !== "undefined" ? window.location.href : undefined,
-      );
-      const isHttp = u.protocol === "http:" || u.protocol === "https:";
-      const isAlreadyProxied =
-        u.pathname.startsWith("/api/proxy/hls") && u.searchParams.has("url");
-      if (!isHttp || isAlreadyProxied) return url;
-      return `/api/proxy/hls?url=${encodeURIComponent(u.toString())}`;
-    } catch {
-      return url;
-    }
-  };
-
   // Video.js options configuration
   const videoJsOptions = {
     autoplay: true,
@@ -45,9 +29,7 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
     },
     sources: [
       {
-        // For MP4 or non-HLS, route through proxy to bypass CORS/GFW
-        // For HLS, keep original; Hls.js will proxy requests internally in VideoJS component
-        src: videoUrl.includes(".m3u8") ? videoUrl : toProxyUrl(videoUrl),
+        src: videoUrl,
         type: videoUrl.includes(".m3u8")
           ? "application/x-mpegURL"
           : "video/mp4",
@@ -67,7 +49,6 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
       console.log(player.duration());
     });
 
-    // You can add any additional player setup here
     player.on("error", (err: unknown) => {
       console.error("Player error:", err);
     });
