@@ -150,7 +150,6 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
 
         {/* Main Content Layout */}
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
-          {/* Video Player - Left Side */}
           <div className='lg:col-span-3'>
             <div className='flex gap-4 flex-col lg:flex-row'>
               <div className='w-full lg:w-2/3'>
@@ -182,7 +181,6 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
               </div>
             )}
 
-            {/* Additional Info */}
             {mc_item.cover_image && (
               <div className='mt-4 bg-white rounded-lg shadow p-4'>
                 {mc_item.cover_image && (
