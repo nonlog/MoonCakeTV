@@ -3,6 +3,7 @@
 import DOMPurify from "dompurify";
 import { Bookmark } from "lucide-react";
 import { BookmarkCheck } from "lucide-react";
+import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useEffect } from "react";
 
@@ -20,7 +21,14 @@ import { Dazahui } from "@/schemas/dazahui";
 import { PageLayout } from "../common/page-layout";
 
 export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
-  const [currentEpisode, setCurrentEpisode] = useState<string>("");
+  const searchParams = useSearchParams();
+
+  const index = searchParams.get("index") || "1";
+
+  const [currentEpisode, setCurrentEpisode] = useState<{
+    episode: string;
+    url: string;
+  } | null>(null);
   const [sanitizedSummary, setSanitizedSummary] = useState<string>("");
   const { setWatchHistory, bookmarks, updateBookmarks, currentUserId } =
     useUserStore();
@@ -41,12 +49,12 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
     }
   }, [mc_item]);
 
-  const currentVideoUrl = useMemo(() => {
-    if (!currentEpisode) {
-      return episodes[0]?.url || "";
+  useEffect(() => {
+    const i = Number(index);
+    if (i && episodes.length > 0 && i >= 1 && i <= episodes.length) {
+      setCurrentEpisode(episodes[i - 1]);
     }
-    return episodes.find((ep) => ep.episode === currentEpisode)?.url || "";
-  }, [currentEpisode, episodes]);
+  }, [index, episodes]);
 
   // Check if current item is bookmarked
   const isBookmarked = useMemo(() => {
@@ -64,13 +72,6 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
     const action = isBookmarked ? "delete" : "add";
     updateBookmarks(currentUserId, mc_item, action);
   };
-
-  // Set initial episode
-  useEffect(() => {
-    if (episodes.length > 0 && !currentEpisode) {
-      setCurrentEpisode(episodes[0].episode);
-    }
-  }, [episodes, currentEpisode]);
 
   // Update watch history when playing content
   useEffect(() => {
@@ -103,7 +104,7 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
         <div className='mb-6 flex flex-col gap-4'>
           <div className='flex items-center gap-4'>
             <h1 className='text-2xl font-bold text-gray-900'>
-              {`${mc_item.title} - ${currentEpisode}`}
+              {`${mc_item.title} - ${currentEpisode?.episode}`}
             </h1>
             <button
               onClick={handleBookmarkToggle}
@@ -154,16 +155,16 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
             <div className='flex gap-4 flex-col lg:flex-row'>
               <div className='w-full lg:w-2/3'>
                 <McPlayer
-                  videoUrl={currentVideoUrl}
+                  videoUrl={currentEpisode?.url || ""}
                   poster={mc_item.cover_image}
                 />
               </div>
 
               <div className='w-full lg:w-1/3'>
                 <EpisodeIndex
+                  mc_id={mc_item.mc_id}
                   episodes={episodes}
                   currentEpisode={currentEpisode}
-                  setCurrentEpisode={setCurrentEpisode}
                 />
               </div>
             </div>
