@@ -9,6 +9,7 @@ import { useEffect } from "react";
 import { cn } from "@/lib/utils";
 
 import { getSourceBrand } from "@/components/common/utils";
+import { EpisodeIndex } from "@/components/mc-play/episode-index";
 import { McPlayer } from "@/components/mc-play/mc-player";
 import { Badge } from "@/components/ui/badge";
 
@@ -149,8 +150,23 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
         {/* Main Content Layout */}
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
           {/* Video Player - Left Side */}
-          <div className='lg:col-span-2'>
-            <McPlayer videoUrl={currentVideoUrl} poster={mc_item.cover_image} />
+          <div className='lg:col-span-3'>
+            <div className='flex gap-4 flex-col lg:flex-row'>
+              <div className='w-full lg:w-2/3'>
+                <McPlayer
+                  videoUrl={currentVideoUrl}
+                  poster={mc_item.cover_image}
+                />
+              </div>
+
+              <div className='w-full lg:w-1/3'>
+                <EpisodeIndex
+                  episodes={episodes}
+                  currentEpisode={currentEpisode}
+                  setCurrentEpisode={setCurrentEpisode}
+                />
+              </div>
+            </div>
 
             {/* Video Info */}
             {mc_item.summary && (
@@ -179,37 +195,6 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
                 )}
               </div>
             )}
-          </div>
-
-          {/* Episodes List - Right Side */}
-          <div className='lg:col-span-1'>
-            <div className='bg-white rounded-lg shadow'>
-              <div className='p-4 border-b flex items-center gap-4'>
-                <h3 className='text-lg font-semibold text-gray-900'>
-                  剧集列表
-                </h3>
-                <p className='text-sm text-gray-600'>共 {episodes.length} 集</p>
-              </div>
-              <div className='max-h-96 overflow-y-auto'>
-                <div className='grid grid-cols-6 gap-2 p-2'>
-                  {episodes.map(({ episode }) => (
-                    <button
-                      key={episode}
-                      onClick={() => setCurrentEpisode(episode)}
-                      className={cn(
-                        "cursor-pointer",
-                        "aspect-square flex items-center justify-center text-sm font-medium rounded-lg border-2 transition-all hover:scale-105",
-                        currentEpisode === episode
-                          ? "bg-blue-50 border-blue-500 text-blue-700 shadow-md"
-                          : "bg-white border-gray-200 text-gray-700 hover:bg-gray-50 hover:border-gray-300",
-                      )}
-                    >
-                      {episode}
-                    </button>
-                  ))}
-                </div>
-              </div>
-            </div>
           </div>
         </div>
       </main>

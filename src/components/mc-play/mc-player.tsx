@@ -65,7 +65,7 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
   }
 
   return (
-    <div className='bg-black rounded-lg overflow-hidden aspect-video'>
+    <div className='bg-black rounded-lg overflow-hidden aspect-video w-full'>
       <McVideo
         key={videoUrl}
         videoJsOptions={videoJsOptions}
