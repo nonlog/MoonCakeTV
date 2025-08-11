@@ -12,7 +12,7 @@ export async function middleware(request: NextRequest) {
     return NextResponse.next();
   }
 
-  const passwordMode = process.env.PASSWORD_MODE ?? "local";
+  const passwordMode = process.env.PASSWORD_MODE?.trim() ?? "local";
   // 如果不需要认证，直接放行
   if (passwordMode === "local") {
     return NextResponse.next();

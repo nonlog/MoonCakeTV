@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 
 export function GET() {
   const loginConfig = {
-    PASSWORD_MODE: process.env.PASSWORD_MODE,
+    PASSWORD_MODE: process.env.PASSWORD_MODE?.trim(),
   };
 
   return NextResponse.json({
@@ -17,7 +17,7 @@ export async function POST(req: NextRequest) {
   const { password } = body;
 
   if (process.env.PASSWORD_MODE === "env") {
-    const isValidated = password === process.env.MY_PASSWORD;
+    const isValidated = password === process.env.MY_PASSWORD?.trim();
     if (isValidated) {
       const response = NextResponse.json({
         code: 200,

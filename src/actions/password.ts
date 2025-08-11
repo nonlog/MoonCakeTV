@@ -2,7 +2,7 @@
 
 // ! TODO: use async await for db
 export const validatePassword = (pw?: string) => {
-  const passwordMode = process.env.PASSWORD_MODE ?? "local";
+  const passwordMode = process.env.PASSWORD_MODE?.trim() ?? "local";
 
   if (passwordMode === "local") {
     return {
@@ -12,7 +12,7 @@ export const validatePassword = (pw?: string) => {
   }
 
   if (passwordMode === "env") {
-    const isValidated = !!pw && process.env.MY_PASSWORD === pw;
+    const isValidated = !!pw && process.env.MY_PASSWORD?.trim() === pw;
     return {
       success: isValidated,
       error: `密码验证${isValidated ? "成功" : "失败"}`,
