@@ -69,21 +69,10 @@ docker run -d \
   ghcr.io/mooncaketv/mooncaketv:latest
 ```
 
-> ⚠️⚠️⚠️ 重要：如果你通过 HTTP 访问（例如 `http://IP:3333`），浏览器不会保存带有 Secure 属性的登录 Cookie，导致“登录不生效”。预构建镜像默认在生产模式运行，会设置 Secure。解决方案：
+> ⚠️⚠️⚠️ 重要：如果部署在服务器里，必须使用 HTTPS 访问（如 `https://你的域名`），否则浏览器不会保存登录 Cookie，登录会“无效”。预构建镜像默认在生产模式运行，Cookie 带 Secure 属性，在 HTTP 环境下不会被写入。
 >
-> - 推荐：放在反向代理（Nginx/Caddy/Traefik）后开启 HTTPS，再访问 `https://你的域名`
-> - 临时测试（纯 HTTP）：运行容器时设置 `NODE_ENV=development` 以关闭 Cookie 的 Secure 属性
->
-> 例如（仅用于本地/临时测试）：
->
-> ```bash
-> docker run -d \
->   --name mooncaketv \
->   --env-file .env \
->   -e NODE_ENV=development \
->   -p 3333:3000 \
->   ghcr.io/mooncaketv/mooncaketv:latest
-> ```
+> - 请务必将容器放在反向代理（Nginx/Caddy/Traefik）后，申请证书并开启 HTTPS 再对外提供服务。
+> - 直接通过 `http://IP:3333` 访问将无法完成登录。
 
 ### 自己构建 docker 镜像（使用 Makefile）
 
