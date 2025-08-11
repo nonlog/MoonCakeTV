@@ -10,7 +10,7 @@ export function POST() {
   });
 
   // Clear the auth cookie
-  response.cookies.set("auth-token", "", {
+  response.cookies.set("mc-auth-token", "", {
     httpOnly: true,
     secure: process.env.NODE_ENV === "production",
     sameSite: "lax",
