@@ -229,6 +229,8 @@ export const getSourceBrand = (source: string) => {
       return "黑木耳资源";
     case "wolong":
       return "卧龙资源";
+    case "360zy":
+      return "360资源";
     default:
       return "未知";
   }
