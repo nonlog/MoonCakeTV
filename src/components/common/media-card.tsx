@@ -155,12 +155,12 @@ export function MediaCard({
   return (
     <Card
       key={id}
-      className='group hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden py-3'
+      className='group hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden py-3 w-full'
       onClick={onClick}
     >
       <div className='relative'>
         {cover_image ? (
-          <div className='aspect-[3/4] overflow-hidden'>
+          <div className='aspect-[4/3] md:aspect-[3/4] overflow-hidden'>
             <img
               key={mc_id}
               src={cover_image}
@@ -172,12 +172,12 @@ export function MediaCard({
                 e.currentTarget.nextElementSibling?.classList.remove("hidden");
               }}
             />
-            <div className='hidden aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200 justify-center items-center'>
+            <div className='hidden aspect-[4/3] md:aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200 justify-center items-center'>
               <Play className='w-12 h-12 text-slate-400' />
             </div>
           </div>
         ) : (
-          <div className='aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center'>
+          <div className='aspect-[4/3] md:aspect-[3/4] bg-gradient-to-br from-slate-100 to-slate-200 flex items-center justify-center'>
             <Play className='w-12 h-12 text-slate-400' />
           </div>
         )}
