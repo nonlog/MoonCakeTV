@@ -10,7 +10,7 @@ interface McPlayerProps {
   poster?: string | null;
 }
 
-export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
+export const McPlayer = React.memo(({ videoUrl, poster }: McPlayerProps) => {
   // Video.js options configuration
   const videoJsOptions = {
     autoplay: true,
@@ -73,4 +73,4 @@ export const McPlayer = ({ videoUrl, poster }: McPlayerProps) => {
       />
     </div>
   );
-};
+});

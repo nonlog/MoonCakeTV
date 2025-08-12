@@ -6,6 +6,7 @@ import { BookmarkCheck } from "lucide-react";
 import { useSearchParams } from "next/navigation";
 import { useMemo, useState } from "react";
 import { useEffect } from "react";
+import React from "react";
 
 import { cn } from "@/lib/utils";
 
@@ -19,6 +20,36 @@ import { useUserStore } from "@/stores/user";
 import { Dazahui } from "@/schemas/dazahui";
 
 import { PageLayout } from "../common/page-layout";
+
+// Memoized video section to prevent re-renders when bookmark state changes
+const VideoSection = React.memo(
+  ({
+    currentEpisode,
+    coverImage,
+    mcId,
+    episodes,
+  }: {
+    currentEpisode: { episode: string; url: string } | null;
+    coverImage?: string | null;
+    mcId: string;
+    episodes: { episode: string; url: string }[];
+  }) => (
+    <div className='flex gap-4 flex-col lg:flex-row'>
+      <div className='w-full lg:w-2/3'>
+        <McPlayer videoUrl={currentEpisode?.url || ""} poster={coverImage} />
+      </div>
+      <div className='w-full lg:w-1/3'>
+        <EpisodeIndex
+          mc_id={mcId}
+          episodes={episodes}
+          currentEpisode={currentEpisode}
+        />
+      </div>
+    </div>
+  ),
+);
+
+VideoSection.displayName = "VideoSection";
 
 export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
   const searchParams = useSearchParams();
@@ -151,22 +182,12 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
         {/* Main Content Layout */}
         <div className='grid grid-cols-1 lg:grid-cols-3 gap-6'>
           <div className='lg:col-span-3'>
-            <div className='flex gap-4 flex-col lg:flex-row'>
-              <div className='w-full lg:w-2/3'>
-                <McPlayer
-                  videoUrl={currentEpisode?.url || ""}
-                  poster={mc_item.cover_image}
-                />
-              </div>
-
-              <div className='w-full lg:w-1/3'>
-                <EpisodeIndex
-                  mc_id={mc_item.mc_id}
-                  episodes={episodes}
-                  currentEpisode={currentEpisode}
-                />
-              </div>
-            </div>
+            <VideoSection
+              currentEpisode={currentEpisode}
+              coverImage={mc_item.cover_image}
+              mcId={mc_item.mc_id}
+              episodes={episodes}
+            />
 
             {/* Video Info */}
             {mc_item.summary && (
