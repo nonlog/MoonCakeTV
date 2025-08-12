@@ -155,7 +155,7 @@ export function MediaCard({
   return (
     <Card
       key={id}
-      className='group hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden py-3 w-full'
+      className='group gap-3 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden py-3 w-full'
       onClick={onClick}
     >
       <div className='relative'>
@@ -258,9 +258,14 @@ export function MediaCard({
         </div>
       </div>
 
-      <CardHeader className=''>
-        <CardTitle className='text-sm font-medium line-clamp-2 leading-tight flex items-center justify-between'>
-          {title}{" "}
+      <CardHeader className='gap-0'>
+        <CardTitle className='text-sm font-medium line-clamp-2 leading-tight flex items-center justify-between w-full h-full'>
+          {title}
+        </CardTitle>
+      </CardHeader>
+
+      <CardContent className='space-y-2'>
+        <div className='flex flex-wrap gap-1'>
           {source && (
             <Badge
               variant='secondary'
@@ -269,11 +274,6 @@ export function MediaCard({
               {getSourceBrand(source)}
             </Badge>
           )}
-        </CardTitle>
-      </CardHeader>
-
-      <CardContent className='space-y-2'>
-        <div className='flex flex-wrap gap-1'>
           {category && (
             <Badge variant='secondary' className='text-xs px-2 py-0.5'>
               {category}
