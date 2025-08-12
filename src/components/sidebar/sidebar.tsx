@@ -1,15 +1,6 @@
 "use client";
 
-import {
-  Bookmark,
-  Clock,
-  Clover,
-  Film,
-  Home,
-  Menu,
-  Search,
-  Tv,
-} from "lucide-react";
+import { Bookmark, Clock, Home, Menu, Search } from "lucide-react";
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { FaGear } from "react-icons/fa6";
@@ -23,24 +14,6 @@ import { useSidebarStore } from "@/stores/sidebar";
 export const Sidebar = () => {
   const { expanded, toggleSidebar } = useSidebarStore();
   const pathname = usePathname();
-
-  const menuItems = [
-    {
-      icon: Film,
-      label: "电影",
-      href: "/douban?type=movie",
-    },
-    {
-      icon: Tv,
-      label: "剧集",
-      href: "/douban?type=tv",
-    },
-    {
-      icon: Clover,
-      label: "综艺",
-      href: "/douban?type=show",
-    },
-  ];
 
   return (
     <div className='hidden md:flex'>
@@ -168,49 +141,6 @@ export const Sidebar = () => {
               )}
             </Link>
           </nav>
-
-          {/* 菜单项 */}
-          <div className='flex-1 overflow-y-auto px-2 pt-4 hidden'>
-            <div className='space-y-1'>
-              {menuItems.map((item) => {
-                // 检查当前路径是否匹配这个菜单项
-                const typeMatch = item.href.match(/type=([^&]+)/)?.[1];
-                const tagMatch = item.href.match(/tag=([^&]+)/)?.[1];
-
-                // 解码URL以进行正确的比较
-                const decodedActive = decodeURIComponent(pathname);
-                const decodedItemHref = decodeURIComponent(item.href);
-
-                const isActive =
-                  decodedActive === decodedItemHref ||
-                  (decodedActive.startsWith("/douban") &&
-                    decodedActive.includes(`type=${typeMatch}`) &&
-                    tagMatch &&
-                    decodedActive.includes(`tag=${tagMatch}`));
-                const Icon = item.icon;
-                return (
-                  <Link
-                    key={item.label}
-                    href={item.href}
-                    data-active={isActive}
-                    className={cn(
-                      "group flex items-center rounded-lg px-2 py-2 pl-4 text-sm text-gray-700 hover:bg-gray-100/30 hover:text-green-600 data-[active=true]:bg-green-500/20 data-[active=true]:text-green-700 transition-colors duration-200 min-h-[40px] dark:text-gray-300 dark:hover:text-green-400 dark:data-[active=true]:bg-green-500/10 dark:data-[active=true]:text-green-400 gap-3 justify-start",
-                      expanded ? "mx-0" : "w-full max-w-none mx-0",
-                    )}
-                  >
-                    <div className='w-4 h-4 flex items-center justify-center'>
-                      <Icon className='h-4 w-4 text-gray-500 group-hover:text-green-600 data-[active=true]:text-green-700 dark:text-gray-400 dark:group-hover:text-green-400 dark:data-[active=true]:text-green-400' />
-                    </div>
-                    {expanded && (
-                      <span className='whitespace-nowrap transition-opacity duration-200 opacity-100'>
-                        {item.label}
-                      </span>
-                    )}
-                  </Link>
-                );
-              })}
-            </div>
-          </div>
         </div>
       </aside>
       <div
