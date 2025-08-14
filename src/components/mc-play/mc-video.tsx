@@ -1,3 +1,7 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
+"use client";
+
 import Hls, { ErrorData } from "hls.js";
 import React from "react";
 import videojs from "video.js";
@@ -61,8 +65,8 @@ export const McVideo = (props: McVideoProps) => {
           (player as any).error?.({
             message: "Playback failed. Please retry.",
           });
-        } catch (_e) {
-          // noop
+        } catch (e: unknown) {
+          console.error(e);
         }
         return;
       }
@@ -90,8 +94,8 @@ export const McVideo = (props: McVideoProps) => {
         (player as any).error?.({
           message: "Playback stopped due to repeated errors.",
         });
-      } catch (_e) {
-        // noop
+      } catch (e: unknown) {
+        console.error(e);
       }
       return;
     }
@@ -275,8 +279,8 @@ export const McVideo = (props: McVideoProps) => {
                 (player as any).error?.({
                   message: "HLS not supported in this browser.",
                 });
-              } catch (_e) {
-                // ignore
+              } catch (e: unknown) {
+                console.error(e);
               }
             }
           } else {
@@ -369,12 +373,18 @@ export const McVideo = (props: McVideoProps) => {
           try {
             try {
               hlsRef.current.stopLoad();
-            } catch (_e) {}
+            } catch (e: unknown) {
+              console.error(e);
+            }
             try {
               hlsRef.current.detachMedia();
-            } catch (_e) {}
+            } catch (e: unknown) {
+              console.error(e);
+            }
             hlsRef.current.destroy();
-          } catch (_e) {}
+          } catch (e: unknown) {
+            console.error(e);
+          }
           hlsRef.current = null;
           if (videoEl && (videoEl as any).hls) {
             (videoEl as any).hls = null;
@@ -387,8 +397,8 @@ export const McVideo = (props: McVideoProps) => {
             (player as any).error?.({
               message: "暂时只支持HLS (.m3u8) 格式",
             });
-          } catch (_e) {
-            // ignore
+          } catch (e: unknown) {
+            console.error(e);
           }
           return;
         }
@@ -417,16 +427,16 @@ export const McVideo = (props: McVideoProps) => {
             (player as any).error?.({
               message: "您的浏览器不支持hls.",
             });
-          } catch (_e) {
-            // ignore
+          } catch (e: unknown) {
+            console.error(e);
           }
         }
       } else {
         // No source provided
         try {
           (player as any).error?.({ message: "没有视频源" });
-        } catch (_e) {
-          // ignore
+        } catch (e: unknown) {
+          console.error(e);
         }
       }
     }
@@ -453,8 +463,8 @@ export const McVideo = (props: McVideoProps) => {
             hlsRef.current.stopLoad();
             hlsRef.current.detachMedia();
             hlsRef.current.destroy();
-          } catch (_e) {
-            // ignore
+          } catch (e: unknown) {
+            console.error(e);
           }
           hlsRef.current = null;
         }
