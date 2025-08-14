@@ -3,11 +3,13 @@
 "use client";
 
 import Hls, { ErrorData } from "hls.js";
-import React from "react";
+import React, { useEffect } from "react";
 import videojs from "video.js";
 import Player from "video.js/dist/types/player";
 
 import "video.js/dist/video-js.css";
+
+import { getHlsUrlVariations, tryLoadHlsWithVariations } from "./mc-utils";
 
 // Add custom styles for proper video sizing
 const videoStyles = `
@@ -24,6 +26,8 @@ const videoStyles = `
     padding-top: 0 !important;
   }
 `;
+
+// Try loading HLS with URL variations
 
 interface McVideoProps {
   videoJsOptions: any;
@@ -87,40 +91,6 @@ export const McVideo = (props: McVideoProps) => {
     nativeErrorHandlerRef.current = handler;
   };
 
-  const restartHls = (player: Player, srcUrl: string) => {
-    const state = retryStateRef.current;
-    if (state.fatalRestarts >= 2) {
-      try {
-        (player as any).error?.({
-          message: "Playback stopped due to repeated errors.",
-        });
-      } catch (e: unknown) {
-        console.error(e);
-      }
-      return;
-    }
-    state.fatalRestarts += 1;
-    try {
-      lastPlaybackTimeRef.current = player.currentTime?.() ?? 0;
-    } catch (_e) {
-      lastPlaybackTimeRef.current = 0;
-    }
-    if (hlsRef.current) {
-      try {
-        hlsRef.current.stopLoad();
-        hlsRef.current.detachMedia();
-        hlsRef.current.destroy();
-      } catch (_e) {
-        // ignore
-      }
-      hlsRef.current = null;
-    }
-    const videoEl = player
-      .el()
-      ?.querySelector("video") as HTMLVideoElement | null;
-    if (videoEl) createAndAttachHls(player, videoEl, srcUrl);
-  };
-
   const createAndAttachHls = (
     player: Player,
     videoEl: HTMLVideoElement,
@@ -134,6 +104,7 @@ export const McVideo = (props: McVideoProps) => {
       fatalRestarts: 0,
       backoffMs: 1000,
     };
+
     const hls = new Hls({
       debug: false,
       enableWorker: true,
@@ -151,6 +122,40 @@ export const McVideo = (props: McVideoProps) => {
       fragLoadingMaxRetry: 2,
       fragLoadingRetryDelay: 1000,
     } as any);
+
+    const restartHls = () => {
+      const state = retryStateRef.current;
+      if (state.fatalRestarts >= 2) {
+        try {
+          (player as any).error?.({
+            message: "Playback stopped due to repeated errors.",
+          });
+        } catch (e: unknown) {
+          console.error(e);
+        }
+        return;
+      }
+      state.fatalRestarts += 1;
+      try {
+        lastPlaybackTimeRef.current = player.currentTime?.() ?? 0;
+      } catch (_e) {
+        lastPlaybackTimeRef.current = 0;
+      }
+      if (hlsRef.current) {
+        try {
+          hlsRef.current.stopLoad();
+          hlsRef.current.detachMedia();
+          hlsRef.current.destroy();
+        } catch (_e) {
+          // ignore
+        }
+        hlsRef.current = null;
+      }
+      const videoEl = player
+        .el()
+        ?.querySelector("video") as HTMLVideoElement | null;
+      if (videoEl) createAndAttachHls(player, videoEl, srcUrl);
+    };
 
     hls.loadSource(srcUrl);
     hls.attachMedia(videoEl);
@@ -190,7 +195,7 @@ export const McVideo = (props: McVideoProps) => {
           if (state.networkAttempts >= 3) {
             state.networkAttempts = 0;
             state.backoffMs = 1000;
-            restartHls(player, srcUrl);
+            restartHls();
             return;
           }
           state.networkAttempts += 1;
@@ -212,12 +217,12 @@ export const McVideo = (props: McVideoProps) => {
             state.lastMediaRecoverMs = now;
             hls.recoverMediaError();
           } else {
-            restartHls(player, srcUrl);
+            restartHls();
           }
           break;
         }
         default: {
-          restartHls(player, srcUrl);
+          restartHls();
         }
       }
     });
@@ -227,7 +232,7 @@ export const McVideo = (props: McVideoProps) => {
     return hls;
   };
 
-  React.useEffect(() => {
+  useEffect(() => {
     // Make sure Video.js player is only initialized once
     if (!playerRef.current) {
       // The Video.js player needs to be _inside_ the component el for React 18 Strict Mode.
@@ -240,57 +245,83 @@ export const McVideo = (props: McVideoProps) => {
       const player: Player = videojs(videoElement, videoJsOptions, () => {
         videojs.log("player is ready");
 
-        // Setup HLS.js if the source is HLS and browser supports it
+        // Setup HLS.js - try URL variations if needed
         if (videoJsOptions.sources && videoJsOptions.sources[0]) {
           const source = videoJsOptions.sources[0];
-          if (source.src.includes(".m3u8")) {
-            if (Hls.isSupported()) {
-              const initialVideoEl = player
-                .el()
-                ?.querySelector("video") as HTMLVideoElement | null;
-              if (initialVideoEl) {
-                createAndAttachHls(player, initialVideoEl, source.src);
-                attachNativeErrorHandler(player, initialVideoEl, source.src);
-              } else {
-                player.one("ready", () => {
-                  const el = player
-                    .el()
-                    ?.querySelector("video") as HTMLVideoElement | null;
-                  if (el) {
-                    createAndAttachHls(player, el, source.src);
-                    attachNativeErrorHandler(player, el, source.src);
+
+          if (Hls.isSupported()) {
+            const initialVideoEl = player
+              .el()
+              ?.querySelector("video") as HTMLVideoElement | null;
+            if (initialVideoEl) {
+              tryLoadHlsWithVariations(
+                player,
+                initialVideoEl,
+                source.src,
+                createAndAttachHls,
+                attachNativeErrorHandler,
+              ).then((success) => {
+                if (!success) {
+                  try {
+                    (player as any).error?.({
+                      message: "Failed to load video stream.",
+                    });
+                  } catch (e: unknown) {
+                    console.error(e);
                   }
-                });
-              }
-            } else if (
-              (
-                player.el()?.querySelector("video") as HTMLVideoElement | null
-              )?.canPlayType?.("application/vnd.apple.mpegurl")
-            ) {
-              // Native HLS support (Safari) - load directly
-              player.src({ src: source.src, type: "application/x-mpegURL" });
-              const el = player
-                .el()
-                ?.querySelector("video") as HTMLVideoElement | null;
-              if (el) attachNativeErrorHandler(player, el, source.src);
+                }
+              });
             } else {
-              // No Hls.js and no native support: show error
-              try {
-                (player as any).error?.({
-                  message: "HLS not supported in this browser.",
-                });
-              } catch (e: unknown) {
-                console.error(e);
-              }
+              player.one("ready", () => {
+                const el = player
+                  .el()
+                  ?.querySelector("video") as HTMLVideoElement | null;
+                if (el) {
+                  tryLoadHlsWithVariations(
+                    player,
+                    el,
+                    source.src,
+                    createAndAttachHls,
+                    attachNativeErrorHandler,
+                  ).then((success) => {
+                    if (!success) {
+                      try {
+                        (player as any).error?.({
+                          message: "Failed to load video stream.",
+                        });
+                      } catch (e: unknown) {
+                        console.error(e);
+                      }
+                    }
+                  });
+                }
+              });
             }
+          } else if (
+            (
+              player.el()?.querySelector("video") as HTMLVideoElement | null
+            )?.canPlayType?.("application/vnd.apple.mpegurl")
+          ) {
+            // Native HLS support (Safari) - try variations
+            const urlVariations = getHlsUrlVariations(source.src);
+            const el = player
+              .el()
+              ?.querySelector("video") as HTMLVideoElement | null;
+
+            // Try first variation that includes .m3u8
+            const hlsUrl =
+              urlVariations.find((url) => url.endsWith(".m3u8")) ||
+              urlVariations[0];
+            player.src({ src: hlsUrl, type: "application/x-mpegURL" });
+            if (el) attachNativeErrorHandler(player, el, hlsUrl);
           } else {
-            // Non-HLS source is not supported
+            // No HLS support
             try {
               (player as any).error?.({
-                message: "Only HLS (.m3u8) is supported.",
+                message: "HLS not supported in this browser.",
               });
-            } catch (_e) {
-              // ignore
+            } catch (e: unknown) {
+              console.error(e);
             }
           }
         }
@@ -353,7 +384,6 @@ export const McVideo = (props: McVideoProps) => {
 
       const srcObj = videoJsOptions.sources && videoJsOptions.sources[0];
       if (srcObj && typeof srcObj.src === "string") {
-        const isHls = srcObj.src.includes(".m3u8");
         const directSrc = srcObj.src;
         const videoEl = player
           .el()
@@ -391,41 +421,64 @@ export const McVideo = (props: McVideoProps) => {
           }
         }
 
-        if (!isHls) {
-          // Non-HLS is not supported
-          try {
-            (player as any).error?.({
-              message: "暂时只支持HLS (.m3u8) 格式",
-            });
-          } catch (e: unknown) {
-            console.error(e);
-          }
-          return;
-        }
-
-        // HLS-only handling
+        // Try HLS with URL variations
         if (Hls.isSupported()) {
           if (videoEl) {
-            createAndAttachHls(player, videoEl, directSrc);
-            attachNativeErrorHandler(player, videoEl, directSrc);
+            tryLoadHlsWithVariations(
+              player,
+              videoEl,
+              directSrc,
+              createAndAttachHls,
+              attachNativeErrorHandler,
+            ).then((success) => {
+              if (!success) {
+                try {
+                  (player as any).error?.({
+                    message: "Failed to load video stream.",
+                  });
+                } catch (e: unknown) {
+                  console.error(e);
+                }
+              }
+            });
           } else {
             player.one("ready", () => {
               const el = player
                 .el()
                 ?.querySelector("video") as HTMLVideoElement | null;
               if (el) {
-                createAndAttachHls(player, el, directSrc);
-                attachNativeErrorHandler(player, el, directSrc);
+                tryLoadHlsWithVariations(
+                  player,
+                  el,
+                  directSrc,
+                  createAndAttachHls,
+                  attachNativeErrorHandler,
+                ).then((success) => {
+                  if (!success) {
+                    try {
+                      (player as any).error?.({
+                        message: "Failed to load video stream.",
+                      });
+                    } catch (e: unknown) {
+                      console.error(e);
+                    }
+                  }
+                });
               }
             });
           }
         } else if (videoEl?.canPlayType?.("application/vnd.apple.mpegurl")) {
-          player.src({ src: directSrc, type: "application/x-mpegURL" });
-          if (videoEl) attachNativeErrorHandler(player, videoEl, directSrc);
+          // Native HLS support (Safari) - try variations
+          const urlVariations = getHlsUrlVariations(directSrc);
+          const hlsUrl =
+            urlVariations.find((url) => url.endsWith(".m3u8")) ||
+            urlVariations[0];
+          player.src({ src: hlsUrl, type: "application/x-mpegURL" });
+          if (videoEl) attachNativeErrorHandler(player, videoEl, hlsUrl);
         } else {
           try {
             (player as any).error?.({
-              message: "您的浏览器不支持hls.",
+              message: "HLS not supported in this browser.",
             });
           } catch (e: unknown) {
             console.error(e);
@@ -440,10 +493,11 @@ export const McVideo = (props: McVideoProps) => {
         }
       }
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [onReady, videoJsOptions]);
 
   // Dispose the Video.js player when the functional component unmounts
-  React.useEffect(() => {
+  useEffect(() => {
     const player = playerRef.current;
 
     return () => {
@@ -480,7 +534,7 @@ export const McVideo = (props: McVideoProps) => {
         playerRef.current = null;
       }
     };
-  }, [playerRef]);
+  }, []);
 
   return (
     <>
