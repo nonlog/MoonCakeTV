@@ -10,7 +10,6 @@ export const getHlsUrlVariations = (baseUrl: string): string[] => {
   // If it doesn't end with .m3u8, try adding /index.m3u8
   if (!baseUrl.endsWith(".m3u8")) {
     variations.push(`${baseUrl}/index.m3u8`);
-    variations.push(`${baseUrl}.m3u8`);
   }
 
   return variations;

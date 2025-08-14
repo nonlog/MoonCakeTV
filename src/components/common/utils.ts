@@ -116,7 +116,11 @@ export const getFirstM3u8Url = (
     const episodes = Object.keys(urlsObject);
 
     if (episodes.length > 0) {
-      return urlsObject[episodes[0]];
+      const firstUrl = urlsObject[episodes[0]];
+      if (firstUrl.endsWith(".m3u8")) {
+        return firstUrl;
+      }
+      return `${firstUrl}/index.m3u8`;
     }
   } catch (error) {
     console.error("Failed to parse m3u8_urls:", error);
