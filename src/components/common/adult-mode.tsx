@@ -1,6 +1,6 @@
 "use client";
 
-import { useRef, useState } from "react";
+import { useState } from "react";
 import { MdOutlineNoAdultContent } from "react-icons/md";
 import { toast } from "sonner";
 
@@ -13,16 +13,13 @@ import {
   DialogHeader,
   DialogTitle,
 } from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
 
 import { useUserStore } from "@/stores/user";
 
 export const useAdultModeToggle = () => {
-  const { localPassword, adultMode, setAdultMode } = useUserStore();
+  const { adultMode, setAdultMode } = useUserStore();
 
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const passwordRef = useRef<HTMLInputElement>(null);
 
   const handleAdultModeToggle = () => {
     // Always show dialog for confirmation
@@ -33,9 +30,8 @@ export const useAdultModeToggle = () => {
     }
 
     // For turning on, check password first
-    if (!localPassword) {
-      toast.error("未设置密码", {
-        description: "请先在设置页面设置本地密码。",
+    if (!isAdultModeActive()) {
+      toast.error("请前往设置页面启用成人模式", {
         action: {
           label: "前往设置",
           onClick: () => {
@@ -61,39 +57,24 @@ export const useAdultModeToggle = () => {
       });
       setIsDialogOpen(false);
     } else {
-      // Turn on adult mode - password required
-      const password = passwordRef.current?.value || "";
-      if (password === localPassword) {
-        setAdultMode(new Date().toISOString());
-        toast.success("成人模式已启用", {
-          position: "top-center",
-        });
-        setIsDialogOpen(false);
-        if (passwordRef.current) passwordRef.current.value = "";
-      } else {
-        toast.error("密码错误");
-      }
+      toast.success("成人模式已启用", {
+        position: "top-center",
+      });
+      setIsDialogOpen(false);
     }
   };
 
   const handleCancel = () => {
     setIsDialogOpen(false);
-    if (passwordRef.current) passwordRef.current.value = "";
-  };
-
-  const handleOpenChange = (o: boolean) => {
-    if (!o) {
-      setIsDialogOpen(false);
-      if (passwordRef.current) passwordRef.current.value = "";
-    }
   };
 
   const AdultModeDialog = () => (
-    <Dialog open={isDialogOpen} onOpenChange={handleOpenChange}>
+    <Dialog open={isDialogOpen}>
       <DialogContent className='sm:max-w-[425px]'>
         <DialogHeader>
-          <DialogTitle>
-            <MdOutlineNoAdultContent />
+          <DialogTitle className='flex items-center gap-2'>
+            <MdOutlineNoAdultContent className='text-red-500 text-lg' />
+            <span>成人模式</span>
           </DialogTitle>
           <DialogDescription>
             {isAdultModeActive()
@@ -101,27 +82,7 @@ export const useAdultModeToggle = () => {
               : "请输入您的本地密码以确认启用成人模式。"}
           </DialogDescription>
         </DialogHeader>
-        {!isAdultModeActive() && (
-          <div className='grid gap-4 py-4'>
-            <div className='grid grid-cols-4 items-center gap-4'>
-              <Label htmlFor='password' className='text-right'>
-                密码
-              </Label>
-              <Input
-                id='password'
-                type='password'
-                ref={passwordRef}
-                className='col-span-3'
-                placeholder='请输入本地密码'
-                onKeyDown={(e) => {
-                  if (e.key === "Enter") {
-                    handleConfirm();
-                  }
-                }}
-              />
-            </div>
-          </div>
-        )}
+
         <DialogFooter>
           <Button
             variant='outline'
@@ -140,10 +101,10 @@ export const useAdultModeToggle = () => {
 
   const isAdultModeActive = () => {
     if (!adultMode) return false;
-    const adultModeTime = new Date(adultMode).getTime();
+    const adultModeExpiryTime = new Date(adultMode).getTime();
     const now = new Date().getTime();
-    // Adult mode is active for 24 hours
-    return now - adultModeTime < 24 * 60 * 60 * 1000;
+    // Check if current time is before the expiry time
+    return now < adultModeExpiryTime;
   };
 
   const AdultModeStatus = () => (

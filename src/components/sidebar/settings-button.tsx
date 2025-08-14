@@ -2,10 +2,11 @@
 
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 
 import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
 import {
   Dialog,
   DialogContent,
@@ -18,83 +19,14 @@ import { useUserStore } from "@/stores/user";
 
 export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
-  const { localPassword, setLocalPassword } = useUserStore();
-
-  const [doubanProxyUrl, setDoubanProxyUrl] = useState("");
-  const [imageProxyUrl, setImageProxyUrl] = useState("");
-
-  const [enableImageProxy, setEnableImageProxy] = useState(false);
-
-  // 从 localStorage 读取设置
-  useEffect(() => {
-    if (typeof window !== "undefined") {
-      const savedDoubanProxyUrl = localStorage.getItem("doubanProxyUrl");
-      if (savedDoubanProxyUrl !== null) {
-        setDoubanProxyUrl(savedDoubanProxyUrl);
-      }
-
-      const savedEnableImageProxy = localStorage.getItem("enableImageProxy");
-      const defaultImageProxy =
-        (window as any).RUNTIME_CONFIG?.IMAGE_PROXY || "";
-      if (savedEnableImageProxy !== null) {
-        setEnableImageProxy(JSON.parse(savedEnableImageProxy));
-      } else if (defaultImageProxy) {
-        // 如果有默认图片代理配置，则默认开启
-        setEnableImageProxy(true);
-      }
-
-      const savedImageProxyUrl = localStorage.getItem("imageProxyUrl");
-      if (savedImageProxyUrl !== null) {
-        setImageProxyUrl(savedImageProxyUrl);
-      } else if (defaultImageProxy) {
-        setImageProxyUrl(defaultImageProxy);
-      }
-    }
-  }, []);
-
-  const handleDoubanProxyUrlChange = (value: string) => {
-    setDoubanProxyUrl(value);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("doubanProxyUrl", value);
-    }
-  };
-
-  const handleImageProxyUrlChange = (value: string) => {
-    setImageProxyUrl(value);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("imageProxyUrl", value);
-    }
-  };
-
-  const handleImageProxyToggle = (value: boolean) => {
-    setEnableImageProxy(value);
-    if (typeof window !== "undefined") {
-      localStorage.setItem("enableImageProxy", JSON.stringify(value));
-    }
-  };
+  const [extendedExpiry, setExtendedExpiry] = useState(false);
+  const { setAdultMode } = useUserStore();
 
   // 重置所有设置为默认值
   const handleResetSettings = () => {
-    const defaultImageProxy = (window as any).RUNTIME_CONFIG?.IMAGE_PROXY || "";
-
     // 重置所有状态
 
-    setLocalPassword();
-    setDoubanProxyUrl("");
-    setEnableImageProxy(!!defaultImageProxy);
-    setImageProxyUrl(defaultImageProxy);
-
-    // 保存到 localStorage
-    if (typeof window !== "undefined") {
-      localStorage.setItem("defaultAggregateSearch", JSON.stringify(true));
-      localStorage.setItem("enableOptimization", JSON.stringify(true));
-      localStorage.setItem("doubanProxyUrl", "");
-      localStorage.setItem(
-        "enableImageProxy",
-        JSON.stringify(!!defaultImageProxy),
-      );
-      localStorage.setItem("imageProxyUrl", defaultImageProxy);
-    }
+    setAdultMode(null);
   };
 
   return (
@@ -105,7 +37,7 @@ export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
         <DialogHeader>
           <div className='flex items-center gap-2'>
             <DialogTitle className='text-xl font-bold text-gray-800 dark:text-gray-200'>
-              本地设置
+              我的设置
             </DialogTitle>
             <button
               onClick={handleResetSettings}
@@ -123,111 +55,92 @@ export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
           <div className='flex flex-col justify-center gap-2'>
             <div className='flex items-center gap-4'>
               <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                设置密码
+                验证密码
               </h4>
               <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                本地保存，没有加密的明文密码
+                用于验证身份以便于开启🔞成人模式
               </p>
             </div>
+            <div></div>
             <label className='flex items-center cursor-pointer w-full'>
               <input
                 type='text'
                 autoFocus
-                placeholder={
-                  localPassword ? `您的密码：${localPassword}` : "请设置密码"
-                }
-                id='local_password'
+                placeholder='请输入密码'
+                id='adult_mode_password'
                 className='w-full'
               />
             </label>
+
+            {/* 30天成人模式选项 */}
+            <div className='flex items-center space-x-2'>
+              <Checkbox
+                id='extended-expiry'
+                checked={extendedExpiry}
+                onCheckedChange={(checked: boolean) =>
+                  setExtendedExpiry(checked === true)
+                }
+              />
+              <label
+                htmlFor='extended-expiry'
+                className='text-sm text-gray-700 dark:text-gray-300 cursor-pointer'
+              >
+                启用30天成人模式（默认为24小时）
+              </label>
+            </div>
+
             <Button
-              onClick={() => {
-                const password = (
-                  document.querySelector("#local_password") as HTMLInputElement
+              onClick={async (e) => {
+                e.preventDefault();
+                e.stopPropagation();
+
+                const adult_mode_password = (
+                  document.querySelector(
+                    "#adult_mode_password",
+                  ) as HTMLInputElement
                 )?.value;
-                setLocalPassword(password);
-                toast.success("密码保存成功");
+
+                if (!adult_mode_password) {
+                  toast.error("请输入密码");
+                  return;
+                }
+
+                try {
+                  const res = await fetch("/api/validate-password", {
+                    method: "POST",
+                    headers: {
+                      "Content-Type": "application/json",
+                    },
+                    body: JSON.stringify({ password: adult_mode_password }),
+                  });
+
+                  const json = await res.json();
+
+                  if (json.data.success) {
+                    const now = Date.now();
+                    // Use 30 days if checkbox is checked, otherwise use 24 hours
+                    const durationMs = extendedExpiry
+                      ? 1000 * 60 * 60 * 24 * 30 // 30 days
+                      : 1000 * 60 * 60 * 24; // 24 hours
+                    const ts = new Date(now + durationMs).toISOString();
+                    setAdultMode(ts);
+                    const successMessage = extendedExpiry
+                      ? "成人模式已启用（30天有效期）"
+                      : "成人模式已启用（24小时有效期）";
+                    toast.success(successMessage);
+                  } else {
+                    toast.error(json.message || "密码验证失败");
+                  }
+                } catch (err) {
+                  toast.error("密码验证失败，请稍后重试");
+                }
               }}
               size='lg'
               className='w-fit'
             >
-              保存
+              验证
             </Button>
           </div>
-
-          {/* 豆瓣代理设置 */}
-          <div className='space-y-3'>
-            <div>
-              <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                豆瓣数据代理
-              </h4>
-              <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                设置代理URL以绕过豆瓣访问限制，留空则使用服务端API
-              </p>
-            </div>
-            <input
-              type='text'
-              className='w-full px-3 py-2 border border-gray-300 dark:border-gray-600 rounded-md text-sm bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400 focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent'
-              placeholder='例如: https://proxy.example.com/fetch?url='
-              value={doubanProxyUrl}
-              onChange={(e) => handleDoubanProxyUrlChange(e.target.value)}
-            />
-          </div>
-
-          {/* 图片代理开关 */}
-          <div className='flex items-center justify-between'>
-            <div>
-              <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                启用图片代理
-              </h4>
-              <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                启用后，所有图片加载将通过代理服务器
-              </p>
-            </div>
-            <label className='flex items-center cursor-pointer'>
-              <div className='relative'>
-                <input
-                  type='checkbox'
-                  className='sr-only peer'
-                  checked={enableImageProxy}
-                  onChange={(e) => handleImageProxyToggle(e.target.checked)}
-                />
-                <div className='w-11 h-6 bg-gray-300 rounded-full peer-checked:bg-green-500 transition-colors dark:bg-gray-600'></div>
-                <div className='absolute top-0.5 left-0.5 w-5 h-5 bg-white rounded-full transition-transform peer-checked:translate-x-5'></div>
-              </div>
-            </label>
-          </div>
-
-          {/* 图片代理地址设置 */}
-          <div className='space-y-3'>
-            <div>
-              <h4 className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                图片代理地址
-              </h4>
-              <p className='text-xs text-gray-500 dark:text-gray-400 mt-1'>
-                仅在启用图片代理时生效
-              </p>
-            </div>
-            <input
-              type='text'
-              className={`w-full px-3 py-2 border rounded-md text-sm focus:outline-hidden focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-colors ${
-                enableImageProxy
-                  ? "border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 text-gray-900 dark:text-gray-100 placeholder-gray-500 dark:placeholder-gray-400"
-                  : "border-gray-200 dark:border-gray-700 bg-gray-50 dark:bg-gray-800/50 text-gray-400 dark:text-gray-500 placeholder-gray-400 dark:placeholder-gray-600 cursor-not-allowed"
-              }`}
-              placeholder='例如: https://imageproxy.example.com/?url='
-              value={imageProxyUrl}
-              onChange={(e) => handleImageProxyUrlChange(e.target.value)}
-              disabled={!enableImageProxy}
-            />
-          </div>
-        </div>
-
-        {/* 底部说明 */}
-        <div className='mt-6 pt-4 border-t border-gray-200 dark:border-gray-700'>
-          <p className='text-xs text-gray-500 dark:text-gray-400 text-center'>
-            这些设置保存在本地浏览器中
-          </p>
         </div>
       </DialogContent>
     </Dialog>
