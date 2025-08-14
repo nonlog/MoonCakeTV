@@ -128,6 +128,7 @@ export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
                       ? "成人模式已启用（30天有效期）"
                       : "成人模式已启用（24小时有效期）";
                     toast.success(successMessage);
+                    setIsOpen(false);
                   } else {
                     toast.error(json.message || "密码验证失败");
                   }
