@@ -19,6 +19,14 @@ import { useUserStore } from "@/stores/user";
 export const useAdultModeToggle = () => {
   const { adultMode, setAdultMode } = useUserStore();
 
+  const isAdultModeActive = () => {
+    if (!adultMode) return false;
+    const adultModeExpiryTime = new Date(adultMode).getTime();
+    const now = new Date().getTime();
+    // Check if current time is before the expiry time
+    return now < adultModeExpiryTime;
+  };
+
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const handleAdultModeToggle = () => {
@@ -98,14 +106,6 @@ export const useAdultModeToggle = () => {
       </DialogContent>
     </Dialog>
   );
-
-  const isAdultModeActive = () => {
-    if (!adultMode) return false;
-    const adultModeExpiryTime = new Date(adultMode).getTime();
-    const now = new Date().getTime();
-    // Check if current time is before the expiry time
-    return now < adultModeExpiryTime;
-  };
 
   const AdultModeStatus = () => (
     <div className='flex items-center gap-2'>
