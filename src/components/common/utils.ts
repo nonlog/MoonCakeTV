@@ -231,6 +231,8 @@ export const getSourceBrand = (source: string) => {
       return "卧龙资源";
     case "360zy":
       return "360资源";
+    case "jsyun$$$jsm3u8":
+      return "极速云资源";
     default:
       return "未知";
   }
