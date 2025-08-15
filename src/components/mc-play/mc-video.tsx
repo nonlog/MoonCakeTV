@@ -9,7 +9,7 @@ import Player from "video.js/dist/types/player";
 
 import "video.js/dist/video-js.css";
 
-import { getHlsUrlVariations, tryLoadHlsWithVariations } from "./mc-utils";
+import { tryLoadHls } from "./mc-utils";
 
 // Add custom styles for proper video sizing
 const videoStyles = `
@@ -254,7 +254,7 @@ export const McVideo = (props: McVideoProps) => {
               .el()
               ?.querySelector("video") as HTMLVideoElement | null;
             if (initialVideoEl) {
-              tryLoadHlsWithVariations(
+              tryLoadHls(
                 player,
                 initialVideoEl,
                 source.src,
@@ -277,7 +277,7 @@ export const McVideo = (props: McVideoProps) => {
                   .el()
                   ?.querySelector("video") as HTMLVideoElement | null;
                 if (el) {
-                  tryLoadHlsWithVariations(
+                  tryLoadHls(
                     player,
                     el,
                     source.src,
@@ -302,16 +302,14 @@ export const McVideo = (props: McVideoProps) => {
               player.el()?.querySelector("video") as HTMLVideoElement | null
             )?.canPlayType?.("application/vnd.apple.mpegurl")
           ) {
-            // Native HLS support (Safari) - try variations
-            const urlVariations = getHlsUrlVariations(source.src);
+            // Native HLS support (Safari) - simple logic
+            const hlsUrl = source.src.endsWith(".m3u8")
+              ? source.src
+              : `${source.src}/index.m3u8`;
             const el = player
               .el()
               ?.querySelector("video") as HTMLVideoElement | null;
 
-            // Try first variation that includes .m3u8
-            const hlsUrl =
-              urlVariations.find((url) => url.endsWith(".m3u8")) ||
-              urlVariations[0];
             player.src({ src: hlsUrl, type: "application/x-mpegURL" });
             if (el) attachNativeErrorHandler(player, el, hlsUrl);
           } else {
@@ -424,7 +422,7 @@ export const McVideo = (props: McVideoProps) => {
         // Try HLS with URL variations
         if (Hls.isSupported()) {
           if (videoEl) {
-            tryLoadHlsWithVariations(
+            tryLoadHls(
               player,
               videoEl,
               directSrc,
@@ -447,7 +445,7 @@ export const McVideo = (props: McVideoProps) => {
                 .el()
                 ?.querySelector("video") as HTMLVideoElement | null;
               if (el) {
-                tryLoadHlsWithVariations(
+                tryLoadHls(
                   player,
                   el,
                   directSrc,
@@ -468,11 +466,10 @@ export const McVideo = (props: McVideoProps) => {
             });
           }
         } else if (videoEl?.canPlayType?.("application/vnd.apple.mpegurl")) {
-          // Native HLS support (Safari) - try variations
-          const urlVariations = getHlsUrlVariations(directSrc);
-          const hlsUrl =
-            urlVariations.find((url) => url.endsWith(".m3u8")) ||
-            urlVariations[0];
+          // Native HLS support (Safari) - simple logic
+          const hlsUrl = directSrc.endsWith(".m3u8")
+            ? directSrc
+            : `${directSrc}/index.m3u8`;
           player.src({ src: hlsUrl, type: "application/x-mpegURL" });
           if (videoEl) attachNativeErrorHandler(player, videoEl, hlsUrl);
         } else {

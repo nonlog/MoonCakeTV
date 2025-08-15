@@ -1,20 +1,6 @@
 import Hls, { ErrorData } from "hls.js";
 import Player from "video.js/dist/types/player";
 
-export const getHlsUrlVariations = (baseUrl: string): string[] => {
-  const variations = [];
-
-  // Original URL
-  variations.push(baseUrl);
-
-  // If it doesn't end with .m3u8, try adding /index.m3u8
-  if (!baseUrl.endsWith(".m3u8")) {
-    variations.push(`${baseUrl}/index.m3u8`);
-  }
-
-  return variations;
-};
-
 export const tryLoadSingleHlsUrl = (
   player: Player,
   videoEl: HTMLVideoElement,
@@ -103,7 +89,7 @@ export const tryLoadSingleHlsUrl = (
   });
 };
 
-export const tryLoadHlsWithVariations = async (
+export const tryLoadHls = async (
   player: Player,
   videoEl: HTMLVideoElement,
   baseUrl: string,
@@ -118,26 +104,24 @@ export const tryLoadHlsWithVariations = async (
     srcUrl: string,
   ) => void,
 ): Promise<boolean> => {
-  const urlVariations = getHlsUrlVariations(baseUrl);
+  // Simple logic: if baseUrl doesn't end with .m3u8, append "/index.m3u8"
+  const hlsUrl = baseUrl.endsWith(".m3u8") ? baseUrl : `${baseUrl}/index.m3u8`;
 
-  for (const url of urlVariations) {
-    try {
-      console.log(`Trying HLS URL: ${url}`);
-      const success = await tryLoadSingleHlsUrl(
-        player,
-        videoEl,
-        url,
-        createAndAttachHls,
-        attachNativeErrorHandler,
-      );
-      if (success) {
-        console.log(`Successfully loaded HLS from: ${url}`);
-        return true;
-      }
-    } catch (error) {
-      console.log(`Failed to load HLS from: ${url}`, error);
-      continue;
+  try {
+    console.log(`Trying HLS URL: ${hlsUrl}`);
+    const success = await tryLoadSingleHlsUrl(
+      player,
+      videoEl,
+      hlsUrl,
+      createAndAttachHls,
+      attachNativeErrorHandler,
+    );
+    if (success) {
+      console.log(`Successfully loaded HLS from: ${hlsUrl}`);
+      return true;
     }
+  } catch (error) {
+    console.log(`Failed to load HLS from: ${hlsUrl}`, error);
   }
 
   return false;
