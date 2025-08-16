@@ -1,0 +1,107 @@
+services:
+  # Database Migration Service (runs once and exits)
+  migrate:
+    build:
+      context: .
+      dockerfile: ./migrate/Dockerfile
+    container_name: mooncaketv-migrate
+    env_file:
+      - .env
+    depends_on:
+      postgres:
+        condition: service_healthy
+    networks:
+      - mooncake-web-network
+    restart: "no"
+    profiles:
+      - migrate
+
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: mooncaketv-postgres
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - DATABASE_URL=postgresql://mooncaketv:${POSTGRES_PASSWORD}@postgres:5432/mooncaketv
+      - POSTGRES_INITDB_ARGS="--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+    volumes:
+      - ./postgres_data:/var/lib/postgresql/data
+    networks:
+      - mooncake-web-network
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U mooncaketv -d mooncaketv"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 30s
+
+  # Redis for Caching
+  redis:
+    image: redis:7-alpine
+    container_name: mooncaketv-redis
+    restart: unless-stopped
+    command: redis-server --appendonly yes
+    env_file:
+      - .env
+    volumes:
+      - ./redis_data:/data
+    networks:
+      - mooncake-web-network
+
+  # Next.js Application
+  mcweb:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: mooncaketv-web
+    restart: unless-stopped
+    env_file:
+      - .env
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      postgres:
+        condition: service_started
+      redis:
+        condition: service_started
+    networks:
+      - mooncake-web-network
+
+  # Caddy Reverse Proxy
+  caddy:
+    image: caddy:2.8-alpine
+    container_name: mooncaketv-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+      - "443:443/udp"
+    env_file:
+      - .env
+    volumes:
+      - ./caddy/Caddyfile:/etc/caddy/Caddyfile
+      - ./caddy_data:/data
+      - ./caddy_config:/config
+    networks:
+      - mooncake-web-network
+    depends_on:
+      - mcweb
+
+  pgweb:
+    image: sosedoff/pgweb:latest
+    container_name: mooncaketv-pgweb
+    restart: unless-stopped
+    env_file:
+      - .env
+    environment:
+      - PGWEB_DATABASE_URL=${DATABASE_URL}
+    networks:
+      - mooncake-web-network
+    depends_on:
+      - postgres
+
+networks:
+  mooncake-web-network:
+    driver: bridge

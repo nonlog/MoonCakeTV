@@ -14,12 +14,7 @@
     "test:watch": "jest --watch",
     "test": "jest",
     "format": "prettier -w .",
-    "format:check": "prettier -c .",
-    "migrate": "node-pg-migrate",
-    "migrate:create": "node-pg-migrate create",
-    "migrate:up": "node-pg-migrate up",
-    "migrate:down": "node-pg-migrate down",
-    "migrate:redo": "node-pg-migrate redo"
+    "format:check": "prettier -c ."
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",
@@ -85,7 +80,10 @@
     "video.js": "^8.23.3",
     "vidstack": "^0.6.15",
     "zod": "^4.0.10",
-    "zustand": "^5.0.7"
+    "zustand": "^5.0.7",
+    "node-pg-migrate": "^8.0.3",
+    "pg": "^8.16.3",
+    "bcryptjs": "^3.0.2"
   },
   "devDependencies": {
     "@svgr/webpack": "^8.1.0",
@@ -104,8 +102,6 @@
     "eslint-plugin-simple-import-sort": "^7.0.0",
     "eslint-plugin-unused-imports": "^2.0.0",
     "next-router-mock": "^0.9.0",
-    "node-pg-migrate": "^8.0.3",
-    "pg": "^8.16.3",
     "postcss": "^8.5.1",
     "prettier": "^3.0.0",
     "prettier-plugin-tailwindcss": "^0.6.14",
