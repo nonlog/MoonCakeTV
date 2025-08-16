@@ -45,3 +45,7 @@ src/lib/runtime.ts
 public/manifest.json
 public/sw.js
 public/workbox-*.js
+
+# docker
+compose.override.yml
+.env
