@@ -16,19 +16,4 @@ RUN npm install -g node-pg-migrate bcryptjs
 COPY migrations ./migrations
 
 # Default command - run all pending migrations with hardcoded config
-CMD [
-  "node-pg-migrate",
-  "up",
-  "--migrations-dir",
-  "migrations",
-  "--migrations-table",
-  "pgmigrations",
-  "--schema",
-  "public",
-  "--check-order",
-  "--verbose",
-  "--migration-filename-format",
-  "utc",
-  "--migration-file-language",
-  "js",
-]
+CMD ["node-pg-migrate", "up", "--migrations-dir", "migrations", "--migrations-table", "pgmigrations", "--schema", "public", "--check-order", "--verbose", "--migration-filename-format", "utc", "--migration-file-language", "js"]
