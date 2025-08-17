@@ -21,3 +21,6 @@ d-run:
 	else \
 		docker run -d -p 3333:3000 --name mooncaketv mooncaketv; \
 	fi
+
+dc-up:
+	docker compose --profile migrate up -d --build
