@@ -25,7 +25,7 @@ services:
       - .env
     environment:
       - DATABASE_URL=postgresql://mooncaketv:${POSTGRES_PASSWORD}@postgres:5432/mooncaketv
-      - POSTGRES_INITDB_ARGS="--encoding=UTF-8 --lc-collate=C --lc-ctype=C"
+      - POSTGRES_INITDB_ARGS="--encoding=UTF8 --lc-collate=C --lc-ctype=C"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
     networks:
