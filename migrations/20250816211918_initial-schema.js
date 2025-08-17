@@ -129,14 +129,11 @@ export const up = (pgm) => {
     const salt = bcrypt.genSaltSync(10);
     const hash = bcrypt.hashSync(adminPassword, salt);
 
-    pgm.sql(
-      `
+    pgm.sql(`
       INSERT INTO users (username, password_hash, role)
-      VALUES ($1, $2, 'admin')
+      VALUES ('${adminUsername}', '${hash}', 'admin')
       ON CONFLICT (username) DO NOTHING;
-    `,
-      [adminUsername, hash],
-    );
+    `);
   }
 };
 

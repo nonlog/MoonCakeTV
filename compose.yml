@@ -104,7 +104,7 @@ services:
       - .env
     environment:
       <<: *common-variables
-      PGWEB_DATABASE_URL: *database-url
+      PGWEB_DATABASE_URL: postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}?sslmode=disable
     networks:
       - mooncake-web-network
     depends_on:
