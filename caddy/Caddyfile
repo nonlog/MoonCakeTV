@@ -1,10 +1,10 @@
 # Caddyfile for MooncakeTV
 
 # Main application
-{$DOMAIN:localhost} {
+{$DOMAIN:localhost}, www.{$DOMAIN:localhost} {
     
     # Reverse proxy to Next.js app
-    reverse_proxy app:3000 {
+    reverse_proxy mcweb:3000 {
         header_up Host {host}
         header_up X-Real-IP {remote}
         header_up X-Forwarded-For {remote}
@@ -33,7 +33,7 @@
     }
     handle @static {
         header Cache-Control "public, max-age=31536000, immutable"
-        reverse_proxy app:3000
+        reverse_proxy mcweb:3000
     }
     
     # API routes with no caching
@@ -42,7 +42,7 @@
     }
     handle @api {
         header Cache-Control "no-cache, no-store, must-revalidate"
-        reverse_proxy app:3000
+        reverse_proxy mcweb:3000
     }
     
     # Log access
@@ -57,7 +57,4 @@ pgweb.{$DOMAIN:localhost} {
     reverse_proxy pgweb:8081
 }
 
-# Health check endpoint
-health.{$DOMAIN:localhost} {
-    respond /health "OK" 200
-}
+
