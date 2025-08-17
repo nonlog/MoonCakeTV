@@ -96,7 +96,7 @@ services:
     env_file:
       - .env
     environment:
-      - PGWEB_DATABASE_URL=${DATABASE_URL}
+      - PGWEB_DATABASE_URL=postgresql://mooncaketv:${POSTGRES_PASSWORD}@postgres:5432/mooncaketv
     networks:
       - mooncake-web-network
     depends_on:
