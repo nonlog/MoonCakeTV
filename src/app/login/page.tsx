@@ -50,35 +50,44 @@ export default function LoginPage() {
       if (!password) {
         return;
       }
+    }
 
-      setLoading(true);
-      setError(null);
-
-      try {
-        const res = await fetch("/api/login", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ password }),
-        });
-
-        const json = await res.json();
-
-        if (json.data.success) {
-          // Use a small delay before redirect for Safari compatibility
-          setTimeout(() => {
-            window.location.href = "/";
-          }, 100);
-        } else {
-          setError(json.message || "登录失败");
-        }
-      } catch (err) {
-        console.error("Login error:", err);
-        setError("网络错误，请重试");
-      } finally {
-        setLoading(false);
+    if (serverConfig.PASSWORD_MODE === "db") {
+      if (!username.trim() || !password.trim()) {
+        return;
       }
+    }
+
+    setLoading(true);
+    setError(null);
+
+    try {
+      const res = await fetch("/api/login", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify({
+          password,
+          username,
+        }),
+      });
+
+      const json = await res.json();
+
+      if (json.data.success) {
+        // Use a small delay before redirect for Safari compatibility
+        setTimeout(() => {
+          window.location.href = "/";
+        }, 100);
+      } else {
+        setError(json.message || "登录失败");
+      }
+    } catch (err) {
+      console.error("Login error:", err);
+      setError("网络错误，请重试");
+    } finally {
+      setLoading(false);
     }
   };
 
