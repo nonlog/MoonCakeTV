@@ -30,7 +30,7 @@ export const verifyJwt = async (
 } | null> => {
   try {
     if (!process.env.JWT_SECRET) {
-      throw new Error("JWT_SECRET is not set");
+      return null;
     }
 
     const secret = new TextEncoder().encode(process.env.JWT_SECRET);

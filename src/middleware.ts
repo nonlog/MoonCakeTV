@@ -2,7 +2,7 @@
 
 import { NextRequest, NextResponse } from "next/server";
 
-import { validatePassword } from "@/actions/password";
+import { validatePasswordAction } from "@/actions/password";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
@@ -19,17 +19,30 @@ export async function middleware(request: NextRequest) {
   }
 
   // Get password from cookie instead of Authorization header
-  const mcAuthToken = request.cookies.get("mc-auth-token")?.value;
+  const mc_auth_token = request.cookies.get("mc-auth-token")?.value;
 
   if (passwordMode === "env") {
-    const { success } = validatePassword(mcAuthToken);
-    if (success) {
-      return NextResponse.next();
-    } else {
+    const { success } = await validatePasswordAction({
+      mc_auth_token,
+    });
+    if (!success) {
       // 重定向到登录页面
       const loginUrl = new URL("/login", request.url);
       return NextResponse.redirect(loginUrl);
     }
+    return NextResponse.next();
+  }
+
+  if (passwordMode === "db") {
+    const { success } = await validatePasswordAction({
+      mc_auth_token,
+    });
+    if (!success) {
+      // 重定向到登录页面
+      const loginUrl = new URL("/login", request.url);
+      return NextResponse.redirect(loginUrl);
+    }
+    return NextResponse.next();
   }
 
   // If we reach here, the password mode is not supported
