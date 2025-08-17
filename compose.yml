@@ -1,3 +1,6 @@
+x-common-variables: &common-variables
+  DATABASE_URL: &database-url postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
+
 services:
   # Database Migration Service (runs once and exits)
   migrate:
@@ -7,6 +10,8 @@ services:
     container_name: mooncaketv-migrate
     env_file:
       - .env
+    environment:
+      <<: *common-variables
     depends_on:
       postgres:
         condition: service_healthy
@@ -24,8 +29,8 @@ services:
     env_file:
       - .env
     environment:
-      - DATABASE_URL=postgresql://mooncaketv:${POSTGRES_PASSWORD}@postgres:5432/mooncaketv
-      - POSTGRES_INITDB_ARGS="--encoding=UTF8 --lc-collate=C --lc-ctype=C"
+      <<: *common-variables
+      POSTGRES_INITDB_ARGS: "--encoding=UTF8 --lc-collate=C --lc-ctype=C"
     volumes:
       - ./postgres_data:/var/lib/postgresql/data
     networks:
@@ -59,6 +64,8 @@ services:
     restart: unless-stopped
     env_file:
       - .env
+    environment:
+      <<: *common-variables
     depends_on:
       migrate:
         condition: service_completed_successfully
@@ -96,7 +103,8 @@ services:
     env_file:
       - .env
     environment:
-      - PGWEB_DATABASE_URL=postgresql://mooncaketv:${POSTGRES_PASSWORD}@postgres:5432/mooncaketv
+      <<: *common-variables
+      PGWEB_DATABASE_URL: *database-url
     networks:
       - mooncake-web-network
     depends_on:
