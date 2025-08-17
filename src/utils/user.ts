@@ -1,4 +1,6 @@
 import bcrypt from "bcryptjs";
+import { ZodError } from "zod";
+import { fromZodError } from "zod-validation-error";
 
 import { pool } from "@/utils/pg";
 
@@ -63,6 +65,12 @@ export async function authenticateWithDatabase(
       jti,
     };
   } catch (error) {
+    if (error instanceof ZodError) {
+      return {
+        success: false,
+        error: `服务器错误: ${fromZodError(error).message}`,
+      };
+    }
     return {
       success: false,
       error: `服务器错误: ${(error as Error).message}`,
