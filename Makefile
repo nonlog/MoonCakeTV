@@ -24,3 +24,6 @@ d-run:
 
 dc-up:
 	docker compose --profile migrate up -d --build
+
+dc-down:
+	docker compose --profile migrate down
