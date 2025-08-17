@@ -65,11 +65,11 @@ export const up = (pgm) => {
     },
     bookmarks: {
       type: "jsonb",
-      default: "'{}'",
+      default: "{}",
     },
     settings: {
       type: "jsonb",
-      default: "'{}'",
+      default: "{}",
     },
     created_at: {
       type: "timestamp with time zone",
