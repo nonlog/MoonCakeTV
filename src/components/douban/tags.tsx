@@ -33,7 +33,7 @@ export const DoubanTags = () => {
               className='cursor-pointer hover:bg-purple-900 hover:text-white px-2 py-1 border-2 border-blue-300 dark:border-gray-700'
               onClick={() => {
                 window.open(
-                  `/search?keyword=${encodeURIComponent(movie.title)}&fire=1`,
+                  `/search?keyword=${encodeURIComponent(movie.title)}`,
                   "_blank",
                 );
               }}
@@ -55,7 +55,7 @@ export const DoubanTags = () => {
               className='cursor-pointer hover:bg-purple-900 hover:text-white px-2 py-1 border-2 border-blue-300 dark:border-gray-700'
               onClick={() => {
                 window.open(
-                  `/search?keyword=${encodeURIComponent(tv.title)}&fire=1`,
+                  `/search?keyword=${encodeURIComponent(tv.title)}`,
                   "_blank",
                 );
               }}
