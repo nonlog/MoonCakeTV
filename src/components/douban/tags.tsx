@@ -38,7 +38,7 @@ export const DoubanTags = () => {
                 );
               }}
             >
-              {movie.title}
+              {`${movie.title} (${movie.rate})`}
             </Badge>
           ))}
         </div>
@@ -60,7 +60,7 @@ export const DoubanTags = () => {
                 );
               }}
             >
-              {tv.title}
+              {`${tv.title} (${tv.rating})`}
             </Badge>
           ))}
         </div>
