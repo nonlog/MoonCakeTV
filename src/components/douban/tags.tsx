@@ -1,113 +1,70 @@
-const tags = {
-  show: [
-    "热门",
-    "最新",
-    "经典",
-    "可播放",
-    "豆瓣高分",
-    "冷门佳片",
-    "华语",
-    "欧美",
-    "韩国",
-    "日本",
-    "动作",
-    "喜剧",
-    "爱情",
-    "科幻",
-    "悬疑",
-    "恐怖",
-    "成长",
-  ],
-  tv: [
-    "热门",
-    "美剧",
-    "英剧",
-    "韩剧",
-    "日剧",
-    "国产剧",
-    "港剧",
-    "日本动画",
-    "综艺",
-    "纪录片",
-  ],
-  movie: [
-    "热门",
-    "最新",
-    "经典",
-    "可播放",
-    "豆瓣高分",
-    "冷门佳片",
-    "华语",
-    "欧美",
-    "韩国",
-    "日本",
-    "动作",
-    "喜剧",
-    "爱情",
-    "科幻",
-    "悬疑",
-    "恐怖",
-    "文艺",
-  ],
-  cartoon: [
-    "热门",
-    "最新",
-    "经典",
-    "可播放",
-    "豆瓣高分",
-    "冷门佳片",
-    "华语",
-    "欧美",
-    "韩国",
-    "日本",
-    "动作",
-    "喜剧",
-    "爱情",
-    "科幻",
-    "悬疑",
-    "恐怖",
-    "动画",
-  ],
-  animation: [
-    "热门",
-    "最新",
-    "经典",
-    "可播放",
-    "豆瓣高分",
-    "冷门佳片",
-    "华语",
-    "欧美",
-    "韩国",
-    "日本",
-    "动作",
-    "喜剧",
-    "爱情",
-    "科幻",
-    "悬疑",
-    "恐怖",
-    "成长",
-  ],
-};
+import { useEffect, useState } from "react";
 
-type DoubanMediaType = keyof typeof tags;
+import { DoubanMovieItem, DoubanTVItem } from "@/components/douban/types";
+import { Badge } from "@/components/ui/badge";
 
-// const search_tag_url = `https://movie.douban.com/j/search_tags?type=${type}`;
+export const DoubanTags = () => {
+  const [movies, setMovies] = useState<DoubanMovieItem[]>([]);
+  const [tvs, setTvs] = useState<DoubanTVItem[]>([]);
 
-const base_api = "https://movie.douban.com/j/search_subjects";
+  useEffect(() => {
+    fetch("https://s1.m3u8.io/v1/douban")
+      .then((res) => res.json())
+      .then((json) => {
+        setMovies(json.data?.movies || []);
+        setTvs(json.data?.tv || []);
+      })
+      .catch((err) => {
+        console.error(err);
+      });
+  }, []);
 
-export const fetchDoubanByType = async (params: { type: DoubanMediaType }) => {
-  const type_tags = tags[params.type];
-  const urls = type_tags.map((_tag) => {
-    const searchParams = new URLSearchParams();
-    searchParams.set("type", params.type);
-    searchParams.set("tag", _tag);
-    searchParams.set("sort", "recommend");
-    searchParams.set("page_limit", "20");
-    searchParams.set("page_start", "0");
-    return `${base_api}?${searchParams.toString()}`;
-  });
-
-  const results = await Promise.all(
-    urls.map((_url) => fetch(_url).then((res) => res.json())),
+  return (
+    <div className='px-2 sm:px-10 py-4 sm:py-8 overflow-visible flex flex-col gap-8'>
+      <div className='flex flex-col gap-6'>
+        <h2 className='text-3xl font-bold text-gray-900 dark:text-white'>
+          豆瓣热门电影
+        </h2>
+        <div className='flex flex-wrap gap-2'>
+          {movies.map((movie) => (
+            <Badge
+              variant='outline'
+              key={movie.id}
+              className='cursor-pointer hover:bg-purple-900 hover:text-white px-2 py-1 border-2 border-blue-300 dark:border-gray-700'
+              onClick={() => {
+                window.open(
+                  `/search?keyword=${encodeURIComponent(movie.title)}&fire=1`,
+                  "_blank",
+                );
+              }}
+            >
+              {movie.title}
+            </Badge>
+          ))}
+        </div>
+      </div>
+      <div className='flex flex-col gap-6'>
+        <h2 className='text-3xl font-bold text-gray-900 dark:text-white'>
+          豆瓣热门电视剧
+        </h2>
+        <div className='flex flex-wrap gap-2'>
+          {tvs.map((tv) => (
+            <Badge
+              variant='outline'
+              key={tv.id}
+              className='cursor-pointer hover:bg-purple-900 hover:text-white px-2 py-1 border-2 border-blue-300 dark:border-gray-700'
+              onClick={() => {
+                window.open(
+                  `/search?keyword=${encodeURIComponent(tv.title)}&fire=1`,
+                  "_blank",
+                );
+              }}
+            >
+              {tv.title}
+            </Badge>
+          ))}
+        </div>
+      </div>
+    </div>
   );
 };

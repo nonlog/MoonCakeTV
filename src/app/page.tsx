@@ -1,28 +1,22 @@
-/* eslint-disable @typescript-eslint/no-explicit-any, react-hooks/exhaustive-deps */
-
 "use client";
 
 import { useRouter } from "next/navigation";
 import { useEffect, useState } from "react";
 
-import { MediaCard } from "@/components/common/media-card";
 import PageLayout from "@/components/common/page-layout";
-import { Button } from "@/components/ui/button";
+import { DoubanTags } from "@/components/douban/tags";
+import { RandomMedia } from "@/components/home/random-media";
 
 import { useGlobalStore } from "@/stores/global";
 
 import { Dazahui } from "@/schemas/dazahui";
 
-import { ApiResponse } from "@/types/common";
-
 export default function HomePage() {
   const router = useRouter();
-  const [loading, setLoading] = useState(true);
+
   const [isHydrated, setIsHydrated] = useState(false);
   const { disclaimer, hasSeenDisclaimer, setHasSeenDisclaimer } =
     useGlobalStore();
-
-  const [random, setRandom] = useState<Dazahui[] | null>(null);
 
   // Handle hydration
   useEffect(() => {
@@ -37,71 +31,10 @@ export default function HomePage() {
     router.push(`/play?mc_id=${dazahui.mc_id}`);
   };
 
-  const triggerRandom = () => {
-    setLoading(true);
-    fetch("https://s1.m3u8.io/v1/random")
-      .then((res) => {
-        return res.json() as Promise<ApiResponse<{ items: Dazahui[] } | null>>;
-      })
-      .then((json) => {
-        setRandom(json.data?.items || null);
-      })
-      .catch((err) => {
-        console.log(err);
-      })
-      .finally(() => {
-        setLoading(false);
-      });
-  };
-
-  useEffect(() => {
-    triggerRandom();
-  }, []);
-
   return (
     <PageLayout>
-      <div className='px-2 sm:px-10 py-4 sm:py-8 overflow-visible'>
-        <div className='max-w-[95%] mx-auto'>
-          <div className='mb-8'>
-            <div className='flex items-center gap-4'>
-              <h1 className='text-3xl font-bold text-gray-900 dark:text-white'>
-                随机推荐
-              </h1>
-              <Button
-                size='lg'
-                className='bg-purple-900 text-white text-xl cursor-pointer'
-                onClick={triggerRandom}
-              >
-                换一批
-              </Button>
-            </div>
-
-            <p className='text-gray-600 dark:text-gray-400'>为您推荐精选内容</p>
-          </div>
-
-          {loading ? (
-            <div className='flex items-center justify-center py-12'>
-              <div className='animate-spin rounded-full h-12 w-12 border-b-2 border-green-500'></div>
-            </div>
-          ) : (
-            <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4'>
-              {random?.map((item, index) => (
-                <MediaCard
-                  key={item.mc_id || index}
-                  dazahui={item}
-                  onClick={() => handleCardClick(item)}
-                  showSpeedTest
-                  userId='me'
-                />
-              )) || (
-                <div className='col-span-full text-center py-12'>
-                  <p className='text-gray-500 dark:text-gray-400'>暂无数据</p>
-                </div>
-              )}
-            </div>
-          )}
-        </div>
-      </div>
+      <DoubanTags />
+      <RandomMedia handleCardClick={handleCardClick} />
       {isHydrated && !hasSeenDisclaimer && (
         <div
           className={`fixed inset-0 z-50 flex items-center justify-center bg-black/50 backdrop-blur-xs dark:bg-black/70 p-4 transition-opacity duration-300 ${
