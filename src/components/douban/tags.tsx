@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 
-import { DoubanMovieItem, DoubanTVItem } from "@/components/douban/types";
-import { Badge } from "@/components/ui/badge";
+import { DoubanMovieItem, DoubanTVItem } from "./types";
+import { Badge } from "../ui/badge";
 
 export const DoubanTags = () => {
   const [movies, setMovies] = useState<DoubanMovieItem[]>([]);
@@ -60,7 +60,7 @@ export const DoubanTags = () => {
                 );
               }}
             >
-              {`${tv.title} (${tv.rating})`}
+              {`${tv.title} (${tv.rating.value})`}
             </Badge>
           ))}
         </div>
