@@ -23,7 +23,7 @@ d-run:
 	fi
 
 dc-up:
-	docker compose --profile migrate --pull always up -d
+	docker compose --profile migrate up --pull always -d
 
 dc-down:
 	docker compose --profile migrate down
