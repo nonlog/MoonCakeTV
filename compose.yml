@@ -69,9 +69,7 @@ services:
 
   # Next.js Application
   mcweb:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    image: ghcr.io/mooncaketv/mooncaketv:latest
     container_name: mooncaketv-web
     restart: unless-stopped
     env_file:
