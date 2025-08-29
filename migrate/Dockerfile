@@ -4,16 +4,14 @@ FROM node:22-slim
 WORKDIR /app
 
 # Install only the packages needed for migrations
-COPY package.json package-lock.json ./
+COPY migrate/package.json ./
 
 # Install dependencies
-RUN npm ci --only=production
+RUN npm install
 
-# Install node-pg-migrate globally and bcrypt for password hashing
-RUN npm install -g node-pg-migrate bcryptjs
+# Copy migration files and config
+COPY migrate/migrations ./migrations
+COPY migrate/migrations.json ./migrations.json
 
-# Copy migration files
-COPY migrations ./migrations
-
-# Default command - run all pending migrations with hardcoded config
-CMD ["node-pg-migrate", "up", "--migrations-dir", "migrations", "--migrations-table", "pgmigrations", "--schema", "public", "--check-order", "--verbose", "--migration-filename-format", "utc", "--migration-file-language", "js"]
+# Default command - run all pending migrations using config file
+CMD ["node-pg-migrate", "up", "--config-file", "migrations.json"]

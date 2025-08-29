@@ -84,9 +84,9 @@ function main() {
   printInfo(`Creating migration: ${migrationName}`);
 
   try {
-    // Run the migration creation command with hardcoded config
+    // Run the migration creation command using config file
     execSync(
-      `npx node-pg-migrate create "${migrationName}" --migrations-dir migrations --migration-filename-format utc --migration-file-language js`,
+      `npx node-pg-migrate create "${migrationName}" --config-file migrate/migrations.json`,
       {
         cwd: projectRoot,
         stdio: "inherit",
@@ -96,21 +96,19 @@ function main() {
     printSuccess("Migration created successfully!");
     console.log("");
     printInfo("Next steps:");
-    console.log("1. Edit the migration file in the migrations/ directory");
+    console.log(
+      "1. Edit the migration file in the migrate/migrations/ directory",
+    );
     console.log("2. To apply migrations automatically, run:");
     console.log(
       `   ${colors.yellow}docker compose down && docker compose up -d --build${colors.reset}`,
     );
     console.log("");
     console.log("3. To run migrations manually:");
-    console.log(
-      `   ${colors.yellow}docker compose run --rm migrate npm run migrate:up${colors.reset}`,
-    );
+    console.log(`   ${colors.yellow}./migrate/migrate.sh up${colors.reset}`);
     console.log("");
     console.log("4. To rollback the last migration:");
-    console.log(
-      `   ${colors.yellow}docker compose run --rm migrate npm run migrate:down${colors.reset}`,
-    );
+    console.log(`   ${colors.yellow}./migrate/migrate.sh down${colors.reset}`);
     console.log("");
     printWarning(
       "Remember to test your migration in a development environment first!",

@@ -2,25 +2,6 @@ x-common-variables: &common-variables
   DATABASE_URL: &database-url postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
 
 services:
-  # Database Migration Service (runs once and exits)
-  migrate:
-    build:
-      context: .
-      dockerfile: ./migrate/Dockerfile
-    container_name: mooncaketv-migrate
-    env_file:
-      - .env
-    environment:
-      <<: *common-variables
-    depends_on:
-      postgres:
-        condition: service_healthy
-    networks:
-      - mooncake-web-network
-    restart: "no"
-    profiles:
-      - migrate
-
   # PostgreSQL Database
   postgres:
     image: postgres:16-alpine
@@ -83,8 +64,6 @@ services:
         reservations:
           memory: 512M
     depends_on:
-      migrate:
-        condition: service_completed_successfully
       postgres:
         condition: service_started
       redis:
