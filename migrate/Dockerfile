@@ -13,5 +13,5 @@ RUN npm install
 COPY migrate/migrations ./migrations
 COPY migrate/migrations.json ./migrations.json
 
-# Default command - run all pending migrations using config file
+# Default command - run all pending migrations using config file  
 CMD ["node-pg-migrate", "up", "--config-file", "migrations.json"]

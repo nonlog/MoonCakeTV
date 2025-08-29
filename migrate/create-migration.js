@@ -84,9 +84,9 @@ function main() {
   printInfo(`Creating migration: ${migrationName}`);
 
   try {
-    // Run the migration creation command using config file
+    // Run the migration creation command with explicit paths
     execSync(
-      `npx node-pg-migrate create "${migrationName}" --config-file migrate/migrations.json`,
+      `npx node-pg-migrate create "${migrationName}" --migrations-dir migrate/migrations --migration-filename-format utc --migration-file-language js`,
       {
         cwd: projectRoot,
         stdio: "inherit",
