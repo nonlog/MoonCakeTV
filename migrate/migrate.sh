@@ -49,20 +49,20 @@ ROLLBACK_COUNT=${2:-1}
 case $ACTION in
     "up")
         print_info "Running database migrations..."
-        docker compose -f compose.migrations.yml run --rm migrate npm run migrate:up
+        docker compose -f compose.migrations.yml run --rm --remove-orphans migrate npm run migrate:up
         ;;
     "down")
         if [ -n "$2" ]; then
             print_info "Rolling back $ROLLBACK_COUNT migration(s)..."
-            docker compose -f compose.migrations.yml run --rm migrate npm run migrate:down $ROLLBACK_COUNT
+            docker compose -f compose.migrations.yml run --rm --remove-orphans migrate npm run migrate:down $ROLLBACK_COUNT
         else
             print_info "Rolling back last migration..."
-            docker compose -f compose.migrations.yml run --rm migrate npm run migrate:down
+            docker compose -f compose.migrations.yml run --rm --remove-orphans migrate npm run migrate:down
         fi
         ;;
     "status")
         print_info "Checking migration status..."
-        docker compose -f compose.migrations.yml run --rm migrate npm run migrate:status
+        docker compose -f compose.migrations.yml run --rm --remove-orphans migrate npm run migrate:status
         ;;
     *)
         print_error "Unknown action: $ACTION"
