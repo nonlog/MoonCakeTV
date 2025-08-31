@@ -1,4 +1,4 @@
-.PHONY: origin tea vercel dev build d-build d-run
+.PHONY: origin tea vercel dev build d-build d-run m-build m-up m-down m-status
 
 
 origin:
@@ -28,6 +28,9 @@ d-run:
 	else \
 		docker run -d -p 3333:3000 --name mooncaketv mooncaketv; \
 	fi
+
+m-build:
+	docker compose -f compose.migrations.yml build migrate
 
 dc-up:
 	docker compose up --pull always -d
