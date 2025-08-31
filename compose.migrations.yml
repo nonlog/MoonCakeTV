@@ -12,8 +12,9 @@ services:
       - .env
     environment:
       <<: *common-variables
-    external_links:
-      - mooncaketv-postgres:postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
     networks:
       - mooncake-web-network
     restart: "no"
