@@ -1,10 +1,17 @@
-.PHONY: tea vercel dev build d-build d-run
+.PHONY: origintea vercel dev build d-build d-run
+
+
+origin:
+	git push origin main && \
+	git push origin --tags
 
 tea:
-	git push tea main
+	git push tea main && \
+	git push tea --tags
 
 vercel:
-	git push vercel main
+	git push vercel main && \
+	git push vercel --tags
 
 build:
 	npm run build
