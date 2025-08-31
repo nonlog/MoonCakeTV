@@ -28,11 +28,11 @@ dc-up:
 dc-down:
 	docker compose down
 
-migrate-up:
+m-up:
 	./migrate/migrate.sh up
 
-migrate-down:
+m-down:
 	./migrate/migrate.sh down
 
-migrate-status:
+m-status:
 	./migrate/migrate.sh status
