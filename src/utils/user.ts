@@ -79,3 +79,72 @@ export async function authenticateWithDatabase(
     client.release();
   }
 }
+
+export async function createUser(
+  username: string,
+  password: string,
+  email?: string,
+): Promise<AuthResult> {
+  const client = await pool.connect();
+
+  try {
+    // Check if username already exists
+    const existingUser = await client.query(
+      "SELECT id FROM users WHERE username = $1",
+      [username],
+    );
+
+    if (existingUser.rows.length > 0) {
+      return { success: false, error: "用户名已存在" };
+    }
+
+    // Check if email already exists (if provided)
+    if (email) {
+      const existingEmail = await client.query(
+        "SELECT id FROM users WHERE email = $1",
+        [email],
+      );
+
+      if (existingEmail.rows.length > 0) {
+        return { success: false, error: "邮箱已被使用" };
+      }
+    }
+
+    // Hash the password
+    const saltRounds = 10;
+    const passwordHash = await bcrypt.hash(password, saltRounds);
+
+    // Insert new user
+    const result = await client.query(
+      `INSERT INTO users (username, password_hash, email, role) 
+       VALUES ($1, $2, $3, $4) 
+       RETURNING *`,
+      [username, passwordHash, email || null, "user"],
+    );
+
+    const user = user_schema.parse(result.rows[0]);
+
+    // Create user_data entry
+    await client.query("INSERT INTO user_data (user_id) VALUES ($1)", [
+      user.id,
+    ]);
+
+    return {
+      success: true,
+      user,
+    };
+  } catch (error) {
+    if (error instanceof ZodError) {
+      return {
+        success: false,
+        error: `服务器错误: ${fromZodError(error).message}`,
+      };
+    }
+    return {
+      success: false,
+      error: `服务器错误: ${(error as Error).message}`,
+    };
+  } finally {
+    client.release();
+  }
+}
