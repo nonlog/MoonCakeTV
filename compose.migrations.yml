@@ -1,3 +1,5 @@
+name: mooncaketv-migrations
+
 x-common-variables: &common-variables
   DATABASE_URL: &database-url postgresql://${POSTGRES_USER}:${POSTGRES_PASSWORD}@postgres:5432/${POSTGRES_DB}
 
