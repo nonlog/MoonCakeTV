@@ -1,4 +1,4 @@
-.PHONY: origintea vercel dev build d-build d-run
+.PHONY: origin tea vercel dev build d-build d-run
 
 
 origin:
