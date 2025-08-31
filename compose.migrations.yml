@@ -22,3 +22,4 @@ services:
 networks:
   mooncake-web-network:
     external: true
+    name: mooncake-web-network

@@ -108,3 +108,4 @@ services:
 networks:
   mooncake-web-network:
     driver: bridge
+    name: mooncake-web-network
