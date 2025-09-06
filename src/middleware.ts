@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 import { NextRequest, NextResponse } from "next/server";
 
 import { validatePasswordAction } from "@/actions/password";
@@ -7,14 +5,15 @@ import { validatePasswordAction } from "@/actions/password";
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  // 跳过不需要认证的路径
-  if (canSkipAuth(pathname)) {
+  const passwordMode = process.env.PASSWORD_MODE?.trim() ?? "local";
+
+  // 如果是本地模式，直接放行所有请求
+  if (passwordMode === "local") {
     return NextResponse.next();
   }
 
-  const passwordMode = process.env.PASSWORD_MODE?.trim() ?? "local";
-  // 如果不需要认证，直接放行
-  if (passwordMode === "local") {
+  // 跳过不需要认证的路径
+  if (canSkipAuth(pathname)) {
     return NextResponse.next();
   }
 
