@@ -28,7 +28,7 @@ export const useAdultModeToggle = () => {
   const { adultMode, setAdultMode } = useUserStore();
   const [serverConfig, setServerConfig] = useState<any>(null);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [extendedExpiry, setExtendedExpiry] = useState(false);
+  const extendedExpiryRef = useRef(false);
   const passwordInputRef = useRef<HTMLInputElement>(null);
 
   const isLocal = useMemo(() => {
@@ -96,12 +96,12 @@ export const useAdultModeToggle = () => {
     if (isLocal) {
       // Local mode - no password validation needed
       const now = Date.now();
-      const durationMs = extendedExpiry
+      const durationMs = extendedExpiryRef.current
         ? 1000 * 60 * 60 * 24 * 30 // 30 days
         : 1000 * 60 * 60 * 24; // 24 hours
       const ts = new Date(now + durationMs).toISOString();
       setAdultMode(ts);
-      const successMessage = extendedExpiry
+      const successMessage = extendedExpiryRef.current
         ? "成人模式已启用（30天有效期）"
         : "成人模式已启用（24小时有效期）";
       toast.success(successMessage, {
@@ -130,12 +130,12 @@ export const useAdultModeToggle = () => {
 
         if (json.data.success) {
           const now = Date.now();
-          const durationMs = extendedExpiry
+          const durationMs = extendedExpiryRef.current
             ? 1000 * 60 * 60 * 24 * 30 // 30 days
             : 1000 * 60 * 60 * 24; // 24 hours
           const ts = new Date(now + durationMs).toISOString();
           setAdultMode(ts);
-          const successMessage = extendedExpiry
+          const successMessage = extendedExpiryRef.current
             ? "成人模式已启用（30天有效期）"
             : "成人模式已启用（24小时有效期）";
           toast.success(successMessage, {
@@ -159,6 +159,8 @@ export const useAdultModeToggle = () => {
     if (passwordInputRef.current) {
       passwordInputRef.current.value = ""; // Clear password when canceling
     }
+
+    extendedExpiryRef.current = false;
   };
 
   const AdultModeDialog = () => (
@@ -206,9 +208,8 @@ export const useAdultModeToggle = () => {
             <div className='flex items-center space-x-2'>
               <Checkbox
                 id='extended-expiry'
-                checked={extendedExpiry}
                 onCheckedChange={(checked: boolean) => {
-                  setExtendedExpiry(checked === true);
+                  extendedExpiryRef.current = checked;
                 }}
               />
               <label
