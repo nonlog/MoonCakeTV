@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 
 export function GET() {
   const serverConfig = {
-    PASSWORD_MODE: process.env.PASSWORD_MODE,
+    PASSWORD_MODE: process.env.PASSWORD_MODE ?? "local",
   };
 
   return NextResponse.json({

@@ -56,9 +56,10 @@ export default function SettingsPage() {
                 </span>
               </div>
               <div
-                onClick={(e) => {
+                onClick={async (e) => {
                   e.stopPropagation();
-                  handleAdultModeToggle();
+                  e.preventDefault();
+                  await handleAdultModeToggle();
                 }}
                 className='cursor-pointer flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors'
               >
