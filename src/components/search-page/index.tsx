@@ -27,7 +27,7 @@ export function SearchPage() {
     setHasSearched(true);
     try {
       const res = await fetch(
-        `https://s1.m3u8.io/v1/search?keyword=${encodeURIComponent(searchTerm)}`,
+        `https://s1.m3u8.io/v1/search2?keyword=${encodeURIComponent(searchTerm)}`,
       );
       const json = await res.json();
       setResults(json.data?.items || []);
