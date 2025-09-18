@@ -6,6 +6,8 @@ type GlobalState = {
   disclaimer: string;
   hasSeenDisclaimer: boolean;
   setHasSeenDisclaimer: (seen: boolean) => void;
+  displayDouban: boolean;
+  setDisplayDouban: (display: boolean) => void;
 };
 
 export const useGlobalStore = create<GlobalState>()(
@@ -17,6 +19,8 @@ export const useGlobalStore = create<GlobalState>()(
         "本网站仅提供影视信息搜索服务，所有内容均来自第三方网站。本站不存储任何视频资源，不对任何内容的准确性、合法性、完整性负责。",
       hasSeenDisclaimer: false,
       setHasSeenDisclaimer: (seen: boolean) => set({ hasSeenDisclaimer: seen }),
+      displayDouban: true,
+      setDisplayDouban: (display: boolean) => set({ displayDouban: display }),
     }),
     {
       name: "mc_global",

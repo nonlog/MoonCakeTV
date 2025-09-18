@@ -10,7 +10,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Label } from "@/components/ui/label";
+import { Switch } from "@/components/ui/switch";
 
+import { useGlobalStore } from "@/stores/global";
 import { useUserStore } from "@/stores/user";
 
 import { Button } from "../ui/button";
@@ -19,6 +22,7 @@ export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
   const [isOpen, setIsOpen] = useState(false);
 
   const { setAdultMode } = useUserStore();
+  const { displayDouban, setDisplayDouban } = useGlobalStore();
 
   // 重置所有设置为默认值
   const handleResetSettings = () => {
@@ -52,6 +56,16 @@ export const SettingsButton = ({ children }: { children: React.ReactNode }) => {
             </Button>
           </div>
         </DialogHeader>
+        <div className='flex flex-col gap-2'>
+          <div className='flex items-center justify-between gap-2 border-b border-gray-200 dark:border-gray-700 pb-2'>
+            <Label htmlFor='displayDouban'>显示豆瓣热门和电视剧</Label>
+            <Switch
+              id='displayDouban'
+              checked={displayDouban}
+              onCheckedChange={setDisplayDouban}
+            />
+          </div>
+        </div>
       </DialogContent>
     </Dialog>
   );
