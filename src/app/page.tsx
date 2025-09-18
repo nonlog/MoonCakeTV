@@ -33,7 +33,7 @@ export default function HomePage() {
 
   return (
     <PageLayout>
-      {displayDouban && <DoubanTags />}
+      {isHydrated && displayDouban && <DoubanTags />}
       <RandomMedia handleCardClick={handleCardClick} />
       {isHydrated && !hasSeenDisclaimer && (
         <div
