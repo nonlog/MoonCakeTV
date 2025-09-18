@@ -15,7 +15,7 @@ export default function HomePage() {
   const router = useRouter();
 
   const [isHydrated, setIsHydrated] = useState(false);
-  const { disclaimer, hasSeenDisclaimer, setHasSeenDisclaimer } =
+  const { disclaimer, hasSeenDisclaimer, setHasSeenDisclaimer, displayDouban } =
     useGlobalStore();
 
   // Handle hydration
@@ -33,7 +33,7 @@ export default function HomePage() {
 
   return (
     <PageLayout>
-      <DoubanTags />
+      {displayDouban && <DoubanTags />}
       <RandomMedia handleCardClick={handleCardClick} />
       {isHydrated && !hasSeenDisclaimer && (
         <div

@@ -1,7 +1,5 @@
 import React, { useEffect, useState } from "react";
 
-import { useGlobalStore } from "@/stores/global";
-
 import { DoubanMovieItem, DoubanTVItem } from "./types";
 import { Badge } from "../ui/badge";
 import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
@@ -9,7 +7,6 @@ import { Tooltip, TooltipContent, TooltipTrigger } from "../ui/tooltip";
 export const DoubanTags = () => {
   const [movies, setMovies] = useState<DoubanMovieItem[]>([]);
   const [tvs, setTvs] = useState<DoubanTVItem[]>([]);
-  const { displayDouban } = useGlobalStore();
 
   useEffect(() => {
     fetch("https://s1.m3u8.io/v1/douban")
@@ -22,10 +19,6 @@ export const DoubanTags = () => {
         console.error(err);
       });
   }, []);
-
-  if (!displayDouban) {
-    return null;
-  }
 
   return (
     <div className='px-2 sm:px-10 py-4 sm:py-8 overflow-visible flex flex-col gap-8'>
