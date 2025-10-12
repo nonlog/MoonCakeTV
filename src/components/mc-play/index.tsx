@@ -68,16 +68,10 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
     if (!mc_item) {
       return [];
     }
-    try {
-      const m3u8_kv = JSON.parse(mc_item.m3u8_urls);
-      return Object.entries(m3u8_kv).map(([episode, url]) => ({
-        episode,
-        url: url as string,
-      }));
-    } catch (err) {
-      console.log(err);
-      return [];
-    }
+    return Object.entries(mc_item.m3u8_urls).map(([episode, url]) => ({
+      episode,
+      url: url as string,
+    }));
   }, [mc_item]);
 
   useEffect(() => {

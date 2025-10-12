@@ -107,23 +107,18 @@ export const getPingBadgeProps = (pingTime: number) => {
 };
 
 export const getFirstM3u8Url = (
-  m3u8_urls: string | null | undefined,
+  m3u8_urls: Record<string, string> | null | undefined,
 ): string | null => {
   if (!m3u8_urls) return null;
 
-  try {
-    const urlsObject = JSON.parse(m3u8_urls);
-    const episodes = Object.keys(urlsObject);
+  const episodes = Object.keys(m3u8_urls);
 
-    if (episodes.length > 0) {
-      const firstUrl = urlsObject[episodes[0]];
-      if (firstUrl.endsWith(".m3u8")) {
-        return firstUrl;
-      }
-      return `${firstUrl}/index.m3u8`;
+  if (episodes.length > 0) {
+    const firstUrl = m3u8_urls[episodes[0]];
+    if (firstUrl.endsWith(".m3u8")) {
+      return firstUrl;
     }
-  } catch (error) {
-    console.error("Failed to parse m3u8_urls:", error);
+    return `${firstUrl}/index.m3u8`;
   }
 
   return null;
