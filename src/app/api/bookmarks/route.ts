@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { HTTP_STATUS } from "@/config/constants";
+import { requireAuth } from "@/lib/auth-context";
 import {
   addBookmark,
   getBookmarks,
@@ -8,16 +8,19 @@ import {
   removeBookmark,
 } from "@/lib/file-storage";
 
+import { HTTP_STATUS } from "@/config/constants";
+
 // Force Node.js runtime for file system access
 export const runtime = "nodejs";
 
 /**
  * GET /api/bookmarks
- * Get all bookmarks
+ * Get all bookmarks for the authenticated user
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const bookmarks = await getBookmarks();
+    const { username } = requireAuth(req);
+    const bookmarks = await getBookmarks(username);
     return NextResponse.json({
       code: HTTP_STATUS.OK,
       data: bookmarks,
@@ -38,10 +41,11 @@ export async function GET() {
 
 /**
  * POST /api/bookmarks
- * Add a bookmark
+ * Add a bookmark for the authenticated user
  */
 export async function POST(req: NextRequest) {
   try {
+    const { username } = requireAuth(req);
     const body = await req.json();
     const { id, title, thumbnail, url } = body;
 
@@ -56,7 +60,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await addBookmark({ id, title, thumbnail, url });
+    await addBookmark(username, { id, title, thumbnail, url });
 
     return NextResponse.json({
       code: HTTP_STATUS.OK,
@@ -78,10 +82,11 @@ export async function POST(req: NextRequest) {
 
 /**
  * DELETE /api/bookmarks?id=xxx
- * Remove a bookmark
+ * Remove a bookmark for the authenticated user
  */
 export async function DELETE(req: NextRequest) {
   try {
+    const { username } = requireAuth(req);
     const id = req.nextUrl.searchParams.get("id");
 
     if (!id) {
@@ -95,7 +100,7 @@ export async function DELETE(req: NextRequest) {
       );
     }
 
-    await removeBookmark(id);
+    await removeBookmark(username, id);
 
     return NextResponse.json({
       code: HTTP_STATUS.OK,
@@ -116,11 +121,12 @@ export async function DELETE(req: NextRequest) {
 }
 
 /**
- * GET /api/bookmarks/check?id=xxx
- * Check if a video is bookmarked
+ * PATCH /api/bookmarks?id=xxx
+ * Check if a video is bookmarked for the authenticated user
  */
 export async function PATCH(req: NextRequest) {
   try {
+    const { username } = requireAuth(req);
     const id = req.nextUrl.searchParams.get("id");
 
     if (!id) {
@@ -134,7 +140,7 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    const bookmarked = await isBookmarked(id);
+    const bookmarked = await isBookmarked(username, id);
 
     return NextResponse.json({
       code: HTTP_STATUS.OK,

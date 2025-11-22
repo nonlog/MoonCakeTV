@@ -7,6 +7,7 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 MoonCakeTV (月饼TV) is a **simplified** Next.js 15 web application for video streaming aggregation and search. This is one of several independent repositories in the MoonCake TV multi-repository workspace.
 
 **Architecture Philosophy:**
+
 - **Single user mode** - No multi-user complexity
 - **Optional password** - Public access or password-protected
 - **File-based storage** - No database required
@@ -14,6 +15,7 @@ MoonCakeTV (月饼TV) is a **simplified** Next.js 15 web application for video s
 - **Minimal dependencies** - Only what's necessary
 
 **Tech Stack:**
+
 - Next.js 15 with App Router and React 19
 - TypeScript 5.x
 - Tailwind CSS 4.x
@@ -30,6 +32,7 @@ MoonCakeTV (月饼TV) is a **simplified** Next.js 15 web application for video s
 ## TypeScript Configuration
 
 **Path Aliases:**
+
 - `@/*` maps to `./src/*` (e.g., `@/components`, `@/lib`)
 - `~/*` maps to `./public/*` (e.g., `~/logo.png`)
 
@@ -72,22 +75,26 @@ The application uses a **simplified single-user authentication** system with opt
 ### How It Works
 
 **Two modes:**
+
 1. **No password set** → Anyone can access (public mode)
 2. **Password set** → Login required for all protected routes
 
 **Middleware flow (`src/middleware.ts`):**
+
 1. Check if password has been set (via `isPasswordSet()`)
 2. If no password → Allow access (skip authentication)
 3. If password exists → Require `mc-auth-token` JWT cookie
 4. Redirect to `/login` if not authenticated
 
 **Protected vs Public paths:**
+
 - Public: `/_next`, `/favicon.ico`, `/login`, `/api/login`, `/api/logout`, `/api/server-config`, static files
 - Protected: All other routes (when password is set)
 
 ### Setting a Password
 
 Visit `/login` page:
+
 - If no password is set, you can set one
 - Password is hashed with bcryptjs and stored in `data/user-data.json`
 - Once set, the app requires login for all protected routes
@@ -103,6 +110,7 @@ Delete or edit `data/user-data.json` and remove the `password_hash` value.
 All user data is stored in a single JSON file: `data/user-data.json`
 
 **File structure:**
+
 ```json
 {
   "password_hash": "",
@@ -130,16 +138,19 @@ All user data is stored in a single JSON file: `data/user-data.json`
 ### Data Management
 
 **Backup:**
+
 ```bash
 cp data/user-data.json backup/user-data-$(date +%Y%m%d).json
 ```
 
 **Restore:**
+
 ```bash
 cp backup/user-data-20250115.json data/user-data.json
 ```
 
 **Migration to new server:**
+
 ```bash
 # Old server
 scp data/user-data.json user@new-server:/path/to/mooncaketv-web/data/
@@ -148,6 +159,7 @@ scp data/user-data.json user@new-server:/path/to/mooncaketv-web/data/
 ```
 
 **Reset everything:**
+
 ```bash
 rm data/user-data.json
 # File will be recreated with defaults on next startup
@@ -213,21 +225,24 @@ The file storage system provides persistent storage for user data using JSON fil
 
 ```typescript
 // Read all user data
-export async function readUserData(): Promise<UserData>
+export async function readUserData(): Promise<UserData>;
 
 // Write user data (atomic operation)
-export async function writeUserData(data: UserData): Promise<void>
+export async function writeUserData(data: UserData): Promise<void>;
 
 // Bookmarks
-export async function addBookmark(bookmark: Bookmark): Promise<void>
-export async function removeBookmark(id: string): Promise<void>
-export async function getBookmarks(): Promise<Bookmark[]>
+export async function addBookmark(bookmark: Bookmark): Promise<void>;
+export async function removeBookmark(id: string): Promise<void>;
+export async function getBookmarks(): Promise<Bookmark[]>;
 
 // Watch History
-export async function addWatchHistory(item: WatchHistoryItem): Promise<void>
-export async function updateWatchProgress(id: string, progress: number): Promise<void>
-export async function getWatchHistory(): Promise<WatchHistoryItem[]>
-export async function clearWatchHistory(): Promise<void>
+export async function addWatchHistory(item: WatchHistoryItem): Promise<void>;
+export async function updateWatchProgress(
+  id: string,
+  progress: number,
+): Promise<void>;
+export async function getWatchHistory(): Promise<WatchHistoryItem[]>;
+export async function clearWatchHistory(): Promise<void>;
 ```
 
 **Atomic writes:**
@@ -241,19 +256,19 @@ Simple password-based authentication with JWT tokens.
 
 ```typescript
 // Check if password has been set
-export async function isPasswordSet(): Promise<boolean>
+export async function isPasswordSet(): Promise<boolean>;
 
 // Set new password (hashed with bcryptjs)
-export async function setPassword(password: string): Promise<void>
+export async function setPassword(password: string): Promise<void>;
 
 // Verify password against stored hash
-export async function verifyPassword(password: string): Promise<boolean>
+export async function verifyPassword(password: string): Promise<boolean>;
 
 // Generate JWT token
-export async function generateAuthToken(): Promise<string>
+export async function generateAuthToken(): Promise<string>;
 
 // Verify JWT token
-export async function verifyAuthToken(token: string): Promise<boolean>
+export async function verifyAuthToken(token: string): Promise<boolean>;
 ```
 
 ## API Routes
@@ -261,6 +276,7 @@ export async function verifyAuthToken(token: string): Promise<boolean>
 ### Authentication
 
 **POST /api/login**
+
 ```typescript
 Request: { password: string }
 Response: { code: 200, message: "登录成功" }
@@ -268,6 +284,7 @@ Sets cookie: mc-auth-token (JWT, 7 days)
 ```
 
 **POST /api/logout**
+
 ```typescript
 Response: { code: 200, message: "退出登录成功" }
 Clears cookie: mc-auth-token
@@ -276,6 +293,7 @@ Clears cookie: mc-auth-token
 ### Bookmarks
 
 **GET /api/bookmarks**
+
 ```typescript
 Response: {
   code: 200,
@@ -284,6 +302,7 @@ Response: {
 ```
 
 **POST /api/bookmarks**
+
 ```typescript
 Request: {
   id: string,
@@ -295,11 +314,13 @@ Response: { code: 200, message: "添加收藏成功" }
 ```
 
 **DELETE /api/bookmarks?id={id}**
+
 ```typescript
 Response: { code: 200, message: "删除收藏成功" }
 ```
 
 **PATCH /api/bookmarks**
+
 ```typescript
 Request: { id: string, updates: Partial<Bookmark> }
 Response: { code: 200, message: "更新收藏成功" }
@@ -308,6 +329,7 @@ Response: { code: 200, message: "更新收藏成功" }
 ### Watch History
 
 **GET /api/history**
+
 ```typescript
 Response: {
   code: 200,
@@ -316,6 +338,7 @@ Response: {
 ```
 
 **POST /api/history**
+
 ```typescript
 Request: {
   id: string,
@@ -326,11 +349,13 @@ Response: { code: 200, message: "添加观看记录成功" }
 ```
 
 **DELETE /api/history**
+
 ```typescript
 Response: { code: 200, message: "清空观看历史成功" }
 ```
 
 **PATCH /api/history**
+
 ```typescript
 Request: {
   id: string,
@@ -354,12 +379,14 @@ export async function GET(request: NextRequest) {
     // Handle GET request
     return NextResponse.json({
       code: HTTP_STATUS.OK,
-      data: { /* ... */ }
+      data: {
+        /* ... */
+      },
     });
   } catch (error) {
     return NextResponse.json({
       code: HTTP_STATUS.INTERNAL_SERVER_ERROR,
-      message: "服务器错误"
+      message: "服务器错误",
     });
   }
 }
@@ -370,12 +397,12 @@ export async function POST(request: NextRequest) {
     // Handle POST request
     return NextResponse.json({
       code: HTTP_STATUS.OK,
-      message: "操作成功"
+      message: "操作成功",
     });
   } catch (error) {
     return NextResponse.json({
       code: HTTP_STATUS.BAD_REQUEST,
-      message: "请求参数错误"
+      message: "请求参数错误",
     });
   }
 }
@@ -445,11 +472,13 @@ JWT_SECRET=your_random_secret_key_here
 ```
 
 Generate a random secret:
+
 ```bash
 openssl rand -hex 32
 ```
 
 **Optional variables:**
+
 ```bash
 # Port (default: 3000)
 PORT=3333
@@ -463,6 +492,7 @@ NODE_ENV=production
 ### VPS Deployment (Recommended)
 
 **1. Clone and install:**
+
 ```bash
 git clone https://github.com/your-repo/mooncaketv-web.git
 cd mooncaketv-web
@@ -470,18 +500,21 @@ npm install
 ```
 
 **2. Configure environment:**
+
 ```bash
 cp .env.example .env
 # Edit .env and set JWT_SECRET
 ```
 
 **3. Build and run:**
+
 ```bash
 npm run build
 npm start
 ```
 
 **4. Optional: Use PM2 for process management:**
+
 ```bash
 npm install -g pm2
 pm2 start npm --name "mooncaketv" -- start
@@ -490,6 +523,7 @@ pm2 save
 ```
 
 **5. Optional: Setup Nginx reverse proxy:**
+
 ```nginx
 server {
     listen 80;
@@ -521,22 +555,26 @@ Configure `JWT_SECRET` in Vercel environment variables.
 ## Security Notes
 
 **Password Security:**
+
 - Passwords are hashed with bcryptjs (10 rounds)
 - Never stored in plain text
 - JWT tokens expire after 7 days
 
 **HTTPS Recommendation:**
+
 - Use HTTPS in production (via Nginx + Let's Encrypt or Cloudflare)
 - Protects JWT tokens and login credentials
 - Required for secure cookie flags
 
 **Data Privacy:**
+
 - All data stored locally in `data/user-data.json`
 - No external database or third-party storage
 - Easy to backup and delete
 
 **File Permissions:**
 Ensure `data/` directory has appropriate permissions:
+
 ```bash
 chmod 700 data/
 chmod 600 data/user-data.json
@@ -563,6 +601,7 @@ Player components are in `src/components/mc-play/`.
 ## Troubleshooting
 
 **Forgot password:**
+
 ```bash
 # Option 1: Reset password (keeps bookmarks)
 # Edit data/user-data.json and set password_hash to empty string ""
@@ -573,6 +612,7 @@ rm data/user-data.json
 ```
 
 **Corrupted data file:**
+
 ```bash
 # Restore from backup
 cp backup/user-data-20250115.json data/user-data.json
@@ -582,6 +622,7 @@ rm data/user-data.json
 ```
 
 **Login issues:**
+
 - Check that `JWT_SECRET` is set in `.env`
 - Clear browser cookies and try again
 - Check file permissions on `data/user-data.json`
@@ -593,6 +634,7 @@ If you're upgrading from the PostgreSQL/Redis version:
 **See:** `SIMPLIFICATION_COMPLETE.md` for detailed migration guide
 
 **Quick summary:**
+
 1. Export bookmarks/history from old database
 2. Convert to JSON format
 3. Place in `data/user-data.json`

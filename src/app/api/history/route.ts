@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { HTTP_STATUS } from "@/config/constants";
+import { requireAuth } from "@/lib/auth-context";
 import {
   addToWatchHistory,
   clearWatchHistory,
@@ -8,16 +8,19 @@ import {
   updateProgress,
 } from "@/lib/file-storage";
 
+import { HTTP_STATUS } from "@/config/constants";
+
 // Force Node.js runtime for file system access
 export const runtime = "nodejs";
 
 /**
  * GET /api/history
- * Get watch history
+ * Get watch history for the authenticated user
  */
-export async function GET() {
+export async function GET(req: NextRequest) {
   try {
-    const history = await getWatchHistory();
+    const { username } = requireAuth(req);
+    const history = await getWatchHistory(username);
     return NextResponse.json({
       code: HTTP_STATUS.OK,
       data: history,
@@ -38,10 +41,11 @@ export async function GET() {
 
 /**
  * POST /api/history
- * Add to watch history
+ * Add to watch history for the authenticated user
  */
 export async function POST(req: NextRequest) {
   try {
+    const { username } = requireAuth(req);
     const body = await req.json();
     const { id, title, thumbnail, url, progress } = body;
 
@@ -56,7 +60,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    await addToWatchHistory({ id, title, thumbnail, url, progress });
+    await addToWatchHistory(username, { id, title, thumbnail, url, progress });
 
     return NextResponse.json({
       code: HTTP_STATUS.OK,
@@ -78,11 +82,12 @@ export async function POST(req: NextRequest) {
 
 /**
  * DELETE /api/history
- * Clear all watch history
+ * Clear all watch history for the authenticated user
  */
-export async function DELETE() {
+export async function DELETE(req: NextRequest) {
   try {
-    await clearWatchHistory();
+    const { username } = requireAuth(req);
+    await clearWatchHistory(username);
 
     return NextResponse.json({
       code: HTTP_STATUS.OK,
@@ -103,11 +108,12 @@ export async function DELETE() {
 }
 
 /**
- * PATCH /api/history/progress
- * Update playback progress
+ * PATCH /api/history
+ * Update playback progress for the authenticated user
  */
 export async function PATCH(req: NextRequest) {
   try {
+    const { username } = requireAuth(req);
     const body = await req.json();
     const { id, progress } = body;
 
@@ -122,7 +128,7 @@ export async function PATCH(req: NextRequest) {
       );
     }
 
-    await updateProgress(id, progress);
+    await updateProgress(username, id, progress);
 
     return NextResponse.json({
       code: HTTP_STATUS.OK,

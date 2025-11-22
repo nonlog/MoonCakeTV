@@ -29,10 +29,14 @@ export async function middleware(request: NextRequest) {
     const secret = new TextEncoder().encode(
       process.env.JWT_SECRET || "default-secret-change-me",
     );
-    await jwtVerify(token, secret);
+    const { payload } = await jwtVerify(token, secret);
 
-    // Token is valid, allow request
-    return NextResponse.next();
+    // Token is valid, add user info to request headers
+    const response = NextResponse.next();
+    response.headers.set("x-user-username", (payload.username as string) || "");
+    response.headers.set("x-user-role", (payload.role as string) || "user");
+
+    return response;
   } catch {
     // Token is invalid or expired, redirect to login
     const loginUrl = new URL("/login", request.url);

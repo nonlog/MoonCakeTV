@@ -7,6 +7,7 @@ import { ThemeToggle } from "@/components/common/theme-toggle";
 import { useGlobalStore } from "@/stores/global";
 
 export default function LoginPage() {
+  const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
@@ -15,6 +16,11 @@ export default function LoginPage() {
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
+
+    if (!username) {
+      setError("请输入用户名");
+      return;
+    }
 
     if (!password) {
       setError("请输入密码");
@@ -31,6 +37,7 @@ export default function LoginPage() {
           "Content-Type": "application/json",
         },
         body: JSON.stringify({
+          username,
           password,
         }),
       });
@@ -62,7 +69,24 @@ export default function LoginPage() {
         <h1 className='text-green-600 tracking-tight text-center text-3xl font-extrabold mb-8 bg-clip-text drop-shadow-xs'>
           {siteName}
         </h1>
-        <form onSubmit={handleSubmit} className='space-y-8'>
+        <form onSubmit={handleSubmit} className='space-y-6'>
+          <div>
+            <label htmlFor='username' className='sr-only'>
+              用户名
+            </label>
+            <input
+              id='username'
+              type='text'
+              autoComplete='username'
+              className='block w-full rounded-lg border-0 py-3 px-4 text-gray-900 dark:text-gray-100 shadow-xs ring-1 ring-white/60 dark:ring-white/20 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:outline-none sm:text-base bg-white/60 dark:bg-zinc-800/60 backdrop-blur-sm'
+              placeholder='输入用户名'
+              value={username}
+              onChange={(e) => {
+                setUsername(e.target.value);
+              }}
+            />
+          </div>
+
           <div>
             <label htmlFor='password' className='sr-only'>
               密码
@@ -72,7 +96,7 @@ export default function LoginPage() {
               type='password'
               autoComplete='current-password'
               className='block w-full rounded-lg border-0 py-3 px-4 text-gray-900 dark:text-gray-100 shadow-xs ring-1 ring-white/60 dark:ring-white/20 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:outline-none sm:text-base bg-white/60 dark:bg-zinc-800/60 backdrop-blur-sm'
-              placeholder='输入访问密码'
+              placeholder='输入密码'
               value={password}
               onChange={(e) => {
                 setPassword(e.target.value);
@@ -95,7 +119,7 @@ export default function LoginPage() {
 
           <button
             type='submit'
-            disabled={!password || loading}
+            disabled={!username || !password || loading}
             className='cursor-pointer inline-flex w-full justify-center rounded-lg bg-green-600 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-green-600'
           >
             {loading ? "登录中..." : "登录"}
