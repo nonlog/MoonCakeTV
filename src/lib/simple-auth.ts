@@ -16,7 +16,7 @@ import {
 
 const SALT_ROUNDS = 10;
 const JWT_SECRET = new TextEncoder().encode(
-  process.env.JWT_SECRET || "default-secret-change-in-production",
+  process.env.JWT_SECRET || "default-secret-change-me-in-production",
 );
 
 export interface AuthPayload {

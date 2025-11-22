@@ -49,12 +49,8 @@ export default function SettingsPage() {
                 </span>
               </div>
 
-              <div className='cursor-pointer flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors'>
-                <LogoutButton />
-                <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                  退出登录
-                </span>
-              </div>
+              <LogoutButton />
+
               <div
                 onClick={async (e) => {
                   e.stopPropagation();

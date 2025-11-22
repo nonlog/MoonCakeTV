@@ -27,7 +27,7 @@ export async function middleware(request: NextRequest) {
   // Verify JWT token
   try {
     const secret = new TextEncoder().encode(
-      process.env.JWT_SECRET || "default-secret-change-me",
+      process.env.JWT_SECRET || "default-secret-change-me-in-production",
     );
     const { payload } = await jwtVerify(token, secret);
 
@@ -37,8 +37,9 @@ export async function middleware(request: NextRequest) {
     response.headers.set("x-user-role", (payload.role as string) || "user");
 
     return response;
-  } catch {
+  } catch (error) {
     // Token is invalid or expired, redirect to login
+    console.error(`[Middleware] Token verification failed:`, error);
     const loginUrl = new URL("/login", request.url);
     return NextResponse.redirect(loginUrl);
   }
@@ -59,7 +60,9 @@ function canSkipAuth(pathname: string): boolean {
     "/screenshot.png",
     // Auth-related pages and API routes
     "/login",
+    "/signup",
     "/api/login",
+    "/api/signup",
     "/api/logout",
     "/api/server-config",
   ];
@@ -69,6 +72,6 @@ function canSkipAuth(pathname: string): boolean {
 
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|login|api/login|api/logout|api/server-config).*)",
+    "/((?!_next/static|_next/image|favicon.ico|login|signup|api/login|api/signup|api/logout|api/server-config).*)",
   ],
 };

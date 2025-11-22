@@ -1,15 +1,17 @@
 import { NextRequest, NextResponse } from "next/server";
 
-import { generateAuthToken, verifyCredentials } from "@/lib/simple-auth";
+import { isFirstUser } from "@/lib/file-storage";
+import { createUser } from "@/lib/simple-auth";
 
-import { AUTH_CONSTANTS, HTTP_STATUS } from "@/config/constants";
+import { HTTP_STATUS } from "@/config/constants";
 
 // Force Node.js runtime for file system access
 export const runtime = "nodejs";
 
 /**
- * POST /api/login
- * Multi-user authentication with username and password
+ * POST /api/signup
+ * Create a new user account
+ * First user is automatically assigned admin role
  */
 export async function POST(req: NextRequest) {
   try {
@@ -27,42 +29,35 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Verify credentials
-    const authPayload = await verifyCredentials(username, password);
+    // Check if this is the first user
+    const firstUser = await isFirstUser();
+    console.log(`[Signup] Is first user? ${firstUser}, username: ${username}`);
 
-    if (!authPayload) {
+    // Create the user
+    const result = await createUser(username, password);
+
+    if (!result.success) {
+      console.error(`[Signup] Failed to create user: ${result.error}`);
       return NextResponse.json(
         {
-          code: HTTP_STATUS.UNAUTHORIZED,
+          code: HTTP_STATUS.BAD_REQUEST,
           data: { success: false },
-          message: "用户名或密码错误",
+          message: result.error || "注册失败",
         },
-        { status: HTTP_STATUS.UNAUTHORIZED },
+        { status: HTTP_STATUS.BAD_REQUEST },
       );
     }
 
-    // Generate JWT token
-    const token = await generateAuthToken(authPayload);
+    console.log(`[Signup] User created successfully with role: ${result.role}`);
 
-    // Create JSON response
-    const response = NextResponse.json({
+    // Return success response (client will redirect to login)
+    return NextResponse.json({
       code: HTTP_STATUS.OK,
       data: { success: true },
-      message: "登录成功",
+      message: "注册成功，请登录",
     });
-
-    // Set HTTP-only cookie
-    response.cookies.set("mc-auth-token", token, {
-      httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
-      sameSite: "lax",
-      maxAge: AUTH_CONSTANTS.COOKIE_MAX_AGE,
-      path: "/",
-    });
-
-    return response;
   } catch (error) {
-    console.error("Login error:", error);
+    console.error("Signup error:", error);
     return NextResponse.json(
       {
         code: HTTP_STATUS.INTERNAL_SERVER_ERROR,

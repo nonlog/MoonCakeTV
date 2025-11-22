@@ -20,7 +20,7 @@ export const LogoutButton: React.FC = () => {
 
       toast.success("注销成功", { id: "logout" });
       setTimeout(() => {
-        window.location.reload();
+        window.location.href = "/login";
       }, 500);
     } catch (error) {
       console.error("注销请求失败:", error);
@@ -53,12 +53,19 @@ export const LogoutButton: React.FC = () => {
   };
 
   return (
-    <button
+    <div
       onClick={handleLogout}
-      className='w-10 h-10 p-2 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200/50 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors'
-      aria-label='Logout'
+      className='cursor-pointer flex items-center gap-2 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors'
     >
-      <LogOut className='w-full h-full' />
-    </button>
+      <button
+        className='w-10 h-10 p-2 rounded-full flex items-center justify-center text-gray-600 hover:bg-gray-200/50 dark:text-gray-300 dark:hover:bg-gray-700/50 transition-colors'
+        aria-label='Logout'
+      >
+        <LogOut className='w-full h-full' />
+      </button>
+      <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
+        退出登录
+      </span>
+    </div>
   );
 };
