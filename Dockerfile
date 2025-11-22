@@ -35,6 +35,8 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/standalone ./
 # 从构建器中复制 public 和 .next/static 目录
 COPY --from=builder --chown=nextjs:nodejs /app/public ./public
 COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
+# 创建 data 目录（用于存储用户数据）
+RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
 # 切换到非特权用户
 USER nextjs
