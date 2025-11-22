@@ -18,6 +18,18 @@ MoonCakeTV (月饼TV) is a Next.js 15 web application for video streaming aggreg
 
 **Node.js Requirement:** >=22.0.0
 
+## TypeScript Configuration
+
+**Path Aliases:**
+- `@/*` maps to `./src/*` (e.g., `@/components`, `@/utils`)
+- `~/*` maps to `./public/*` (e.g., `~/logo.png`)
+
+Always use these aliases instead of relative imports for better maintainability.
+
+## Next.js Configuration
+
+**Docker Build:** The `next.config.ts` uses standalone output mode when `DOCKER_ENV=true`, optimizing the build for containerized deployments.
+
 ## Common Development Commands
 
 ```bash
@@ -83,6 +95,7 @@ Uses custom migration wrapper around `node-pg-migrate` (not the CLI):
 - Migration files in `migrate/migrations/` directory
 - Named with UTC timestamp format
 - Files use `.js` extension
+- Separate Docker Compose file for migrations: `compose.migrations.yml`
 
 **Migration commands run via Docker Compose:**
 ```bash
@@ -117,16 +130,35 @@ await redis.set('key', 'value');
 ### Key Directories
 
 - **`src/app/`** - Next.js App Router pages and layouts
-  - `api/` - API route handlers (login, logout, signup, etc.)
+  - `api/` - API route handlers
+    - `login/` - User login endpoint
+    - `logout/` - User logout endpoint
+    - `signup/` - User registration endpoint
+    - `server-config/` - Server configuration endpoint
+    - `validate-password/` - Password validation endpoint
+    - `image-proxy/` - Image proxy for CORS handling
+    - `speed-test/` - Network speed testing endpoint
   - `admin/` - Admin pages
   - `play/` - Video playback page
   - `search/` - Search results page
+  - `bookmarks/` - User bookmarks page
+  - `watch-history/` - Watch history page
+  - `settings/` - User settings page
+  - `login/` - Login page
+  - `signup/` - Signup page
 
 - **`src/components/`** - React components
-  - `ui/` - shadcn/ui components (Radix UI primitives)
+  - `ui/` - shadcn/ui components (Radix UI primitives) - 48 components
   - `common/` - Shared common components
   - `mc-play/` - Video player components (Vidstack-based)
   - `sidebar/` - Sidebar navigation components
+  - `home/` - Homepage-specific components
+  - `search-page/` - Search page components
+  - `mc-search/` - Search functionality components
+  - `mobile/` - Mobile-specific UI components
+  - `douban/` - Douban integration components
+  - `logo/` - Logo components
+  - `signup/` - Signup page components
 
 - **`src/actions/`** - Server actions
   - `password.ts` - Authentication server actions
@@ -137,6 +169,11 @@ await redis.set('key', 'value');
   - `jwt.ts` - JWT token utilities
   - `user.ts` - User management utilities
 
+- **`src/lib/`** - Library utilities
+  - `utils.ts` - General utility functions (including cn for className merging)
+  - `auth.ts` - Authentication utilities
+  - `admin.types.ts` - Admin-related type definitions
+
 - **`src/schemas/`** - Zod validation schemas
   - `user.ts` - User-related schemas
   - `dazahui.ts` - Content/video schemas
@@ -145,6 +182,10 @@ await redis.set('key', 'value');
   - `global.ts` - Global application state
   - `user.ts` - User state management
   - `sidebar.ts` - Sidebar state
+
+- **`src/hooks/`** - Custom React hooks
+
+- **`src/types/`** - TypeScript type definitions
 
 - **`migrate/`** - Database migration system
   - `migrations/` - Migration files
@@ -230,10 +271,10 @@ export const useMyStore = create<MyStore>((set) => ({
 
 ## Docker Compose Stack
 
-When running `make dc-up`, the following services start:
+When running `make dc-up`, the following services start (via `compose.yml`):
 
 - **postgres** (port 5432): PostgreSQL 16 database
-- **redis** (internal): Redis cache with LRU eviction
+- **redis** (internal): Redis cache with LRU eviction (maxmemory 64mb)
 - **mcweb** (internal): Next.js application
 - **caddy** (ports 80/443): Reverse proxy with automatic HTTPS
 - **pgweb** (internal): PostgreSQL web admin interface
@@ -241,6 +282,11 @@ When running `make dc-up`, the following services start:
 **Environment variables** are loaded from `.env` file (see `.env.example` for template).
 
 **Docker networking:** All services communicate via `mooncake-web-network`.
+
+**Resource limits:**
+- PostgreSQL: 256M limit, 128M reservation
+- Redis: 96M limit, 48M reservation
+- Next.js app: 1G limit, 512M reservation
 
 ## Environment Variables
 
