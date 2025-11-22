@@ -47,7 +47,7 @@ export const tryLoadSingleHlsUrl = (
         resolved = true;
         try {
           hls.destroy();
-        } catch (_e) {
+        } catch {
           // ignore
         }
         resolve(false);
@@ -62,7 +62,7 @@ export const tryLoadSingleHlsUrl = (
         // Successfully loaded as HLS, now set up the full HLS handling
         try {
           hls.destroy();
-        } catch (_e) {
+        } catch {
           // ignore
         }
         createAndAttachHls(player, videoEl, srcUrl);
@@ -77,7 +77,7 @@ export const tryLoadSingleHlsUrl = (
         clearTimeout(timeout);
         try {
           hls.destroy();
-        } catch (_e) {
+        } catch {
           // ignore
         }
         resolve(false);

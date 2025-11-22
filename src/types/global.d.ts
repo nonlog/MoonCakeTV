@@ -7,7 +7,7 @@ declare global {
     /**
      * HLS.js instance for video streaming
      */
-    hls?: any; // eslint-disable-line
+    hls?: any;  
   }
 }
 

@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 
+// Force Node.js runtime for consistency
+export const runtime = "nodejs";
+
 export function GET() {
   const serverConfig = {
-    PASSWORD_MODE: process.env.PASSWORD_MODE ?? "local",
+    // Simple auth: either disabled (public) or enabled (password required)
+    authDisabled: process.env.DISABLE_AUTH === "true",
   };
 
   return NextResponse.json({

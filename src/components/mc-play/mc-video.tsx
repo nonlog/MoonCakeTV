@@ -1,5 +1,3 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-
 "use client";
 
 import Hls, { ErrorData } from "hls.js";
@@ -138,7 +136,7 @@ export const McVideo = (props: McVideoProps) => {
       state.fatalRestarts += 1;
       try {
         lastPlaybackTimeRef.current = player.currentTime?.() ?? 0;
-      } catch (_e) {
+      } catch {
         lastPlaybackTimeRef.current = 0;
       }
       if (hlsRef.current) {
@@ -146,7 +144,7 @@ export const McVideo = (props: McVideoProps) => {
           hlsRef.current.stopLoad();
           hlsRef.current.detachMedia();
           hlsRef.current.destroy();
-        } catch (_e) {
+        } catch {
           // ignore
         }
         hlsRef.current = null;
@@ -365,7 +363,7 @@ export const McVideo = (props: McVideoProps) => {
         player.on("timeupdate", () => {
           try {
             lastPlaybackTimeRef.current = player.currentTime?.() ?? 0;
-          } catch (_e) {
+          } catch {
             lastPlaybackTimeRef.current = 0;
           }
         });

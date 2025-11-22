@@ -1,9 +1,10 @@
 "use client";
 
-import { useState } from "react";
 import { useRouter } from "next/navigation";
+import { useState } from "react";
 
 import { ThemeToggle } from "@/components/common/theme-toggle";
+
 import { useGlobalStore } from "@/stores/global";
 
 export default function SignupForm() {

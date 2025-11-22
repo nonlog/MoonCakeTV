@@ -1,61 +1,24 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 
 import { ThemeToggle } from "@/components/common/theme-toggle";
 
 import { useGlobalStore } from "@/stores/global";
 
-type AuthConfig = {
-  PASSWORD_MODE: "local" | "env" | "db";
-};
-
 export default function LoginPage() {
-  const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
-
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
   const { siteName } = useGlobalStore();
-
-  const [serverConfig, setServerConfig] = useState<AuthConfig>(
-    {} as AuthConfig,
-  );
-  const shouldAskUsername = serverConfig.PASSWORD_MODE === "db";
-
-  useEffect(() => {
-    fetch("/api/server-config", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    })
-      .then((res) => {
-        return res.json();
-      })
-      .then((json) => {
-        setServerConfig(json.data);
-      })
-      .catch((err) => {
-        console.error("Server config fetch error:", err);
-        setServerConfig({} as AuthConfig);
-      });
-  }, []);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     e.stopPropagation();
 
-    if (serverConfig.PASSWORD_MODE === "env") {
-      if (!password) {
-        return;
-      }
-    }
-
-    if (serverConfig.PASSWORD_MODE === "db") {
-      if (!username.trim() || !password.trim()) {
-        return;
-      }
+    if (!password) {
+      setError("请输入密码");
+      return;
     }
 
     setLoading(true);
@@ -69,7 +32,6 @@ export default function LoginPage() {
         },
         body: JSON.stringify({
           password,
-          username,
         }),
       });
 
@@ -101,25 +63,6 @@ export default function LoginPage() {
           {siteName}
         </h1>
         <form onSubmit={handleSubmit} className='space-y-8'>
-          {shouldAskUsername && (
-            <div>
-              <label htmlFor='username' className='sr-only'>
-                用户名
-              </label>
-              <input
-                id='username'
-                type='text'
-                autoComplete='username'
-                className='block w-full rounded-lg border-0 py-3 px-4 text-gray-900 dark:text-gray-100 shadow-xs ring-1 ring-white/60 dark:ring-white/20 placeholder:text-gray-500 dark:placeholder:text-gray-400 focus:ring-2 focus:ring-green-500 focus:outline-none sm:text-base bg-white/60 dark:bg-zinc-800/60 backdrop-blur-sm'
-                placeholder='输入用户名'
-                value={username}
-                onChange={(e) => {
-                  setUsername(e.target.value.trim());
-                }}
-              />
-            </div>
-          )}
-
           <div>
             <label htmlFor='password' className='sr-only'>
               密码
@@ -132,7 +75,7 @@ export default function LoginPage() {
               placeholder='输入访问密码'
               value={password}
               onChange={(e) => {
-                setPassword(e.target.value.trim());
+                setPassword(e.target.value);
               }}
               onKeyDown={(e) => {
                 if (e.key === "Enter") {
@@ -152,12 +95,16 @@ export default function LoginPage() {
 
           <button
             type='submit'
-            disabled={!password || loading || (shouldAskUsername && !username)}
+            disabled={!password || loading}
             className='cursor-pointer inline-flex w-full justify-center rounded-lg bg-green-600 py-3 text-base font-semibold text-white shadow-lg transition-all duration-200 hover:bg-green-700 disabled:cursor-not-allowed disabled:opacity-50 disabled:hover:bg-green-600'
           >
             {loading ? "登录中..." : "登录"}
           </button>
         </form>
+
+        <div className='mt-6 text-center text-sm text-gray-600 dark:text-gray-400'>
+          <p>首次使用？输入密码即可设置</p>
+        </div>
       </div>
     </div>
   );

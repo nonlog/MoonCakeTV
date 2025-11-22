@@ -32,7 +32,6 @@ export function SearchPage() {
       const json = await res.json();
       setResults(json.data?.items || []);
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error(error);
       toast.error("搜索失败");
     } finally {
@@ -48,7 +47,6 @@ export function SearchPage() {
       const json = await res.json();
       setResults(json.data?.items || []);
     } catch (error) {
-      // eslint-disable-next-line no-console
       console.error(error);
       toast.error("搜索失败");
     } finally {
@@ -136,7 +134,7 @@ export function SearchPage() {
           <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6'>
             {results.map((result) => (
               <MediaCard
-                key={result.id}
+                key={result.mc_id}
                 dazahui={result}
                 showSpeedTest={true}
                 onClick={() => {

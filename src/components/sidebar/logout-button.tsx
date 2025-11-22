@@ -1,5 +1,3 @@
-/* eslint-disable no-console */
-
 "use client";
 
 import { LogOut } from "lucide-react";

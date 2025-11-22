@@ -1,55 +1,48 @@
+import { jwtVerify } from "jose";
 import { NextRequest, NextResponse } from "next/server";
-
-import { validatePasswordAction } from "@/actions/password";
 
 export async function middleware(request: NextRequest) {
   const { pathname } = request.nextUrl;
 
-  const passwordMode = process.env.PASSWORD_MODE?.trim() ?? "local";
-
-  // 如果是本地模式，直接放行所有请求
-  if (passwordMode === "local") {
-    return NextResponse.next();
-  }
-
-  // 跳过不需要认证的路径
+  // Skip authentication for certain paths
   if (canSkipAuth(pathname)) {
     return NextResponse.next();
   }
 
-  // Get password from cookie instead of Authorization header
-  const mc_auth_token = request.cookies.get("mc-auth-token")?.value;
-
-  if (passwordMode === "env") {
-    const { success } = await validatePasswordAction({
-      mc_auth_token,
-    });
-    if (!success) {
-      // 重定向到登录页面
-      const loginUrl = new URL("/login", request.url);
-      return NextResponse.redirect(loginUrl);
-    }
+  // Check if password protection is disabled via env var
+  // DISABLE_AUTH=true means open/public mode (no password required)
+  if (process.env.DISABLE_AUTH === "true") {
     return NextResponse.next();
   }
 
-  if (passwordMode === "db") {
-    const { success } = await validatePasswordAction({
-      mc_auth_token,
-    });
-    if (!success) {
-      // 重定向到登录页面
-      const loginUrl = new URL("/login", request.url);
-      return NextResponse.redirect(loginUrl);
-    }
-    return NextResponse.next();
+  // Check for JWT token
+  const token = request.cookies.get("mc-auth-token")?.value;
+
+  // If no token, redirect to login
+  if (!token) {
+    const loginUrl = new URL("/login", request.url);
+    return NextResponse.redirect(loginUrl);
   }
 
-  // If we reach here, the password mode is not supported
-  const loginUrl = new URL("/login", request.url);
-  return NextResponse.redirect(loginUrl);
+  // Verify JWT token
+  try {
+    const secret = new TextEncoder().encode(
+      process.env.JWT_SECRET || "default-secret-change-me",
+    );
+    await jwtVerify(token, secret);
+
+    // Token is valid, allow request
+    return NextResponse.next();
+  } catch {
+    // Token is invalid or expired, redirect to login
+    const loginUrl = new URL("/login", request.url);
+    return NextResponse.redirect(loginUrl);
+  }
 }
 
-// 判断是否需要跳过认证的路径
+/**
+ * Paths that don't require authentication
+ */
 function canSkipAuth(pathname: string): boolean {
   const skipPaths = [
     // Static files
@@ -62,9 +55,7 @@ function canSkipAuth(pathname: string): boolean {
     "/screenshot.png",
     // Auth-related pages and API routes
     "/login",
-    "/register",
     "/api/login",
-    "/api/register",
     "/api/logout",
     "/api/server-config",
   ];
@@ -72,9 +63,8 @@ function canSkipAuth(pathname: string): boolean {
   return skipPaths.some((path) => pathname.startsWith(path));
 }
 
-// 配置middleware匹配规则
 export const config = {
   matcher: [
-    "/((?!_next/static|_next/image|favicon.ico|login|api/login|api/register|api/logout|api/server-config).*)",
+    "/((?!_next/static|_next/image|favicon.ico|login|api/login|api/logout|api/server-config).*)",
   ],
 };

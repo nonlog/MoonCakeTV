@@ -44,7 +44,7 @@ export const verifyJwt = async (
       payload: payload.payload as { id: string; username: string },
       jti: payload.jti,
     };
-  } catch (error) {
+  } catch {
     return null;
   }
 };

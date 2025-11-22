@@ -35,10 +35,12 @@ const VideoSection = React.memo(
     episodes: { episode: string; url: string }[];
   }) => (
     <div className='flex gap-4 flex-col lg:flex-row'>
-      <div className='w-full lg:w-2/3'>
+      <div
+        className={cn("w-full lg:w-2/3", episodes.length <= 1 && "lg:w-full")}
+      >
         <McPlayer videoUrl={currentEpisode?.url || ""} poster={coverImage} />
       </div>
-      <div className='w-full lg:w-1/3'>
+      <div className={cn("w-full lg:w-1/3", episodes.length <= 1 && "hidden")}>
         <EpisodeIndex
           mc_id={mcId}
           episodes={episodes}
@@ -184,31 +186,29 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
             />
 
             {/* Video Info */}
-            {mc_item.summary && (
-              <div className='mt-4 bg-white rounded-lg shadow p-4'>
-                <h3 className='text-lg font-semibold mb-2'>剧情简介</h3>
-                <div
-                  className='text-gray-700 text-sm leading-relaxed'
-                  dangerouslySetInnerHTML={{
-                    __html: sanitizedSummary,
-                  }}
-                />
-              </div>
-            )}
+            <div className='mt-4 flex flex-col md:flex-row gap-4'>
+              {mc_item.summary && (
+                <div className='bg-white rounded-lg shadow p-4 flex-1'>
+                  <h3 className='text-lg font-semibold mb-2'>剧情简介</h3>
+                  <div
+                    className='text-gray-700 text-sm leading-relaxed'
+                    dangerouslySetInnerHTML={{
+                      __html: sanitizedSummary,
+                    }}
+                  />
+                </div>
+              )}
 
-            {mc_item.cover_image && (
-              <div className='mt-4 bg-white rounded-lg shadow p-4'>
-                {mc_item.cover_image && (
-                  <div className='mb-4'>
-                    <img
-                      src={mc_item.cover_image}
-                      alt={mc_item.title}
-                      className='w-full rounded-lg'
-                    />
-                  </div>
-                )}
-              </div>
-            )}
+              {mc_item.cover_image && (
+                <div className='bg-white dark:bg-zinc-900 rounded-lg shadow p-4 md:w-auto'>
+                  <img
+                    src={mc_item.cover_image}
+                    alt={mc_item.title}
+                    className='max-w-sm w-full rounded-lg object-cover'
+                  />
+                </div>
+              )}
+            </div>
           </div>
         </div>
       </main>

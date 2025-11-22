@@ -86,7 +86,7 @@ export function MediaCard({
   };
 
   // Run speed test when component mounts and showSpeedTest is true
-  // eslint-disable-next-line react-hooks/exhaustive-deps
+
   useEffect(() => {
     const firstUrl = getFirstM3u8Url(m3u8_urls);
     if (!showSpeedTest || !firstUrl || speedTestResult) {

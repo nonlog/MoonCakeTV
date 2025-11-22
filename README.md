@@ -4,215 +4,353 @@
   <img src="public/logo.png" alt="MoonCakeTV Logo" width="120">
 </div>
 
-> 🎬 **MoonCakeTV 月饼TV** 是一个影视聚合搜索服务。它基于 **Next.js 15** + **Tailwind&nbsp;CSS** + **TypeScript** 构建，支持多资源搜索和在线播放。
-
-> 作者鼓励社区同行fork本项目进行二次开发
+> 🎬 **MoonCakeTV 月饼TV** - 一个超级简单的影视聚合搜索服务
 
 <div align="center">
 
 ![License](https://img.shields.io/badge/License-MIT-green)
-![Docker Ready](https://img.shields.io/badge/Docker-ready-blue?logo=docker)
+![Next.js](https://img.shields.io/badge/Next.js-15-000?logo=nextdotjs)
+![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript)
 
 </div>
 
 ---
 
-## ✨ 功能特性
+## ✨ 特性
 
-- 🔍 **多源聚合搜索**：汇聚数十个免费资源站点，一次搜索立刻返回全源结果
-- 📄 **丰富详情页**：支持剧集列表、演员、年份、简介等完整信息展示
-- ▶️ **在线播放**：集成 HLS.js & Video.js 播放器
-- 📱 **响应式布局**：自适应各种屏幕尺寸
-- 🚀 **多平台部署**：支持 Docker、Vercel 部署
+**极简架构**：
+- ✅ 单用户模式
+- ✅ 可选密码保护
+- ✅ 文件存储（无需数据库）
+- ✅ 无需 Docker
+- ✅ VPS 一键部署
 
-## 🚀 本地开发 Local Development
+**核心功能**：
+- 🔍 多源聚合搜索
+- ▶️ 在线播放（HLS.js）
+- 💾 收藏功能
+- 📝 观看历史
+- 📱 响应式设计
+- 🌙 深色模式
 
-- 先决条件：Node.js 18+（推荐 20/22），npm
-- 安装依赖并启动开发服务器（默认端口 `3333`）：
+---
+
+## 🚀 快速开始
+
+### 1. 克隆代码
+
+```bash
+git clone https://github.com/your-repo/mooncaketv-web.git
+cd mooncaketv-web
+```
+
+### 2. 安装依赖
 
 ```bash
 npm install
+```
+
+**系统要求**：Node.js >= 22.0.0
+
+### 3. 配置环境变量
+
+```bash
+cp .env.example .env
+```
+
+编辑 `.env`：
+
+```bash
+# JWT密钥（必需）
+JWT_SECRET=your_random_secret_here
+```
+
+生成随机密钥：
+
+```bash
+openssl rand -hex 32
+```
+
+### 4. 启动应用
+
+```bash
 npm run dev
-# 访问 http://localhost:3333
 ```
 
-## 🎃🎃🎃 社区
+访问 `http://localhost:3333`
 
-- Telegram: https://t.me/mooncaketv
+### 5. 设置密码（可选）
 
-## 🐳 Docker 部署 (已测试 ✅)
+首次访问 `/login` 页面，可以设置密码。
 
-> 适用于自建服务器 / NAS / 群晖等场景。
+**不设置密码** = 任何人都可以访问（公开模式）
+**设置密码** = 需要登录才能访问
 
-### 第一步：密码保护设置㊙️
+---
 
-为安全起见，强烈建议启用密码保护。请在项目根目录新建 `.env` 文件，至少设置：
+## 📁 数据存储
+
+所有数据存储在一个 JSON 文件中：
+
+```
+data/user-data.json
+```
+
+包含：
+- 密码哈希
+- 收藏列表
+- 观看历史
+
+**备份**：只需复制这个文件
+**迁移**：复制到新服务器即可
+
+---
+
+## 🔧 生产部署（VPS）
+
+### 方法 1：PM2（推荐）
 
 ```bash
-# 密码模式：local | env | db（默认 local，无需登录）
-PASSWORD_MODE=env
-# 当 PASSWORD_MODE=env 时，访问口令：
-MY_PASSWORD=your_secure_password
+# 安装 PM2
+npm install -g pm2
 
+# 构建
+npm run build
+
+# 启动
+pm2 start npm --name "mooncaketv" -- start
+
+# 开机自启
+pm2 startup
+pm2 save
 ```
 
-### 拉取已构建好的镜像（推荐🔥）
+### 方法 2：systemd
 
-```shell
-# 拉取镜像
-docker pull ghcr.io/mooncaketv/mooncaketv:latest
-# 运行容器（容器内监听 3000，映射到宿主机 3333）
-docker run -d \
-  --name mooncaketv \
-  --env-file .env \
-  -p 3333:3000 \
-  ghcr.io/mooncaketv/mooncaketv:latest
+创建 `/etc/systemd/system/mooncaketv.service`：
+
+```ini
+[Unit]
+Description=MoonCakeTV
+After=network.target
+
+[Service]
+Type=simple
+User=your-user
+WorkingDirectory=/path/to/mooncaketv-web
+Environment="NODE_ENV=production"
+Environment="JWT_SECRET=your_secret_here"
+ExecStart=/usr/bin/npm start
+Restart=on-failure
+
+[Install]
+WantedBy=multi-user.target
 ```
 
-> ⚠️⚠️⚠️ 重要：如果部署在服务器里，必须使用 HTTPS 访问（如 `https://你的域名`），否则浏览器不会保存登录 Cookie，登录会“无效”。预构建镜像默认在生产模式运行，Cookie 带 Secure 属性，在 HTTP 环境下不会被写入。
->
-> - 请务必将容器放在反向代理（Nginx/Caddy/Traefik）后，申请证书并开启 HTTPS 再对外提供服务。
-> - 直接通过 `http://IP:3333` 访问将无法完成登录。
-
-### 自己构建 docker 镜像（使用 Makefile）
+启动：
 
 ```bash
-# 构建镜像
-make d-build
-
-# 运行容器
-make d-run
+sudo systemctl daemon-reload
+sudo systemctl enable mooncaketv
+sudo systemctl start mooncaketv
 ```
 
-### 自己构建 docker 镜像（使用 Docker CLI）
+### 方法 3：Nginx 反向代理
+
+`/etc/nginx/sites-available/mooncaketv`：
+
+```nginx
+server {
+    listen 80;
+    server_name your-domain.com;
+
+    location / {
+        proxy_pass http://localhost:3333;
+        proxy_http_version 1.1;
+        proxy_set_header Upgrade $http_upgrade;
+        proxy_set_header Connection 'upgrade';
+        proxy_set_header Host $host;
+        proxy_cache_bypass $http_upgrade;
+    }
+}
+```
+
+---
+
+## 📁 目录结构
+
+```
+mooncaketv-web/
+├── data/
+│   └── user-data.json          # 数据文件（自动创建）
+├── src/
+│   ├── app/                    # Next.js页面
+│   ├── components/             # React组件
+│   ├── lib/
+│   │   ├── file-storage.ts     # 文件存储
+│   │   └── simple-auth.ts      # 简单认证
+│   └── api/
+│       ├── login/              # 登录
+│       ├── logout/             # 登出
+│       ├── bookmarks/          # 收藏
+│       └── history/            # 历史
+├── .env                        # 配置文件
+└── package.json
+```
+
+---
+
+## 🔒 安全建议
+
+1. **设置强密码**（如果需要保护）
+2. **使用 HTTPS**（通过 Nginx + Let's Encrypt）
+3. **定期备份** `data/user-data.json`
+4. **设置防火墙**（仅开放 80/443 端口）
+
+---
+
+## 🆘 常见问题
+
+### 忘记密码怎么办？
+
+删除 `data/user-data.json` 文件，重新设置密码。
+
+**注意**：会丢失收藏和历史记录！
+
+### 如何导出数据？
 
 ```bash
-# 构建镜像
-docker build -t mooncaketv .
-
-# 运行容器（推荐将宿主机 3333 映射到容器 3000）
-# 无密码（不建议）
-docker run -d --name mooncaketv -p 3333:3000 mooncaketv
-# 密码保护（需要 .env）
-docker run -d --name mooncaketv --env-file .env -p 3333:3000 mooncaketv
+cp data/user-data.json backup.json
 ```
 
-## ▲ Vercel 部署 (已测试 ✅)
+### 如何迁移到新服务器？
 
-> 零运维成本，免费额度足够个人使用
+```bash
+# 旧服务器
+cp data/user-data.json ~/
 
-> 说明：播放直接在浏览器端请求源站 `.m3u8` 与分片资源（不经过服务器代理）。请确保上游源支持 CORS。
+# 新服务器
+cp ~/user-data.json /path/to/mooncaketv-web/data/
+```
 
-1. **Fork** 本仓库到你的 GitHub 账户
-2. 登陆 [Vercel](https://vercel.com/)，点击 **Add New → Project**，选择 Fork 后的仓库
-3. 在项目 Settings → Environment Variables 中添加：`PASSWORD_MODE=env`、`MY_PASSWORD=your_secure_password`
-4. 保持默认设置完成部署
+### 如何清空观看历史？
 
-部署完成后即可通过分配的域名访问，也可以绑定自定义域名。
+```bash
+# 方法1：通过API
+curl -X DELETE http://localhost:3333/api/history
 
-## ~~Cloudflare Workers 部署（放弃支持）~~
+# 方法2：手动编辑
+# 编辑 data/user-data.json，清空 watch_history 数组
+```
 
-> ~~近期多起封号事件~~
+---
 
-## 🔒 安全与隐私提醒
+## 🎯 特性对比
 
-### 强烈建议设置密码保护
+| 特性 | 之前 | 现在 |
+|------|------|------|
+| **数据库** | PostgreSQL + Docker | 单个 JSON 文件 |
+| **缓存** | Redis + Docker | 无需缓存 |
+| **用户** | 多用户 + 注册 | 单用户 |
+| **认证** | 3 种模式 | 可选密码 |
+| **部署** | Docker Compose 必需 | `npm start` |
+| **依赖** | 93 个包 | 89 个包 |
+| **配置** | 15+ 环境变量 | 1 个环境变量 |
+| **备份** | 数据库导出 | 复制 1 个文件 |
+| **设置时间** | 30+ 分钟 | 2 分钟 |
 
-#### 为了您的安全和避免潜在的法律风险，我们**强烈建议**在部署时设置密码保护：
+---
 
-- **避免公开访问**：不设置密码的实例任何人都可以访问，可能被恶意利用
-- **防范版权风险**：公开的视频搜索服务可能面临版权方的投诉举报
-- **保护个人隐私**：设置密码可以限制访问范围，保护您的使用记录
+## 📝 API 文档
 
-### 部署建议
+### 登录
+```bash
+POST /api/login
+Content-Type: application/json
 
-1. **设置环境变量 `PASSWORD_MODE=env` 和 `MY_PASSWORD=my_password`**：为您的实例设置一个强密码
-2. **仅供个人使用**：请勿将您的实例链接公开分享或传播
-3. **遵守当地法律**：请确保您的使用行为符合当地法律法规
+{
+  "password": "your_password"
+}
+```
 
-### 重要声明
+### 添加收藏
+```bash
+POST /api/bookmarks
+Content-Type: application/json
 
-- 本项目仅供学习和个人使用
-- 请勿将部署的实例用于商业用途或公开服务
-- 如因公开分享导致的任何法律问题，用户需自行承担责任
-- 项目开发者不对用户的使用行为承担任何法律责任
+{
+  "id": "video_123",
+  "title": "电影名称",
+  "thumbnail": "https://...",
+  "url": "https://..."
+}
+```
 
-## ⚙️ 环境变量一览
+### 获取收藏
+```bash
+GET /api/bookmarks
+```
 
-- `PASSWORD_MODE`：`local` | `env` | `db`（默认 `local`）
-  - `local`：不开启登录（仅限自用环境）
-  - `env`：使用 `MY_PASSWORD` 作为访问口令
-  - `db`：预留，暂未启用
-- `MY_PASSWORD`：当 `PASSWORD_MODE=env` 时必填
+### 删除收藏
+```bash
+DELETE /api/bookmarks?id=video_123
+```
 
-## 🧪 常见问题 FAQ
+### 添加观看历史
+```bash
+POST /api/history
+Content-Type: application/json
 
-- 打不开页面或反复跳转登录？
-  - 确认 `PASSWORD_MODE` 与 `MY_PASSWORD` 设置正确；清理浏览器 Cookie 后重试。
-- Docker 启动后访问不到？
-  - 请确认端口映射为 `-p 3333:3000`，并访问 `http://localhost:3333`。
-- Vercel 是否安全？
-  - Vercel 免费额度有限；请谨慎评估使用风险和成本。播放走浏览器直连，不消耗函数带宽。
+{
+  "id": "video_123",
+  "title": "电影名称",
+  "progress": 120
+}
+```
 
-## License
+### 获取观看历史
+```bash
+GET /api/history
+```
 
-[MIT](LICENSE)
+### 清空观看历史
+```bash
+DELETE /api/history
+```
 
-## 界面截图
+---
 
-<img src="public/screenshot.png" alt="项目截图" style="max-width:600px">
+## 💡 开发
 
-## 技术栈
+```bash
+# 开发模式
+npm run dev
 
-<div align="center">
+# 代码检查
+npm run lint
 
-![Next.js](https://img.shields.io/badge/Next.js-15-000?logo=nextdotjs)
-![TailwindCSS](https://img.shields.io/badge/TailwindCSS-4-38bdf8?logo=tailwindcss)
-![TypeScript](https://img.shields.io/badge/TypeScript-5.x-3178c6?logo=typescript)
-![License](https://img.shields.io/badge/License-MIT-green)
-![Docker Ready](https://img.shields.io/badge/Docker-ready-blue?logo=docker)
+# 类型检查
+npm run typecheck
 
-</div>
+# 构建
+npm run build
 
-<table>
-  <thead>
-    <tr>
-      <th>分类</th>
-      <th>主要依赖</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <td>前端</td>
-      <td><a href="https://nextjs.org/">Next.js</a> · <a href="https://tailwindcss.com/">Tailwind CSS</a> · TypeScript</td>
-    </tr>
-    <tr>
-      <td>播放器</td>
-      <td>
-        <a href="https://github.com/videojs/video.js">Video.js</a> · 
-        <a href="https://github.com/video-dev/hls.js/">HLS.js</a>
-      </td>
-    </tr>
-    <tr>
-      <td>代码质量</td>
-      <td>ESLint · Prettier</td>
-    </tr>
-    <tr>
-      <td>服务器</td>
-      <td>Cloudflare Workers · Racknerd VPS</td>
-    </tr>
-    <tr>
-      <td>数据库</td>
-      <td>Open Search · Cloudflare D1</td>
-    </tr>
-  </tbody>
-</table>
+# 生产运行
+npm start
+```
 
-## 致谢
+---
 
-- 本项目由[MoonTV](https://github.com/LunaTechLab/MoonTV) fork而来，进行了一系列优化
-- [ts-nextjs-tailwind-starter](https://github.com/theodorusclarence/ts-nextjs-tailwind-starter) — 项目最初基于该脚手架。
-- [LibreTV](https://github.com/LibreSpark/LibreTV) — 由此启发，站在巨人的肩膀上。
-- [Video.js](https://github.com/videojs/video.js) — 提供强大的网页视频播放器。
-- [HLS.js](https://github.com/video-dev/hls.js) — 实现 HLS 流媒体在浏览器中的播放支持。
-- 感谢所有提供免费影视接口的站点。
+## 📄 License
+
+MIT
+
+---
+
+## 🙏 致谢
+
+- Next.js
+- HLS.js
+- Video.js
+- Radix UI
+- Tailwind CSS
