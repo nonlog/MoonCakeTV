@@ -112,6 +112,52 @@ export async function isFirstUser(): Promise<boolean> {
   }
 }
 
+/**
+ * List all users (returns username and role only, no sensitive data)
+ */
+export interface UserListItem {
+  username: string;
+  role: UserRole;
+  bookmarksCount: number;
+  historyCount: number;
+}
+
+export async function listUsers(): Promise<UserListItem[]> {
+  try {
+    const files = await fs.readdir(DATA_DIR);
+    const userFiles = files.filter((f) => f.endsWith(".json"));
+
+    const users: UserListItem[] = [];
+    for (const file of userFiles) {
+      const username = file.replace(".json", "");
+      const data = await readUserData(username);
+      users.push({
+        username,
+        role: data.role || "user",
+        bookmarksCount: data.bookmarks?.length || 0,
+        historyCount: data.watch_history?.length || 0,
+      });
+    }
+
+    return users;
+  } catch {
+    return [];
+  }
+}
+
+/**
+ * Delete a user
+ */
+export async function deleteUser(username: string): Promise<boolean> {
+  try {
+    const userFile = getUserFilePath(username);
+    await fs.unlink(userFile);
+    return true;
+  } catch {
+    return false;
+  }
+}
+
 // ============================================================
 // Bookmarks
 // ============================================================

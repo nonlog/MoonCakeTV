@@ -2,7 +2,6 @@
 
 import { Settings } from "lucide-react";
 
-import { useAdultModeToggle } from "@/components/common/adult-mode";
 import PageLayout from "@/components/common/page-layout";
 import { ThemeToggle } from "@/components/common/theme-toggle";
 import { SourceConfig } from "@/components/settings/source-config";
@@ -10,8 +9,6 @@ import { LogoutButton } from "@/components/sidebar/logout-button";
 import { SettingsButton } from "@/components/sidebar/settings-button";
 
 export default function SettingsPage() {
-  const { handleAdultModeToggle, AdultModeDialog, AdultModeStatus } =
-    useAdultModeToggle();
   return (
     <PageLayout activePath='/settings'>
       <div className='container mx-auto px-4 py-8'>
@@ -22,7 +19,7 @@ export default function SettingsPage() {
 
           {/* Quick settings buttons */}
           <div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6'>
-            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
+            <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-4'>
               <SettingsButton>
                 <div
                   id='settings-button-container'
@@ -51,25 +48,6 @@ export default function SettingsPage() {
               </div>
 
               <LogoutButton />
-
-              <div
-                onClick={async (e) => {
-                  e.stopPropagation();
-                  e.preventDefault();
-                  await handleAdultModeToggle();
-                }}
-                className='cursor-pointer flex items-center gap-3 p-3 rounded-lg hover:bg-gray-50 dark:hover:bg-gray-700/50 transition-colors'
-              >
-                <div className='flex items-center gap-2'>
-                  <span className='text-2xl'>🔞</span>
-                  <div className='flex flex-col'>
-                    <span className='text-sm font-medium text-gray-700 dark:text-gray-300'>
-                      18禁模式
-                    </span>
-                    <AdultModeStatus />
-                  </div>
-                </div>
-              </div>
             </div>
           </div>
 
@@ -79,7 +57,6 @@ export default function SettingsPage() {
           </div>
         </div>
       </div>
-      <AdultModeDialog />
     </PageLayout>
   );
 }

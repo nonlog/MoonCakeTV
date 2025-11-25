@@ -7,9 +7,6 @@ type UserState = {
   currentUserId: string;
   watchHistory: Dazahui[];
   setWatchHistory: (dazahui?: Dazahui) => void;
-
-  adultMode: string | null; // iso timestamp string of when adult mode is turned on
-  setAdultMode: (ts: string | null) => void;
   bookmarks: Record<string, Dazahui[] | null>;
   updateBookmarks: (
     user_id: string,
@@ -50,8 +47,6 @@ export const useUserStore = create<UserState>()(
             watchHistory: [],
           };
         }),
-      adultMode: null,
-      setAdultMode: (ts: string | null) => set({ adultMode: ts }),
       bookmarks: {},
       updateBookmarks: (user_id: string, item: Dazahui, action = "add") => {
         set((state) => {

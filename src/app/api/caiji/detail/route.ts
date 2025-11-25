@@ -19,7 +19,7 @@ export async function GET(request: NextRequest) {
   if (!id) {
     return NextResponse.json(
       { code: 400, message: "id is required" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -28,7 +28,7 @@ export async function GET(request: NextRequest) {
   if (underscoreIndex === -1) {
     return NextResponse.json(
       { code: 400, message: "Invalid id format. Expected: sourceKey_vodId" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -39,7 +39,7 @@ export async function GET(request: NextRequest) {
   if (isNaN(vodId)) {
     return NextResponse.json(
       { code: 400, message: "Invalid vodId in id" },
-      { status: 400 }
+      { status: 400 },
     );
   }
 
@@ -48,7 +48,7 @@ export async function GET(request: NextRequest) {
   if (!source) {
     return NextResponse.json(
       { code: 404, message: `Source not found: ${sourceKey}` },
-      { status: 404 }
+      { status: 404 },
     );
   }
 
@@ -59,14 +59,14 @@ export async function GET(request: NextRequest) {
     if (response.code !== 1) {
       return NextResponse.json(
         { code: 500, message: `API error: ${response.msg}` },
-        { status: 500 }
+        { status: 500 },
       );
     }
 
     if (!response.list || response.list.length === 0) {
       return NextResponse.json(
         { code: 404, message: "Video not found" },
-        { status: 404 }
+        { status: 404 },
       );
     }
 
@@ -84,7 +84,7 @@ export async function GET(request: NextRequest) {
         code: 500,
         message: error instanceof Error ? error.message : "Unknown error",
       },
-      { status: 500 }
+      { status: 500 },
     );
   }
 }
