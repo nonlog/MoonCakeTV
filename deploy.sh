@@ -81,7 +81,52 @@ DOMAIN=$domain
 EOF
 
 echo ".env 文件已创建"
-echo ""
+
+# Write Caddyfile
+cat > Caddyfile << EOF
+{\$DOMAIN} {
+	reverse_proxy mooncaketv:3000
+}
+EOF
+
+echo "Caddyfile 已创建"
+
+# Write compose.yml
+cat > compose.yml << EOF
+services:
+  mooncaketv:
+    image: ghcr.io/mooncaketv/mooncaketv:latest
+    restart: unless-stopped
+    environment:
+      - JWT_SECRET=\${JWT_SECRET}
+      - NODE_ENV=production
+    volumes:
+      - ./data/mc_data:/app/data
+    expose:
+      - "3000"
+    healthcheck:
+      test: curl -f http://localhost:3000 || exit 1
+      interval: 30s
+      timeout: 10s
+      retries: 3
+
+  caddy:
+    image: caddy:2-alpine
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      - DOMAIN=\${DOMAIN}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./data/caddy_data:/data
+      - ./data/caddy_config:/config
+    depends_on:
+      - mooncaketv
+EOF
+
+echo "compose.yml 已创建"
 
 # Create data directory
 mkdir -p data
