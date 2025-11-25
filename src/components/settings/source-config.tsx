@@ -118,7 +118,7 @@ export function SourceConfig() {
         <p>提示：</p>
         <ul className='list-disc list-inside space-y-0.5'>
           <li>支持苹果CMS v10 协议的采集站</li>
-          <li>可在 <a href='https://www.xn--sss604efuw.com/' target='_blank' rel='noopener noreferrer' className='text-blue-500 hover:underline'>饭太硬</a> 或 TVBox 配置中找到源地址</li>
+          <li>可在 <a href='https://www.xn--sss604efuw.com/' target='_blank' rel='noopener noreferrer' className='text-blue-500 hover:underline'>饭太硬</a> 找到源地址</li>
           <li>以 # 开头的行为注释，会被忽略</li>
         </ul>
       </div>
