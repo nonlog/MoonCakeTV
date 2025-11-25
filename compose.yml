@@ -1,6 +1,6 @@
 services:
   mooncaketv:
-    build: .
+    image: ghcr.io/mooncaketv/mooncaketv:latest
     restart: unless-stopped
     environment:
       - JWT_SECRET=${JWT_SECRET}

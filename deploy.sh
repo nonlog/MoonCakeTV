@@ -90,7 +90,8 @@ echo ""
 
 # Start
 echo "正在启动服务..."
-docker compose up -d --build
+docker compose pull
+docker compose up -d
 
 echo ""
 echo "=========================================="
