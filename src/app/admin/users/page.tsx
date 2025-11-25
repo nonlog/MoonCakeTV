@@ -176,7 +176,7 @@ export default function AdminUsersPage() {
             </div>
           </div>
 
-          <div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700'>
+          <div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 px-4'>
             {loading ? (
               <div className='p-8 text-center text-gray-500'>加载中...</div>
             ) : users.length === 0 ? (
