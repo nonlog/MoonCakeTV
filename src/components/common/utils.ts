@@ -212,27 +212,33 @@ export const testStreamSpeed = async (
   }
 };
 
-export const getSourceBrand = (source: string) => {
-  const _source = source.toLowerCase();
+// Source name cache (populated from API)
+let sourceNameCache: Record<string, string> = {};
 
-  if (/dytt/g.test(_source)) {
-    return "电影天堂资源";
+export const setSourceNameCache = (sources: { key: string; name: string }[]) => {
+  sourceNameCache = {};
+  sources.forEach((s) => {
+    sourceNameCache[s.key] = s.name;
+  });
+};
+
+export const getSourceBrand = (sourceKey: string): string => {
+  // Check cache first (populated from configured sources)
+  if (sourceNameCache[sourceKey]) {
+    return sourceNameCache[sourceKey];
   }
 
-  if (/mtyun/g.test(_source)) {
-    return "茅台资源";
+  // Fallback: extract readable name from sourceKey
+  // Format is usually "name_index" like "茅台资源_0" or "maotai_0"
+  const parts = sourceKey.split("_");
+  if (parts.length >= 2) {
+    const name = parts.slice(0, -1).join("_");
+    // Check if it looks like Chinese characters
+    if (/[\u4e00-\u9fa5]/.test(name)) {
+      return name;
+    }
   }
 
-  switch (_source) {
-    case "heimuer":
-      return "黑木耳资源";
-    case "wolong":
-      return "卧龙资源";
-    case "360zy":
-      return "360资源";
-    case "jsyun$$$jsm3u8":
-      return "极速云资源";
-    default:
-      return "未知";
-  }
+  // Return the key itself if nothing else matches
+  return sourceKey;
 };

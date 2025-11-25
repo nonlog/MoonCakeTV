@@ -15,16 +15,19 @@ https://{domain}/api.php/provide/vod
 ### Endpoints
 
 **Search Videos**
+
 ```
 GET /api.php/provide/vod?ac=videolist&wd={keyword}&pg={page}
 ```
 
 **Get Video Details**
+
 ```
 GET /api.php/provide/vod?ac=detail&ids={vod_id}
 ```
 
 **List Recent Videos**
+
 ```
 GET /api.php/provide/vod?ac=videolist&h={hours}
 ```
@@ -53,11 +56,13 @@ GET /api.php/provide/vod?ac=videolist&h={hours}
 ### Play URL Parsing
 
 The `vod_play_url` uses delimiters:
+
 - `$` separates sources
 - `#` separates episodes within a source
 - `$` separates episode name from URL
 
 **Example:**
+
 ```
 vod_play_from: "jsyun$jsm3u8"
 vod_play_url:  "第1集$https://a.com/1.m3u8#第2集$https://a.com/2.m3u8$第1集$https://b.com/1.m3u8"
@@ -65,9 +70,9 @@ vod_play_url:  "第1集$https://a.com/1.m3u8#第2集$https://a.com/2.m3u8$第1�
 
 ## Default Sources
 
-| Name | Domain |
-|------|--------|
-| 茅台资源 | mtzy.tv |
+| Name     | Domain     |
+| -------- | ---------- |
+| 茅台资源 | mtzy.tv    |
 | 极速资源 | jisuzy.com |
 
 ## Configuration

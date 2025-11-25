@@ -1,10 +1,12 @@
 import { useEffect, useState } from "react";
 
+import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
 import { Dazahui } from "@/schemas/dazahui";
 
 import { MediaCard } from "../common/media-card";
+import { setSourceNameCache } from "../common/utils";
 
 // Helper to convert CaiJi NormalizedVod to Dazahui format
 interface NormalizedVod {
@@ -54,6 +56,11 @@ function vodToDazahui(vod: NormalizedVod): Dazahui {
   };
 }
 
+interface SourceInfo {
+  key: string;
+  name: string;
+}
+
 export const RandomMedia = ({
   handleCardClick,
 }: {
@@ -61,6 +68,23 @@ export const RandomMedia = ({
 }) => {
   const [loading, setLoading] = useState(true);
   const [random, setRandom] = useState<Dazahui[] | null>(null);
+  const [sources, setSources] = useState<SourceInfo[]>([]);
+
+  // Fetch sources on mount
+  useEffect(() => {
+    fetch("/api/caiji/sources")
+      .then((res) => res.json())
+      .then((json) => {
+        if (json.code === 200 && json.data?.sources) {
+          const sourceList = json.data.sources as SourceInfo[];
+          setSources(sourceList);
+          setSourceNameCache(sourceList);
+        }
+      })
+      .catch((err) => {
+        console.log("Failed to fetch sources:", err);
+      });
+  }, []);
 
   const triggerRandom = () => {
     setLoading(true);
@@ -100,7 +124,22 @@ export const RandomMedia = ({
             </Button>
           </div>
 
-          <p className='text-gray-600 dark:text-gray-400'>为您推荐精选内容</p>
+          <div className='flex items-center gap-2 flex-wrap'>
+            <span className='text-gray-600 dark:text-gray-400'>数据来源:</span>
+            {sources.length > 0 ? (
+              sources.map((source) => (
+                <Badge
+                  key={source.key}
+                  variant='outline'
+                  className='text-xs px-2 py-0.5 border-purple-300 dark:border-purple-700 text-purple-700 dark:text-purple-300'
+                >
+                  {source.name}
+                </Badge>
+              ))
+            ) : (
+              <span className='text-gray-500 dark:text-gray-500 text-sm'>加载中...</span>
+            )}
+          </div>
         </div>
 
         {loading ? (

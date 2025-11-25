@@ -18,55 +18,62 @@ export async function GET(request: NextRequest) {
   const limit = parseInt(searchParams.get("limit") || "20");
   const shuffle = searchParams.get("shuffle") !== "false"; // Default: shuffle for random effect
 
-  // Get first enabled source
+  // Get all enabled sources
   const sources = getEnabledSources();
-  const source = sources[0];
 
-  if (!source) {
+  if (sources.length === 0) {
     return NextResponse.json(
       { code: 500, message: "No sources available" },
       { status: 500 }
     );
   }
 
-  try {
-    const client = new CaijiClient(source);
-    const response = await client.getRecent(hours);
+  // Fetch from all sources concurrently
+  const results = await Promise.allSettled(
+    sources.map(async (source) => {
+      const client = new CaijiClient(source);
+      const response = await client.getRecent(hours);
 
-    if (response.code !== 1) {
-      return NextResponse.json(
-        { code: 500, message: `API error: ${response.msg}` },
-        { status: 500 }
-      );
-    }
+      if (response.code !== 1) {
+        throw new Error(`Source ${source.key} returned error: ${response.msg}`);
+      }
 
-    let items = response.list.map((vod) => normalizeVod(vod, source.key));
+      return response.list.map((vod) => normalizeVod(vod, source.key));
+    })
+  );
 
-    // Shuffle for "random" effect if requested
-    if (shuffle) {
-      items = items.sort(() => Math.random() - 0.5);
-    }
+  // Collect all items from successful sources
+  let allItems = results
+    .filter(
+      (r): r is PromiseFulfilledResult<ReturnType<typeof normalizeVod>[]> =>
+        r.status === "fulfilled"
+    )
+    .flatMap((r) => r.value);
 
-    // Limit results
-    items = items.slice(0, limit);
-
-    return NextResponse.json({
-      code: 200,
-      data: {
-        source: source.key,
-        sourceName: source.name,
-        hours,
-        items,
-      },
-    });
-  } catch (error) {
-    console.error("Failed to fetch recent videos:", error);
-    return NextResponse.json(
-      {
-        code: 500,
-        message: error instanceof Error ? error.message : "Unknown error",
-      },
-      { status: 500 }
+  // Log failed sources for debugging
+  const failedResults = results.filter(
+    (r): r is PromiseRejectedResult => r.status === "rejected"
+  );
+  if (failedResults.length > 0) {
+    console.warn(
+      "Some sources failed:",
+      failedResults.map((r) => r.reason?.message)
     );
   }
+
+  // Shuffle for "random" effect if requested
+  if (shuffle) {
+    allItems = allItems.sort(() => Math.random() - 0.5);
+  }
+
+  // Limit results
+  allItems = allItems.slice(0, limit);
+
+  return NextResponse.json({
+    code: 200,
+    data: {
+      hours,
+      items: allItems,
+    },
+  });
 }
