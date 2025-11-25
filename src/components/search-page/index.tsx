@@ -11,6 +11,55 @@ import McSearchBar from "@/components/mc-search/search-bar";
 
 import { Dazahui } from "@/schemas/dazahui";
 
+// Helper to convert CaiJi NormalizedVod to Dazahui format
+interface NormalizedVod {
+  id: string;
+  sourceKey: string;
+  sourceVodId: number;
+  title: string;
+  subtitle: string;
+  cover: string;
+  remarks: string;
+  year: string;
+  area: string;
+  language: string;
+  categories: string[];
+  actors: string[];
+  directors: string[];
+  summary: string;
+  episodes: Record<string, Record<string, string>>;
+  doubanId: number | null;
+  doubanScore: number | null;
+  updatedAt: string;
+  hits: number;
+  typeName: string;
+}
+
+function vodToDazahui(vod: NormalizedVod): Dazahui {
+  // Flatten episodes: get first source's episodes
+  const firstSource = Object.keys(vod.episodes)[0];
+  const m3u8_urls = firstSource ? vod.episodes[firstSource] : {};
+
+  return {
+    id: 0,
+    mc_id: vod.id,
+    title: vod.title,
+    m3u8_urls,
+    language: vod.language || "",
+    cover_image: vod.cover || null,
+    year: vod.year ? parseInt(vod.year) || null : null,
+    region: vod.area || null,
+    summary: vod.summary || null,
+    casting: vod.actors?.join(",") || undefined,
+    category: vod.categories?.[0] || null,
+    source_vod_id: String(vod.sourceVodId),
+    source: vod.sourceKey,
+    douban_id: vod.doubanId ? String(vod.doubanId) : "",
+    imdb_id: "",
+    tmdb_id: "",
+  };
+}
+
 export function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -27,10 +76,20 @@ export function SearchPage() {
     setHasSearched(true);
     try {
       const res = await fetch(
-        `https://s1.m3u8.io/v1/search2?keyword=${encodeURIComponent(searchTerm)}`,
+        `/api/caiji/search?keyword=${encodeURIComponent(searchTerm)}`,
       );
       const json = await res.json();
-      setResults(json.data?.items || []);
+
+      // Flatten results from all sources and convert to Dazahui format
+      const allItems: Dazahui[] = [];
+      if (json.data?.results) {
+        for (const sourceResult of json.data.results) {
+          for (const item of sourceResult.items || []) {
+            allItems.push(vodToDazahui(item));
+          }
+        }
+      }
+      setResults(allItems);
     } catch (error) {
       console.error(error);
       toast.error("搜索失败");
@@ -43,9 +102,12 @@ export function SearchPage() {
     setIsLoading(true);
     setHasSearched(true);
     try {
-      const res = await fetch(`https://s1.m3u8.io/v1/random`);
+      const res = await fetch(`/api/caiji/recent?limit=20`);
       const json = await res.json();
-      setResults(json.data?.items || []);
+
+      // Convert to Dazahui format
+      const items = (json.data?.items || []).map(vodToDazahui);
+      setResults(items);
     } catch (error) {
       console.error(error);
       toast.error("搜索失败");

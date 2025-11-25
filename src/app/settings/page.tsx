@@ -5,6 +5,7 @@ import { Settings } from "lucide-react";
 import { useAdultModeToggle } from "@/components/common/adult-mode";
 import PageLayout from "@/components/common/page-layout";
 import { ThemeToggle } from "@/components/common/theme-toggle";
+import { SourceConfig } from "@/components/settings/source-config";
 import { LogoutButton } from "@/components/sidebar/logout-button";
 import { SettingsButton } from "@/components/sidebar/settings-button";
 
@@ -19,8 +20,8 @@ export default function SettingsPage() {
             设置
           </h1>
 
-          <div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6'>
-            {/* Simple grid layout for buttons */}
+          {/* Quick settings buttons */}
+          <div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6 mb-6'>
             <div className='grid grid-cols-1 sm:grid-cols-2 md:grid-cols-4 gap-4'>
               <SettingsButton>
                 <div
@@ -70,6 +71,11 @@ export default function SettingsPage() {
                 </div>
               </div>
             </div>
+          </div>
+
+          {/* Source configuration */}
+          <div className='bg-white dark:bg-gray-800 rounded-lg shadow-sm border border-gray-200 dark:border-gray-700 p-6'>
+            <SourceConfig />
           </div>
         </div>
       </div>

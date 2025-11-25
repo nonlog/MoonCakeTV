@@ -168,3 +168,13 @@ export async function isAdmin(username: string): Promise<boolean> {
   const data = await readUserData(username);
   return data.role === "admin";
 }
+
+/**
+ * Get username from JWT token
+ */
+export async function getUsernameFromToken(
+  token: string
+): Promise<string | null> {
+  const payload = await verifyAuthToken(token);
+  return payload?.username || null;
+}

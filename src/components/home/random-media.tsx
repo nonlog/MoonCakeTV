@@ -6,7 +6,53 @@ import { Dazahui } from "@/schemas/dazahui";
 
 import { MediaCard } from "../common/media-card";
 
-import { ApiResponse } from "@/types/common";
+// Helper to convert CaiJi NormalizedVod to Dazahui format
+interface NormalizedVod {
+  id: string;
+  sourceKey: string;
+  sourceVodId: number;
+  title: string;
+  subtitle: string;
+  cover: string;
+  remarks: string;
+  year: string;
+  area: string;
+  language: string;
+  categories: string[];
+  actors: string[];
+  directors: string[];
+  summary: string;
+  episodes: Record<string, Record<string, string>>;
+  doubanId: number | null;
+  doubanScore: number | null;
+  updatedAt: string;
+  hits: number;
+  typeName: string;
+}
+
+function vodToDazahui(vod: NormalizedVod): Dazahui {
+  const firstSource = Object.keys(vod.episodes)[0];
+  const m3u8_urls = firstSource ? vod.episodes[firstSource] : {};
+
+  return {
+    id: 0,
+    mc_id: vod.id,
+    title: vod.title,
+    m3u8_urls,
+    language: vod.language || "",
+    cover_image: vod.cover || null,
+    year: vod.year ? parseInt(vod.year) || null : null,
+    region: vod.area || null,
+    summary: vod.summary || null,
+    casting: vod.actors?.join(",") || undefined,
+    category: vod.categories?.[0] || null,
+    source_vod_id: String(vod.sourceVodId),
+    source: vod.sourceKey,
+    douban_id: vod.doubanId ? String(vod.doubanId) : "",
+    imdb_id: "",
+    tmdb_id: "",
+  };
+}
 
 export const RandomMedia = ({
   handleCardClick,
@@ -15,14 +61,15 @@ export const RandomMedia = ({
 }) => {
   const [loading, setLoading] = useState(true);
   const [random, setRandom] = useState<Dazahui[] | null>(null);
+
   const triggerRandom = () => {
     setLoading(true);
-    fetch("https://s1.m3u8.io/v1/random")
-      .then((res) => {
-        return res.json() as Promise<ApiResponse<{ items: Dazahui[] } | null>>;
-      })
+    fetch("/api/caiji/recent?limit=20")
+      .then((res) => res.json())
       .then((json) => {
-        setRandom(json.data?.items || null);
+        // Convert NormalizedVod array to Dazahui array
+        const items = (json.data?.items || []).map(vodToDazahui);
+        setRandom(items);
       })
       .catch((err) => {
         console.log(err);
