@@ -9,12 +9,53 @@ import { HTTP_STATUS } from "@/config/constants";
 export const runtime = "nodejs";
 
 /**
+ * GET /api/signup
+ * Check if signup is available (only when no admin exists)
+ */
+export async function GET() {
+  const firstUser = await isFirstUser();
+
+  if (!firstUser) {
+    return NextResponse.json(
+      {
+        code: HTTP_STATUS.NOT_FOUND,
+        data: { available: false },
+        message: "注册已关闭",
+      },
+      { status: HTTP_STATUS.NOT_FOUND },
+    );
+  }
+
+  return NextResponse.json({
+    code: HTTP_STATUS.OK,
+    data: { available: true },
+    message: "注册开放中",
+  });
+}
+
+/**
  * POST /api/signup
  * Create a new user account
- * First user is automatically assigned admin role
+ * Only available when no admin exists (first user becomes admin)
+ * Returns 404 when admin already exists
  */
 export async function POST(req: NextRequest) {
   try {
+    // Check if this is the first user (no admin exists yet)
+    const firstUser = await isFirstUser();
+
+    // If admin already exists, signup is disabled - return 404
+    if (!firstUser) {
+      return NextResponse.json(
+        {
+          code: HTTP_STATUS.NOT_FOUND,
+          data: { success: false },
+          message: "注册已关闭",
+        },
+        { status: HTTP_STATUS.NOT_FOUND },
+      );
+    }
+
     const body = await req.json();
     const { username, password } = body;
 
@@ -29,9 +70,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Check if this is the first user
-    const firstUser = await isFirstUser();
-    console.log(`[Signup] Is first user? ${firstUser}, username: ${username}`);
+    console.log(`[Signup] Creating first admin user: ${username}`);
 
     // Create the user
     const result = await createUser(username, password);

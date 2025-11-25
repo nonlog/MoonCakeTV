@@ -1,19 +1,40 @@
 "use client";
 
 import Link from "next/link";
-import { useState } from "react";
+import { useRouter } from "next/navigation";
+import { useEffect, useState } from "react";
 
 import { ThemeToggle } from "@/components/common/theme-toggle";
 
 import { useGlobalStore } from "@/stores/global";
 
 export default function SignupPage() {
+  const router = useRouter();
   const [username, setUsername] = useState<string>("");
   const [password, setPassword] = useState<string>("");
   const [confirmPassword, setConfirmPassword] = useState<string>("");
   const [error, setError] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
+  const [checking, setChecking] = useState(true);
   const { siteName } = useGlobalStore();
+
+  // Check if signup is available
+  useEffect(() => {
+    const checkSignupAvailable = async () => {
+      try {
+        const res = await fetch("/api/signup");
+        if (!res.ok) {
+          // Signup closed, redirect to login
+          router.replace("/login");
+        }
+      } catch {
+        // On error, allow signup attempt
+      } finally {
+        setChecking(false);
+      }
+    };
+    checkSignupAvailable();
+  }, [router]);
 
   const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -65,6 +86,15 @@ export default function SignupPage() {
     }
   };
 
+  // Show loading while checking signup availability
+  if (checking) {
+    return (
+      <div className='relative min-h-screen flex items-center justify-center px-4 overflow-hidden'>
+        <div className='text-gray-500 dark:text-gray-400'>加载中...</div>
+      </div>
+    );
+  }
+
   return (
     <div className='relative min-h-screen flex items-center justify-center px-4 overflow-hidden'>
       <div className='absolute top-4 right-4'>
@@ -74,8 +104,11 @@ export default function SignupPage() {
         <h1 className='text-green-600 tracking-tight text-center text-3xl font-extrabold mb-2 bg-clip-text drop-shadow-xs'>
           {siteName}
         </h1>
-        <p className='text-center text-sm text-gray-600 dark:text-gray-400 mb-8'>
+        <p className='text-center text-sm text-gray-600 dark:text-gray-400 mb-2'>
           创建新账户
+        </p>
+        <p className='text-center text-xs text-purple-600 dark:text-purple-400 mb-8'>
+          第一个注册的用户将成为管理员
         </p>
         <form onSubmit={handleSubmit} className='space-y-6'>
           <div>
