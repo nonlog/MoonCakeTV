@@ -21,8 +21,8 @@ RUN npm run build
 # ---- 第 2 阶段：生成运行时镜像 ----
 FROM node:22-slim AS runner
 
-# 安装 su-exec 用于切换用户，创建非 root 用户
-RUN apt-get update && apt-get install -y --no-install-recommends su-exec \
+# 安装 gosu 用于切换用户（su-exec 的 Debian 替代品），创建非 root 用户
+RUN apt-get update && apt-get install -y --no-install-recommends gosu \
     && rm -rf /var/lib/apt/lists/* \
     && groupadd --gid 1001 nodejs \
     && useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home nextjs
