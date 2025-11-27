@@ -9,7 +9,7 @@ export const DoubanTags = () => {
   const [tvs, setTvs] = useState<DoubanTVItem[]>([]);
 
   useEffect(() => {
-    fetch("/api/douban")
+    fetch("https://s1.m3u8.io/v1/douban")
       .then((res) => res.json())
       .then((json) => {
         setMovies(json.data?.movies || []);
