@@ -24,7 +24,7 @@ install_docker() {
 # Check Docker
 if ! command -v docker &> /dev/null; then
     echo "未检测到 Docker"
-    read -p "是否安装 Docker？(Y/n): " install_docker_choice
+    read -p "是否安装 Docker？(Y/n): " install_docker_choice < /dev/tty
     if [ "$install_docker_choice" != "n" ] && [ "$install_docker_choice" != "N" ]; then
         install_docker
     else
@@ -39,7 +39,7 @@ echo ""
 # Check if .env exists
 if [ -f .env ]; then
     echo "检测到已有 .env 文件"
-    read -p "是否重新配置？(y/N): " reconfigure
+    read -p "是否重新配置？(y/N): " reconfigure < /dev/tty
     if [ "$reconfigure" != "y" ] && [ "$reconfigure" != "Y" ]; then
         echo "使用现有配置启动..."
         docker compose up -d
@@ -54,7 +54,7 @@ echo ""
 # JWT_SECRET
 echo "请输入 JWT_SECRET (用于加密认证令牌)"
 echo "留空将自动生成随机密钥"
-read -p "JWT_SECRET: " jwt_secret
+read -p "JWT_SECRET: " jwt_secret < /dev/tty
 
 if [ -z "$jwt_secret" ]; then
     jwt_secret=$(openssl rand -hex 32)
@@ -65,7 +65,7 @@ echo ""
 
 # Domain
 echo "请输入域名 (例如: mooncake.example.com)"
-read -p "域名: " domain
+read -p "域名: " domain < /dev/tty
 
 if [ -z "$domain" ]; then
     echo "错误: 域名不能为空"
