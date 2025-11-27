@@ -44,20 +44,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check if this is the latest tag
-        id: check_latest
-        run: |
-          CURRENT_TAG=${GITHUB_REF#refs/tags/}
-          # Get all tags, sort by semver, get the highest
-          LATEST_TAG=$(git fetch --tags && git tag -l 'v*' | sort -V | tail -1)
-          echo "current=$CURRENT_TAG" >> $GITHUB_OUTPUT
-          echo "latest=$LATEST_TAG" >> $GITHUB_OUTPUT
-          if [ "$CURRENT_TAG" = "$LATEST_TAG" ]; then
-            echo "is_latest=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_latest=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -68,7 +54,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=raw,value=latest,enable=${{ steps.check_latest.outputs.is_latest == 'true' }}
+            type=raw,value=latest
 
       - name: Build and push by digest
         id: build
@@ -117,20 +103,6 @@ jobs:
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: Check if this is the latest tag
-        id: check_latest
-        run: |
-          CURRENT_TAG=${GITHUB_REF#refs/tags/}
-          # Get all tags, sort by semver, get the highest
-          LATEST_TAG=$(git fetch --tags && git tag -l 'v*' | sort -V | tail -1)
-          echo "current=$CURRENT_TAG" >> $GITHUB_OUTPUT
-          echo "latest=$LATEST_TAG" >> $GITHUB_OUTPUT
-          if [ "$CURRENT_TAG" = "$LATEST_TAG" ]; then
-            echo "is_latest=true" >> $GITHUB_OUTPUT
-          else
-            echo "is_latest=false" >> $GITHUB_OUTPUT
-          fi
-
       - name: Extract metadata
         id: meta
         uses: docker/metadata-action@v5
@@ -141,7 +113,7 @@ jobs:
             type=semver,pattern={{version}}
             type=semver,pattern={{major}}.{{minor}}
             type=semver,pattern={{major}}
-            type=raw,value=latest,enable=${{ steps.check_latest.outputs.is_latest == 'true' }}
+            type=raw,value=latest
 
       - name: Create manifest list and push
         working-directory: /tmp/digests
