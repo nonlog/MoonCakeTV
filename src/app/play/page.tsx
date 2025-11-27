@@ -1,10 +1,15 @@
 import { Loader2 } from "lucide-react";
-import { cookies } from "next/headers";
 import { redirect } from "next/navigation";
 import React, { Suspense } from "react";
 
 import PageLayout from "@/components/common/page-layout";
 import { McPlay } from "@/components/mc-play";
+import {
+  CaijiClient,
+  getSourceByKey,
+  loadSourcesFromSettings,
+  normalizeVod,
+} from "@/lib/caiji";
 
 import type { Dazahui } from "@/schemas/dazahui";
 
@@ -71,21 +76,41 @@ export default async function McPlayPage({ searchParams }: McPlayPageProps) {
     redirect("/");
   }
 
-  // Get auth cookie to pass to internal API
-  const cookieStore = await cookies();
-  const authCookie = cookieStore.get("mc-auth-token");
+  // Load sources from user settings
+  await loadSourcesFromSettings();
 
-  // Build absolute URL for server-side fetch
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3333";
-  const res = await fetch(`${baseUrl}/api/caiji/detail?id=${mc_id}`, {
-    headers: authCookie ? { Cookie: `mc-auth-token=${authCookie.value}` } : {},
-    cache: "no-store",
-  });
+  // Parse ID format: sourceKey_vodId
+  const underscoreIndex = mc_id.indexOf("_");
+  if (underscoreIndex === -1) {
+    redirect("/");
+  }
 
-  const json = await res.json();
+  const sourceKey = mc_id.substring(0, underscoreIndex);
+  const vodIdStr = mc_id.substring(underscoreIndex + 1);
+  const vodId = parseInt(vodIdStr);
 
-  // Convert NormalizedVod to Dazahui format
-  const mc_item = json.data ? vodToDazahui(json.data) : null;
+  if (isNaN(vodId)) {
+    redirect("/");
+  }
+
+  // Find the source and fetch detail directly
+  const source = getSourceByKey(sourceKey);
+  let mc_item: Dazahui | null = null;
+
+  if (source) {
+    try {
+      const client = new CaijiClient(source);
+      const response = await client.getDetail(vodId);
+
+      if (response.code === 1 && response.list && response.list.length > 0) {
+        const vod = response.list[0];
+        const normalized = normalizeVod(vod, sourceKey);
+        mc_item = vodToDazahui(normalized);
+      }
+    } catch (error) {
+      console.error(`Failed to fetch detail for ${mc_id}:`, error);
+    }
+  }
 
   return (
     <Suspense

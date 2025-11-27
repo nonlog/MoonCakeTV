@@ -30,7 +30,7 @@ RUN apt-get update && apt-get install -y --no-install-recommends gosu \
 WORKDIR /app
 ENV NODE_ENV=production
 ENV HOSTNAME=0.0.0.0
-ENV PORT=3000
+ENV PORT=3333
 ENV DOCKER_ENV=true
 
 # 从构建器中复制 standalone 输出（已包含必要的运行时依赖）
@@ -41,7 +41,7 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # 创建 data 目录（用于存储用户数据）
 RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
-EXPOSE 3000
+EXPOSE 3333
 
 # 复制并设置 entrypoint 脚本
 COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/
