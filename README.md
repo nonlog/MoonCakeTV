@@ -19,7 +19,7 @@
 ## 🚀 一键部署
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/MoonCakeTV/MoonCakeTV/main/deploy.sh | bash
+bash <(curl -fsSL https://raw.githubusercontent.com/MoonCakeTV/MoonCakeTV/main/deploy.sh)
 ```
 
 脚本会自动：
