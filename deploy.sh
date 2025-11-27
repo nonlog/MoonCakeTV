@@ -2,6 +2,11 @@
 
 set -e
 
+# Ensure we can read from terminal even when piped
+if [ ! -t 0 ]; then
+    exec < /dev/tty
+fi
+
 echo ""
 echo "  __  __                    ____      _        _______     __"
 echo " |  \/  | ___   ___  _ __  / ___|__ _| | _____|_   _\ \   / /"
@@ -24,7 +29,7 @@ install_docker() {
 # Check Docker
 if ! command -v docker &> /dev/null; then
     echo "未检测到 Docker"
-    read -p "是否安装 Docker？(Y/n): " install_docker_choice < /dev/tty
+    read -p "是否安装 Docker？(Y/n): " install_docker_choice
     if [ "$install_docker_choice" != "n" ] && [ "$install_docker_choice" != "N" ]; then
         install_docker
     else
@@ -57,7 +62,7 @@ if [ -n "$existing_jwt_secret" ]; then
     echo "直接回车保留现有值，或输入新值"
 fi
 echo "留空将自动生成随机密钥"
-read -p "JWT_SECRET: " jwt_secret < /dev/tty
+read -p "JWT_SECRET: " jwt_secret
 
 if [ -z "$jwt_secret" ]; then
     if [ -n "$existing_jwt_secret" ]; then
@@ -77,7 +82,7 @@ if [ -n "$existing_domain" ]; then
     echo "当前值: $existing_domain"
     echo "直接回车保留现有值，或输入新值"
 fi
-read -p "域名: " domain < /dev/tty
+read -p "域名: " domain
 
 if [ -z "$domain" ]; then
     if [ -n "$existing_domain" ]; then
