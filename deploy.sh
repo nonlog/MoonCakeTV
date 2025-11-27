@@ -2,9 +2,27 @@
 
 set -e
 
+# Check if script is being piped without terminal access
+# If so, show instructions for proper execution
+if [ ! -t 0 ] && [ ! -t 1 ]; then
+    echo "错误: 此脚本需要交互式终端"
+    echo ""
+    echo "请使用以下命令运行:"
+    echo "  bash <(curl -fsSL https://raw.githubusercontent.com/MoonCakeTV/MoonCakeTV/main/deploy.sh)"
+    echo ""
+    echo "或者下载后运行:"
+    echo "  curl -fsSL https://raw.githubusercontent.com/MoonCakeTV/MoonCakeTV/main/deploy.sh -o deploy.sh"
+    echo "  bash deploy.sh"
+    exit 1
+fi
+
 # Ensure we can read from terminal even when piped
 if [ ! -t 0 ]; then
-    exec < /dev/tty
+    exec < /dev/tty || {
+        echo "错误: 无法访问终端"
+        echo "请使用: bash <(curl -fsSL URL)"
+        exit 1
+    }
 fi
 
 echo ""
