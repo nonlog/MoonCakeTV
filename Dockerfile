@@ -21,8 +21,11 @@ RUN npm run build
 # ---- 第 2 阶段：生成运行时镜像 ----
 FROM node:22-slim AS runner
 
-# 创建非 root 用户
-RUN groupadd --gid 1001 nodejs && useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home nextjs
+# 安装 su-exec 用于切换用户，创建非 root 用户
+RUN apt-get update && apt-get install -y --no-install-recommends su-exec \
+    && rm -rf /var/lib/apt/lists/* \
+    && groupadd --gid 1001 nodejs \
+    && useradd --uid 1001 --gid nodejs --shell /bin/bash --create-home nextjs
 
 WORKDIR /app
 ENV NODE_ENV=production
@@ -38,10 +41,11 @@ COPY --from=builder --chown=nextjs:nodejs /app/.next/static ./.next/static
 # 创建 data 目录（用于存储用户数据）
 RUN mkdir -p /app/data && chown nextjs:nodejs /app/data
 
-# 切换到非特权用户
-USER nextjs
-
 EXPOSE 3000
 
+# 复制并设置 entrypoint 脚本
+COPY --chmod=755 docker-entrypoint.sh /usr/local/bin/
+
 # 启动 Next.js 应用
+ENTRYPOINT ["docker-entrypoint.sh"]
 CMD ["node", "server.js"] 
