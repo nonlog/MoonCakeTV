@@ -95,7 +95,7 @@ fi
 echo ""
 
 # Domain
-echo "请输入域名 (例如: mooncake.example.com)"
+echo "请输入域名，否则无法登录 (例如: mooncake.example.com，最好使用二级域名)"
 if [ -n "$existing_domain" ]; then
     echo "当前值: $existing_domain"
     echo "直接回车保留现有值，或输入新值"
