@@ -25,7 +25,7 @@ export default function BookmarksPage() {
   }, [bookmarks, currentUserId]);
 
   const handleCardClick = (dazahui: Dazahui) => {
-    router.push(`/play?mc_id=${dazahui.mc_id}`);
+    router.push(`/play?vod_id=${dazahui.source_vod_id}&vod_src=${dazahui.source}`);
   };
 
   return (

@@ -9,7 +9,7 @@ import { MediaCard } from "@/components/common/media-card";
 import PageLayout from "@/components/common/page-layout";
 import McSearchBar from "@/components/mc-search/search-bar";
 
-import { Dazahui } from "@/schemas/dazahui";
+import { Dazahui, getVodUniqueId } from "@/schemas/dazahui";
 
 // Helper to convert CaiJi NormalizedVod to Dazahui format
 interface NormalizedVod {
@@ -42,7 +42,6 @@ function vodToDazahui(vod: NormalizedVod): Dazahui {
 
   return {
     id: 0,
-    mc_id: vod.id,
     title: vod.title,
     m3u8_urls,
     language: vod.language || "",
@@ -196,12 +195,12 @@ export function SearchPage() {
           <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-6'>
             {results.map((result) => (
               <MediaCard
-                key={result.mc_id}
+                key={getVodUniqueId(result)}
                 dazahui={result}
                 showSpeedTest={true}
                 onClick={() => {
                   // Handle click - navigate to play page or show details
-                  router.push(`/play?mc_id=${result.mc_id}`);
+                  router.push(`/play?vod_id=${result.source_vod_id}&vod_src=${result.source}`);
                 }}
               />
             ))}

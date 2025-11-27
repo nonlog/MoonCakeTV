@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { useUserStore } from "@/stores/user";
 
-import { Dazahui } from "@/schemas/dazahui";
+import { Dazahui, getVodUniqueId } from "@/schemas/dazahui";
 
 import { SpeedTestResult } from "./types";
 import {
@@ -34,7 +34,6 @@ export function MediaCard({
 }: MediaCardProps) {
   const {
     id,
-    mc_id,
     cover_image,
     title,
     // summary,
@@ -45,7 +44,10 @@ export function MediaCard({
     casting,
     m3u8_urls,
     source,
+    source_vod_id,
   } = dazahui;
+
+  const vodUniqueId = getVodUniqueId(dazahui);
 
   const [speedTestResult, setSpeedTestResult] =
     useState<SpeedTestResult | null>(null);
@@ -68,7 +70,9 @@ export function MediaCard({
   // Check if current item is bookmarked
   const isBookmarked =
     userId && bookmarks[userId]
-      ? bookmarks[userId]?.some((bookmark) => bookmark.mc_id === mc_id)
+      ? bookmarks[userId]?.some(
+          (bookmark) => getVodUniqueId(bookmark) === vodUniqueId,
+        )
       : false;
 
   const handleBookmarkClick = (e: React.MouseEvent) => {
@@ -162,7 +166,7 @@ export function MediaCard({
         {cover_image ? (
           <div className='aspect-[4/3] md:aspect-[3/4] overflow-hidden'>
             <img
-              key={mc_id}
+              key={vodUniqueId}
               src={cover_image}
               alt={title}
               loading='lazy'

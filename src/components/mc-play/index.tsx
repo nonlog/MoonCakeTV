@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { useUserStore } from "@/stores/user";
 
-import { Dazahui } from "@/schemas/dazahui";
+import { Dazahui, getVodUniqueId } from "@/schemas/dazahui";
 
 import { PageLayout } from "../common/page-layout";
 
@@ -26,12 +26,14 @@ const VideoSection = React.memo(
   ({
     currentEpisode,
     coverImage,
-    mcId,
+    vodId,
+    vodSrc,
     episodes,
   }: {
     currentEpisode: { episode: string; url: string } | null;
     coverImage?: string | null;
-    mcId: string;
+    vodId: string;
+    vodSrc: string;
     episodes: { episode: string; url: string }[];
   }) => (
     <div className='flex gap-4 flex-col lg:flex-row'>
@@ -42,7 +44,8 @@ const VideoSection = React.memo(
       </div>
       <div className={cn("w-full lg:w-1/3", episodes.length <= 1 && "hidden")}>
         <EpisodeIndex
-          mc_id={mcId}
+          vodId={vodId}
+          vodSrc={vodSrc}
           episodes={episodes}
           currentEpisode={currentEpisode}
         />
@@ -87,8 +90,9 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
   const isBookmarked = useMemo(() => {
     if (!mc_item || !currentUserId) return false;
     const userBookmarks = bookmarks[currentUserId];
+    const itemId = getVodUniqueId(mc_item);
     return (
-      userBookmarks?.some((bookmark) => bookmark.mc_id === mc_item.mc_id) ||
+      userBookmarks?.some((bookmark) => getVodUniqueId(bookmark) === itemId) ||
       false
     );
   }, [bookmarks, currentUserId, mc_item]);
@@ -102,7 +106,7 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
 
   // Update watch history when playing content
   useEffect(() => {
-    if (mc_item && mc_item.mc_id) {
+    if (mc_item && mc_item.source && mc_item.source_vod_id) {
       setWatchHistory(mc_item);
     }
 
@@ -181,7 +185,8 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
             <VideoSection
               currentEpisode={currentEpisode}
               coverImage={mc_item.cover_image}
-              mcId={mc_item.mc_id}
+              vodId={mc_item.source_vod_id}
+              vodSrc={mc_item.source}
               episodes={episodes}
             />
 

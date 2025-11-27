@@ -13,7 +13,6 @@ export function vodToDazahui(vod: NormalizedVod): Dazahui {
 
   return {
     id: 0, // Not used in new system
-    mc_id: vod.id,
     title: vod.title,
     m3u8_urls,
     language: vod.language || "",

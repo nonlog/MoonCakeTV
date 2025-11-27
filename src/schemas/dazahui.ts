@@ -2,7 +2,6 @@ import { z } from "zod";
 
 export const dazahui_schema = z.object({
   id: z.number(),
-  mc_id: z.string(),
   title: z.string().min(1),
   m3u8_urls: z.record(z.string().min(1), z.string().min(1)),
   language: z.string(), // Can be empty string
@@ -20,3 +19,8 @@ export const dazahui_schema = z.object({
 });
 
 export type Dazahui = z.infer<typeof dazahui_schema>;
+
+// Helper to generate unique ID from source and vod_id
+export function getVodUniqueId(dazahui: Dazahui): string {
+  return `${dazahui.source}_${dazahui.source_vod_id}`;
+}

@@ -1,7 +1,7 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { Dazahui } from "@/schemas/dazahui";
+import { Dazahui, getVodUniqueId } from "@/schemas/dazahui";
 
 type UserState = {
   currentUserId: string;
@@ -22,10 +22,11 @@ export const useUserStore = create<UserState>()(
       watchHistory: [],
       setWatchHistory: (dazahui?: Dazahui) =>
         set((state) => {
-          if (dazahui && dazahui.mc_id) {
+          if (dazahui && dazahui.source && dazahui.source_vod_id) {
             const newHistory = [...state.watchHistory];
+            const vodId = getVodUniqueId(dazahui);
             const existingIndex = newHistory.findIndex(
-              (wh) => wh.mc_id === dazahui.mc_id,
+              (wh) => getVodUniqueId(wh) === vodId,
             );
 
             if (existingIndex !== -1) {
@@ -50,6 +51,8 @@ export const useUserStore = create<UserState>()(
       bookmarks: {},
       updateBookmarks: (user_id: string, item: Dazahui, action = "add") => {
         set((state) => {
+          const itemId = getVodUniqueId(item);
+
           if (action === "add") {
             return {
               bookmarks:
@@ -73,7 +76,7 @@ export const useUserStore = create<UserState>()(
                 ...state.bookmarks,
                 [user_id]:
                   state.bookmarks[user_id]?.filter(
-                    (bookmark) => bookmark.mc_id !== item.mc_id,
+                    (bookmark) => getVodUniqueId(bookmark) !== itemId,
                   ) || null,
               },
             };

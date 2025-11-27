@@ -14,7 +14,11 @@ import {
 import type { Dazahui } from "@/schemas/dazahui";
 
 interface McPlayPageProps {
-  searchParams: Promise<{ mc_id: string | string[] | undefined }>;
+  searchParams: Promise<{
+    vod_id?: string;
+    vod_src?: string;
+    index?: string;
+  }>;
 }
 
 // Helper to convert CaiJi NormalizedVod to Dazahui format
@@ -50,7 +54,6 @@ function vodToDazahui(vod: NormalizedVod): Dazahui {
 
   return {
     id: 0,
-    mc_id: vod.id,
     title: vod.title,
     m3u8_urls,
     language: vod.language || "",
@@ -70,28 +73,20 @@ function vodToDazahui(vod: NormalizedVod): Dazahui {
 
 export default async function McPlayPage({ searchParams }: McPlayPageProps) {
   const _searchParams = await searchParams;
-  const mc_id = _searchParams.mc_id as string;
+  const vodIdStr = _searchParams.vod_id;
+  const sourceKey = _searchParams.vod_src;
 
-  if (!mc_id?.trim()) {
+  if (!vodIdStr?.trim() || !sourceKey?.trim()) {
+    redirect("/");
+  }
+
+  const vodId = parseInt(vodIdStr);
+  if (isNaN(vodId)) {
     redirect("/");
   }
 
   // Load sources from user settings
   await loadSourcesFromSettings();
-
-  // Parse ID format: sourceKey_vodId
-  const underscoreIndex = mc_id.indexOf("_");
-  if (underscoreIndex === -1) {
-    redirect("/");
-  }
-
-  const sourceKey = mc_id.substring(0, underscoreIndex);
-  const vodIdStr = mc_id.substring(underscoreIndex + 1);
-  const vodId = parseInt(vodIdStr);
-
-  if (isNaN(vodId)) {
-    redirect("/");
-  }
 
   // Find the source and fetch detail directly
   const source = getSourceByKey(sourceKey);
@@ -108,7 +103,7 @@ export default async function McPlayPage({ searchParams }: McPlayPageProps) {
         mc_item = vodToDazahui(normalized);
       }
     } catch (error) {
-      console.error(`Failed to fetch detail for ${mc_id}:`, error);
+      console.error(`Failed to fetch detail for ${sourceKey}_${vodId}:`, error);
     }
   }
 

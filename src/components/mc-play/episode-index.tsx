@@ -4,12 +4,13 @@ import React from "react";
 import { cn } from "@/lib/utils";
 
 type Props = {
-  mc_id: string;
+  vodId: string;
+  vodSrc: string;
   episodes: { episode: string; url: string }[];
   currentEpisode: { episode: string; url: string } | null;
 };
 
-export const EpisodeIndex = ({ mc_id, episodes, currentEpisode }: Props) => {
+export const EpisodeIndex = ({ vodId, vodSrc, episodes, currentEpisode }: Props) => {
   return (
     <div className='bg-white rounded-lg shadow w-full'>
       <div className='p-4 border-b flex items-center gap-4'>
@@ -21,7 +22,7 @@ export const EpisodeIndex = ({ mc_id, episodes, currentEpisode }: Props) => {
           {episodes.map(({ episode }, index) => (
             <Link
               key={episode}
-              href={`/play?mc_id=${mc_id}&index=${index + 1}`}
+              href={`/play?vod_id=${vodId}&vod_src=${vodSrc}&index=${index + 1}`}
               className={cn(
                 "cursor-pointer",
                 "aspect-square flex items-center justify-center text-sm font-medium rounded-lg border-2 transition-all hover:scale-105",

@@ -3,7 +3,7 @@ import { useEffect, useState } from "react";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
 
-import { Dazahui } from "@/schemas/dazahui";
+import { Dazahui, getVodUniqueId } from "@/schemas/dazahui";
 
 import { MediaCard } from "../common/media-card";
 import { setSourceNameCache } from "../common/utils";
@@ -38,7 +38,6 @@ function vodToDazahui(vod: NormalizedVod): Dazahui {
 
   return {
     id: 0,
-    mc_id: vod.id,
     title: vod.title,
     m3u8_urls,
     language: vod.language || "",
@@ -150,7 +149,7 @@ export const RandomMedia = ({
           <div className='grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5 gap-4'>
             {random?.map((item, index) => (
               <MediaCard
-                key={item.mc_id || index}
+                key={getVodUniqueId(item) || index}
                 dazahui={item}
                 onClick={() => handleCardClick(item)}
                 showSpeedTest
