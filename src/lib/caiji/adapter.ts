@@ -1,18 +1,17 @@
-import type { Dazahui } from "@/schemas/dazahui";
+import type { VodObject } from "@/schemas/vod";
 
 import { flattenEpisodes } from "./parser";
 import type { NormalizedVod } from "./types";
 
 /**
- * Convert NormalizedVod to Dazahui format
- * This allows using the new CaiJi API with existing frontend components
+ * Convert NormalizedVod to VodObject format
+ * This allows using the CaiJi API with frontend components
  */
-export function vodToDazahui(vod: NormalizedVod): Dazahui {
+export function normalizedVodToVodObject(vod: NormalizedVod): VodObject {
   // Flatten episodes to simple { episodeName: url } format
   const m3u8_urls = flattenEpisodes(vod.episodes);
 
   return {
-    id: 0, // Not used in new system
     title: vod.title,
     m3u8_urls,
     language: vod.language || "",
@@ -24,15 +23,12 @@ export function vodToDazahui(vod: NormalizedVod): Dazahui {
     category: vod.categories[0] || null,
     source_vod_id: String(vod.sourceVodId),
     source: vod.sourceKey,
-    douban_id: vod.doubanId ? String(vod.doubanId) : "",
-    imdb_id: "",
-    tmdb_id: "",
   };
 }
 
 /**
- * Convert array of NormalizedVod to Dazahui array
+ * Convert array of NormalizedVod to VodObject array
  */
-export function vodsToDazahui(vods: NormalizedVod[]): Dazahui[] {
-  return vods.map(vodToDazahui);
+export function normalizedVodsToVodObjects(vods: NormalizedVod[]): VodObject[] {
+  return vods.map(normalizedVodToVodObject);
 }

@@ -34,8 +34,11 @@ export {
   sourcesToText,
 } from "./sources";
 
-// Adapter for compatibility with existing Dazahui type
-export { vodsToDazahui,vodToDazahui } from "./adapter";
+// Adapter for converting NormalizedVod to VodObject
+export {
+  normalizedVodToVodObject,
+  normalizedVodsToVodObjects,
+} from "./adapter";
 
 // Load sources from user settings
 export { loadSourcesFromSettings } from "./load-sources";

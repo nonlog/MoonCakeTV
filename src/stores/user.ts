@@ -1,16 +1,16 @@
 import { create } from "zustand";
 import { persist } from "zustand/middleware";
 
-import { Dazahui, getVodUniqueId } from "@/schemas/dazahui";
+import { getVodUniqueId, VodObject } from "@/schemas/vod";
 
 type UserState = {
   currentUserId: string;
-  watchHistory: Dazahui[];
-  setWatchHistory: (dazahui?: Dazahui) => void;
-  bookmarks: Record<string, Dazahui[] | null>;
+  watchHistory: VodObject[];
+  setWatchHistory: (vod?: VodObject) => void;
+  bookmarks: Record<string, VodObject[] | null>;
   updateBookmarks: (
     user_id: string,
-    item: Dazahui,
+    item: VodObject,
     action: "add" | "delete",
   ) => void;
 };
@@ -20,11 +20,11 @@ export const useUserStore = create<UserState>()(
     (set) => ({
       currentUserId: "me",
       watchHistory: [],
-      setWatchHistory: (dazahui?: Dazahui) =>
+      setWatchHistory: (vod?: VodObject) =>
         set((state) => {
-          if (dazahui && dazahui.source && dazahui.source_vod_id) {
+          if (vod && vod.source && vod.source_vod_id) {
             const newHistory = [...state.watchHistory];
-            const vodId = getVodUniqueId(dazahui);
+            const vodId = getVodUniqueId(vod);
             const existingIndex = newHistory.findIndex(
               (wh) => getVodUniqueId(wh) === vodId,
             );
@@ -32,10 +32,10 @@ export const useUserStore = create<UserState>()(
             if (existingIndex !== -1) {
               // Remove existing item and add it to the front
               newHistory.splice(existingIndex, 1);
-              newHistory.unshift(dazahui);
+              newHistory.unshift(vod);
             } else {
               // Add new item to front
-              newHistory.unshift(dazahui);
+              newHistory.unshift(vod);
             }
 
             return {
@@ -44,12 +44,12 @@ export const useUserStore = create<UserState>()(
           }
 
           return {
-            // if dazahui is empty, clear watch history
+            // if vod is empty, clear watch history
             watchHistory: [],
           };
         }),
       bookmarks: {},
-      updateBookmarks: (user_id: string, item: Dazahui, action = "add") => {
+      updateBookmarks: (user_id: string, item: VodObject, action = "add") => {
         set((state) => {
           const itemId = getVodUniqueId(item);
 

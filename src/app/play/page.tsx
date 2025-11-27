@@ -2,16 +2,18 @@ import { Loader2 } from "lucide-react";
 import { redirect } from "next/navigation";
 import React, { Suspense } from "react";
 
-import PageLayout from "@/components/common/page-layout";
-import { McPlay } from "@/components/mc-play";
 import {
   CaijiClient,
   getSourceByKey,
   loadSourcesFromSettings,
   normalizeVod,
 } from "@/lib/caiji";
+import { normalizedVodToVodObject } from "@/lib/caiji/adapter";
 
-import type { Dazahui } from "@/schemas/dazahui";
+import PageLayout from "@/components/common/page-layout";
+import { McPlay } from "@/components/mc-play";
+
+import type { VodObject } from "@/schemas/vod";
 
 interface McPlayPageProps {
   searchParams: Promise<{
@@ -19,56 +21,6 @@ interface McPlayPageProps {
     vod_src?: string;
     index?: string;
   }>;
-}
-
-// Helper to convert CaiJi NormalizedVod to Dazahui format
-interface NormalizedVod {
-  id: string;
-  sourceKey: string;
-  sourceVodId: number;
-  title: string;
-  subtitle: string;
-  cover: string;
-  remarks: string;
-  year: string;
-  area: string;
-  language: string;
-  categories: string[];
-  actors: string[];
-  directors: string[];
-  summary: string;
-  episodes: Record<string, Record<string, string>>;
-  doubanId: number | null;
-  doubanScore: number | null;
-  updatedAt: string;
-  hits: number;
-  typeName: string;
-}
-
-function vodToDazahui(vod: NormalizedVod): Dazahui {
-  // Flatten episodes: prefer m3u8 sources
-  const sourceKeys = Object.keys(vod.episodes);
-  const m3u8Source = sourceKeys.find((k) => k.toLowerCase().includes("m3u8"));
-  const selectedSource = m3u8Source || sourceKeys[0];
-  const m3u8_urls = selectedSource ? vod.episodes[selectedSource] : {};
-
-  return {
-    id: 0,
-    title: vod.title,
-    m3u8_urls,
-    language: vod.language || "",
-    cover_image: vod.cover || null,
-    year: vod.year ? parseInt(vod.year) || null : null,
-    region: vod.area || null,
-    summary: vod.summary || null,
-    casting: vod.actors?.join(",") || undefined,
-    category: vod.categories?.[0] || null,
-    source_vod_id: String(vod.sourceVodId),
-    source: vod.sourceKey,
-    douban_id: vod.doubanId ? String(vod.doubanId) : "",
-    imdb_id: "",
-    tmdb_id: "",
-  };
 }
 
 export default async function McPlayPage({ searchParams }: McPlayPageProps) {
@@ -90,7 +42,7 @@ export default async function McPlayPage({ searchParams }: McPlayPageProps) {
 
   // Find the source and fetch detail directly
   const source = getSourceByKey(sourceKey);
-  let mc_item: Dazahui | null = null;
+  let vodObject: VodObject | null = null;
 
   if (source) {
     try {
@@ -100,7 +52,7 @@ export default async function McPlayPage({ searchParams }: McPlayPageProps) {
       if (response.code === 1 && response.list && response.list.length > 0) {
         const vod = response.list[0];
         const normalized = normalizeVod(vod, sourceKey);
-        mc_item = vodToDazahui(normalized);
+        vodObject = normalizedVodToVodObject(normalized);
       }
     } catch (error) {
       console.error(`Failed to fetch detail for ${sourceKey}_${vodId}:`, error);
@@ -117,7 +69,7 @@ export default async function McPlayPage({ searchParams }: McPlayPageProps) {
         </PageLayout>
       }
     >
-      <McPlay mc_item={mc_item} />
+      <McPlay vod={vodObject} />
     </Suspense>
   );
 }

@@ -8,7 +8,7 @@ import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 
 import { useUserStore } from "@/stores/user";
 
-import { Dazahui, getVodUniqueId } from "@/schemas/dazahui";
+import { getVodUniqueId, VodObject } from "@/schemas/vod";
 
 import { SpeedTestResult } from "./types";
 import {
@@ -20,20 +20,19 @@ import {
 } from "./utils";
 
 interface MediaCardProps {
-  dazahui: Dazahui;
+  vodObject: VodObject;
   onClick?: () => void;
   showSpeedTest?: boolean;
   userId?: string; // Required for bookmark functionality
 }
 
 export function MediaCard({
-  dazahui,
+  vodObject,
   onClick,
   showSpeedTest = false,
   userId = "me",
 }: MediaCardProps) {
   const {
-    id,
     cover_image,
     title,
     // summary,
@@ -44,10 +43,9 @@ export function MediaCard({
     casting,
     m3u8_urls,
     source,
-    source_vod_id,
-  } = dazahui;
+  } = vodObject;
 
-  const vodUniqueId = getVodUniqueId(dazahui);
+  const vodUniqueId = getVodUniqueId(vodObject);
 
   const [speedTestResult, setSpeedTestResult] =
     useState<SpeedTestResult | null>(null);
@@ -80,7 +78,7 @@ export function MediaCard({
     if (!userId) return;
 
     const action = isBookmarked ? "delete" : "add";
-    updateBookmarks(userId, dazahui, action);
+    updateBookmarks(userId, vodObject, action);
     if (action === "add") {
       toast.success("添加收藏夹成功");
     }
@@ -158,7 +156,7 @@ export function MediaCard({
 
   return (
     <Card
-      key={id}
+      key={vodUniqueId}
       className='group gap-3 hover:shadow-lg transition-all duration-300 cursor-pointer overflow-hidden py-3 w-full'
       onClick={onClick}
     >

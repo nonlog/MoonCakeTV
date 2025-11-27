@@ -17,7 +17,7 @@ import { Badge } from "@/components/ui/badge";
 
 import { useUserStore } from "@/stores/user";
 
-import { Dazahui, getVodUniqueId } from "@/schemas/dazahui";
+import { getVodUniqueId, VodObject } from "@/schemas/vod";
 
 import { PageLayout } from "../common/page-layout";
 
@@ -56,7 +56,7 @@ const VideoSection = React.memo(
 
 VideoSection.displayName = "VideoSection";
 
-export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
+export const McPlay = ({ vod }: { vod: VodObject | null }) => {
   const searchParams = useSearchParams();
 
   const index = searchParams.get("index") || "1";
@@ -70,14 +70,14 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
     useUserStore();
 
   const episodes = useMemo(() => {
-    if (!mc_item) {
+    if (!vod) {
       return [];
     }
-    return Object.entries(mc_item.m3u8_urls).map(([episode, url]) => ({
+    return Object.entries(vod.m3u8_urls).map(([episode, url]) => ({
       episode,
       url: url as string,
     }));
-  }, [mc_item]);
+  }, [vod]);
 
   useEffect(() => {
     const i = Number(index);
@@ -88,35 +88,35 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
 
   // Check if current item is bookmarked
   const isBookmarked = useMemo(() => {
-    if (!mc_item || !currentUserId) return false;
+    if (!vod || !currentUserId) return false;
     const userBookmarks = bookmarks[currentUserId];
-    const itemId = getVodUniqueId(mc_item);
+    const itemId = getVodUniqueId(vod);
     return (
       userBookmarks?.some((bookmark) => getVodUniqueId(bookmark) === itemId) ||
       false
     );
-  }, [bookmarks, currentUserId, mc_item]);
+  }, [bookmarks, currentUserId, vod]);
 
   // Handle bookmark toggle
   const handleBookmarkToggle = () => {
-    if (!mc_item || !currentUserId) return;
+    if (!vod || !currentUserId) return;
     const action = isBookmarked ? "delete" : "add";
-    updateBookmarks(currentUserId, mc_item, action);
+    updateBookmarks(currentUserId, vod, action);
   };
 
   // Update watch history when playing content
   useEffect(() => {
-    if (mc_item && mc_item.source && mc_item.source_vod_id) {
-      setWatchHistory(mc_item);
+    if (vod && vod.source && vod.source_vod_id) {
+      setWatchHistory(vod);
     }
 
     // Sanitize summary on client side only
-    if (mc_item?.summary && typeof window !== "undefined") {
-      setSanitizedSummary(DOMPurify.sanitize(mc_item.summary));
+    if (vod?.summary && typeof window !== "undefined") {
+      setSanitizedSummary(DOMPurify.sanitize(vod.summary));
     }
-  }, [mc_item]); // eslint-disable-line
+  }, [vod]); // eslint-disable-line
 
-  if (!mc_item) {
+  if (!vod) {
     return (
       <PageLayout activePath='/play'>
         <main className='max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8'>
@@ -135,7 +135,7 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
         <div className='mb-6 flex flex-col gap-4'>
           <div className='flex items-center gap-4'>
             <h1 className='text-2xl font-bold text-gray-900'>
-              {`${mc_item.title} - ${currentEpisode?.episode}`}
+              {`${vod.title} - ${currentEpisode?.episode}`}
             </h1>
             <button
               onClick={handleBookmarkToggle}
@@ -158,23 +158,23 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
             </button>
           </div>
           <div className='flex flex-wrap items-center gap-4 text-sm text-gray-600'>
-            {mc_item.year && <span>{mc_item.year}</span>}
-            {mc_item.region && <span>{mc_item.region}</span>}
-            {mc_item.category && <span>{mc_item.category}</span>}
-            {mc_item.source && (
+            {vod.year && <span>{vod.year}</span>}
+            {vod.region && <span>{vod.region}</span>}
+            {vod.category && <span>{vod.category}</span>}
+            {vod.source && (
               <Badge
                 variant='secondary'
                 className='text-xs px-2 py-1 bg-blue/70 border-green-600 backdrop-blur-sm'
               >
-                {getSourceBrand(mc_item.source)}
+                {getSourceBrand(vod.source)}
               </Badge>
             )}
           </div>
 
-          {mc_item.casting && (
+          {vod.casting && (
             <div className='flex flex-col flex-wrap gap-2'>
               <h4 className='font-semibold text-gray-900'>演职员表</h4>
-              <div className='text-sm text-gray-600'>{mc_item.casting}</div>
+              <div className='text-sm text-gray-600'>{vod.casting}</div>
             </div>
           )}
         </div>
@@ -184,15 +184,15 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
           <div className='lg:col-span-3'>
             <VideoSection
               currentEpisode={currentEpisode}
-              coverImage={mc_item.cover_image}
-              vodId={mc_item.source_vod_id}
-              vodSrc={mc_item.source}
+              coverImage={vod.cover_image}
+              vodId={vod.source_vod_id}
+              vodSrc={vod.source}
               episodes={episodes}
             />
 
             {/* Video Info */}
             <div className='mt-4 flex flex-col md:flex-row gap-4'>
-              {mc_item.summary && (
+              {vod.summary && (
                 <div className='bg-white rounded-lg shadow p-4 flex-1'>
                   <h3 className='text-lg font-semibold mb-2'>剧情简介</h3>
                   <div
@@ -204,11 +204,11 @@ export const McPlay = ({ mc_item }: { mc_item: Dazahui | null }) => {
                 </div>
               )}
 
-              {mc_item.cover_image && (
+              {vod.cover_image && (
                 <div className='bg-white dark:bg-zinc-900 rounded-lg shadow p-4 md:w-auto'>
                   <img
-                    src={mc_item.cover_image}
-                    alt={mc_item.title}
+                    src={vod.cover_image}
+                    alt={vod.title}
                     className='max-w-sm w-full rounded-lg object-cover'
                   />
                 </div>

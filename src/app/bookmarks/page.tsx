@@ -9,13 +9,13 @@ import PageLayout from "@/components/common/page-layout";
 
 import { useUserStore } from "@/stores/user";
 
-import { Dazahui } from "@/schemas/dazahui";
+import { getVodUniqueId, VodObject } from "@/schemas/vod";
 
 export default function BookmarksPage() {
   const router = useRouter();
   const { bookmarks, currentUserId } = useUserStore();
 
-  const [allBookmarks, setAllBookmarks] = useState<Dazahui[]>([]);
+  const [allBookmarks, setAllBookmarks] = useState<VodObject[]>([]);
 
   useEffect(() => {
     // Combine all bookmarks from all users into a single array
@@ -24,8 +24,8 @@ export default function BookmarksPage() {
     setAllBookmarks(userBookmarks);
   }, [bookmarks, currentUserId]);
 
-  const handleCardClick = (dazahui: Dazahui) => {
-    router.push(`/play?vod_id=${dazahui.source_vod_id}&vod_src=${dazahui.source}`);
+  const handleCardClick = (vod: VodObject) => {
+    router.push(`/play?vod_id=${vod.source_vod_id}&vod_src=${vod.source}`);
   };
 
   return (
@@ -74,8 +74,8 @@ export default function BookmarksPage() {
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
             {allBookmarks.map((bookmark) => (
               <MediaCard
-                key={bookmark.id}
-                dazahui={bookmark}
+                key={getVodUniqueId(bookmark)}
+                vodObject={bookmark}
                 userId={currentUserId}
                 showSpeedTest={false}
                 onClick={() => handleCardClick(bookmark)}

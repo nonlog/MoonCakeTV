@@ -9,9 +9,9 @@ import { MediaCard } from "@/components/common/media-card";
 import PageLayout from "@/components/common/page-layout";
 import McSearchBar from "@/components/mc-search/search-bar";
 
-import { Dazahui, getVodUniqueId } from "@/schemas/dazahui";
+import { getVodUniqueId, VodObject } from "@/schemas/vod";
 
-// Helper to convert CaiJi NormalizedVod to Dazahui format
+// Helper to convert CaiJi NormalizedVod to VodObject format
 interface NormalizedVod {
   id: string;
   sourceKey: string;
@@ -35,13 +35,12 @@ interface NormalizedVod {
   typeName: string;
 }
 
-function vodToDazahui(vod: NormalizedVod): Dazahui {
+function normalizedVodToVodObject(vod: NormalizedVod): VodObject {
   // Flatten episodes: get first source's episodes
   const firstSource = Object.keys(vod.episodes)[0];
   const m3u8_urls = firstSource ? vod.episodes[firstSource] : {};
 
   return {
-    id: 0,
     title: vod.title,
     m3u8_urls,
     language: vod.language || "",
@@ -53,9 +52,6 @@ function vodToDazahui(vod: NormalizedVod): Dazahui {
     category: vod.categories?.[0] || null,
     source_vod_id: String(vod.sourceVodId),
     source: vod.sourceKey,
-    douban_id: vod.doubanId ? String(vod.doubanId) : "",
-    imdb_id: "",
-    tmdb_id: "",
   };
 }
 
@@ -63,7 +59,7 @@ export function SearchPage() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const [keyword, setKeyword] = useState("");
-  const [results, setResults] = useState<Dazahui[]>([]);
+  const [results, setResults] = useState<VodObject[]>([]);
   const [isLoading, setIsLoading] = useState(false);
   const [hasSearched, setHasSearched] = useState(false);
 
@@ -79,12 +75,12 @@ export function SearchPage() {
       );
       const json = await res.json();
 
-      // Flatten results from all sources and convert to Dazahui format
-      const allItems: Dazahui[] = [];
+      // Flatten results from all sources and convert to VodObject format
+      const allItems: VodObject[] = [];
       if (json.data?.results) {
         for (const sourceResult of json.data.results) {
           for (const item of sourceResult.items || []) {
-            allItems.push(vodToDazahui(item));
+            allItems.push(normalizedVodToVodObject(item));
           }
         }
       }
@@ -104,8 +100,8 @@ export function SearchPage() {
       const res = await fetch(`/api/caiji/recent?limit=20`);
       const json = await res.json();
 
-      // Convert to Dazahui format
-      const items = (json.data?.items || []).map(vodToDazahui);
+      // Convert to VodObject format
+      const items = (json.data?.items || []).map(normalizedVodToVodObject);
       setResults(items);
     } catch (error) {
       console.error(error);
@@ -196,7 +192,7 @@ export function SearchPage() {
             {results.map((result) => (
               <MediaCard
                 key={getVodUniqueId(result)}
-                dazahui={result}
+                vodObject={result}
                 showSpeedTest={true}
                 onClick={() => {
                   // Handle click - navigate to play page or show details

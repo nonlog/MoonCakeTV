@@ -1,7 +1,6 @@
 import { z } from "zod";
 
-export const dazahui_schema = z.object({
-  id: z.number(),
+export const vodObjectSchema = z.object({
   title: z.string().min(1),
   m3u8_urls: z.record(z.string().min(1), z.string().min(1)),
   language: z.string(), // Can be empty string
@@ -13,14 +12,11 @@ export const dazahui_schema = z.object({
   category: z.string().nullable().optional(),
   source_vod_id: z.string(),
   source: z.string(),
-  douban_id: z.string(), // Can be empty string
-  imdb_id: z.string(), // Can be empty string
-  tmdb_id: z.string(), // Can be empty string
 });
 
-export type Dazahui = z.infer<typeof dazahui_schema>;
+export type VodObject = z.infer<typeof vodObjectSchema>;
 
 // Helper to generate unique ID from source and vod_id
-export function getVodUniqueId(dazahui: Dazahui): string {
-  return `${dazahui.source}_${dazahui.source_vod_id}`;
+export function getVodUniqueId(vod: VodObject): string {
+  return `${vod.source}_${vod.source_vod_id}`;
 }

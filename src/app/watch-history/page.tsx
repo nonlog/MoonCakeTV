@@ -8,14 +8,14 @@ import PageLayout from "@/components/common/page-layout";
 
 import { useUserStore } from "@/stores/user";
 
-import { Dazahui } from "@/schemas/dazahui";
+import { getVodUniqueId, VodObject } from "@/schemas/vod";
 
 export default function WatchHistoryPage() {
   const router = useRouter();
   const { watchHistory, setWatchHistory, currentUserId } = useUserStore();
 
-  const handleCardClick = (dazahui: Dazahui) => {
-    router.push(`/play?vod_id=${dazahui.source_vod_id}&vod_src=${dazahui.source}`);
+  const handleCardClick = (vod: VodObject) => {
+    router.push(`/play?vod_id=${vod.source_vod_id}&vod_src=${vod.source}`);
   };
 
   const handleClearHistory = () => {
@@ -82,8 +82,8 @@ export default function WatchHistoryPage() {
           <div className='grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'>
             {watchHistory.map((historyItem, index) => (
               <MediaCard
-                key={`${historyItem.id}-${index}`}
-                dazahui={historyItem}
+                key={`${getVodUniqueId(historyItem)}-${index}`}
+                vodObject={historyItem}
                 userId={currentUserId}
                 showSpeedTest={false}
                 onClick={() => handleCardClick(historyItem)}
