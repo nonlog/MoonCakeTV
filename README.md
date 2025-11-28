@@ -33,6 +33,30 @@ bash <(curl -fsSL https://raw.githubusercontent.com/MoonCakeTV/MoonCakeTV/main/d
 
 ---
 
+## 🏠 在 NAS 或内网环境部署（无 HTTPS）：
+
+```yaml
+services:
+  mooncaketv:
+    image: ghcr.io/mooncaketv/mooncaketv:latest
+    container_name: mooncaketv
+    ports:
+      - "xxxx:3333"
+    environment:
+      - JWT_SECRET=修改此处，换成一个随机字符串
+      - NODE_ENV=production
+      - ALLOW_HTTP_COOKIES=1
+    volumes:
+      - ./data:/app/data
+    restart: unless-stopped
+```
+
+- **关键配置**：`ALLOW_HTTP_COOKIES=1` 允许在 HTTP 下使用 cookies（登录功能）
+- **关键配置**：`"xxxx:3333"`, xxxx是你的端口，mooncaketv的端口是3333
+- 访问地址：`http://你的IP地址:xxxx`
+
+---
+
 ## ✨ 特性
 
 - 🔍 多源聚合搜索（苹果CMS v10 协议）
