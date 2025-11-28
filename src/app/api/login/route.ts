@@ -52,9 +52,14 @@ export async function POST(req: NextRequest) {
     });
 
     // Set HTTP-only cookie
+    // For NAS/internal network: set ALLOW_HTTP_COOKIES=1 to allow cookies over HTTP
+    const allowHttpCookies = process.env.ALLOW_HTTP_COOKIES === "1";
+    const useSecureCookies =
+      process.env.NODE_ENV === "production" && !allowHttpCookies;
+
     response.cookies.set("mc-auth-token", token, {
       httpOnly: true,
-      secure: process.env.NODE_ENV === "production",
+      secure: useSecureCookies,
       sameSite: "lax",
       maxAge: AUTH_CONSTANTS.COOKIE_MAX_AGE,
       path: "/",
