@@ -33,7 +33,51 @@ bash <(curl -fsSL https://raw.githubusercontent.com/MoonCakeTV/MoonCakeTV/main/d
 
 ---
 
-## 🏠 在 NAS 或内网环境部署（无 HTTPS）：
+## 🏠 在 NAS 或内网环境部署（无 HTTPS）
+
+### 方式一：Docker Run（最简单）
+
+```bash
+docker run -d \
+  --name mooncaketv \
+  -p 3333:3333 \
+  -e JWT_SECRET=修改此处换成随机字符串 \
+  -e NODE_ENV=production \
+  -e ALLOW_HTTP_COOKIES=1 \
+  -v /your/data/path:/app/data \
+  --restart unless-stopped \
+  ghcr.io/mooncaketv/mooncaketv:latest
+```
+
+**Synology NAS 示例：**
+
+```bash
+docker run -d \
+  --name mooncaketv \
+  -p 3333:3333 \
+  -e JWT_SECRET=$(openssl rand -hex 32) \
+  -e NODE_ENV=production \
+  -e ALLOW_HTTP_COOKIES=1 \
+  -v /volume1/docker/mooncaketv/data:/app/data \
+  --restart unless-stopped \
+  ghcr.io/mooncaketv/mooncaketv:latest
+```
+
+**飞牛NAS (fnOS) 示例：**
+
+```bash
+docker run -d \
+  --name mooncaketv \
+  -p 3333:3333 \
+  -e JWT_SECRET=$(openssl rand -hex 32) \
+  -e NODE_ENV=production \
+  -e ALLOW_HTTP_COOKIES=1 \
+  -v /vol1/1000/docker/mooncaketv/data:/app/data \
+  --restart unless-stopped \
+  ghcr.io/mooncaketv/mooncaketv:latest
+```
+
+### 方式二：Docker Compose
 
 ```yaml
 services:
@@ -41,7 +85,7 @@ services:
     image: ghcr.io/mooncaketv/mooncaketv:latest
     container_name: mooncaketv
     ports:
-      - "xxxx:3333"
+      - "XXXX:3333"
     environment:
       - JWT_SECRET=修改此处，换成一个随机字符串
       - NODE_ENV=production
@@ -51,9 +95,12 @@ services:
     restart: unless-stopped
 ```
 
-- **关键配置**：`ALLOW_HTTP_COOKIES=1` 允许在 HTTP 下使用 cookies（登录功能）
-- **关键配置**：`"xxxx:3333"`, xxxx是你的端口，mooncaketv的端口是3333
-- 访问地址：`http://你的IP地址:xxxx`
+### 说明
+
+- **`ALLOW_HTTP_COOKIES=1`**：允许在 HTTP 下使用 cookies（登录功能必需）
+- **`-v /your/data/path:/app/data`**：数据持久化目录，存储收藏、历史、设置
+- **端口**：容器内部端口是 `3333`，可映射到任意外部端口，XXXX替换为任意端口，比如6666
+- 访问地址：`http://你的IP地址:3333`
 
 ---
 
