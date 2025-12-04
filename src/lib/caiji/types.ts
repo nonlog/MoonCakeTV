@@ -105,6 +105,14 @@ export interface CaijiVod {
 export interface CaijiSource {
   key: string;
   name: string;
+  /**
+   * Full API URL including path.
+   * Supports various MacCMS API paths:
+   * - Standard: https://example.com/api.php/provide/vod
+   * - Custom: https://example.com/api/json
+   * - Custom: https://example.com/inc/api_mac10.php
+   * - Custom: https://example.com/inc/apijson.php
+   */
   api: string;
   enabled: boolean;
   priority: number;
